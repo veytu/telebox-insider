@@ -9546,9 +9546,9 @@ side-channel@^1.0.4:
     get-intrinsic "^1.0.2"
     object-inspect "^1.9.0"
 
-side-effect-manager@^0.1.5:
+side-effect-manager@0.1.5, side-effect-manager@^0.1.5:
   version "0.1.5"
-  resolved "https://registry.yarnpkg.com/side-effect-manager/-/side-effect-manager-0.1.5.tgz#d9b205e4317b60f90876f6ad498a1ac7e038c7d7"
+  resolved "https://registry.npmjs.org/side-effect-manager/-/side-effect-manager-0.1.5.tgz#d9b205e4317b60f90876f6ad498a1ac7e038c7d7"
   integrity sha512-aAEXMS+9qW7rY2cwq4S6UjW3IBO/ZLWRI0sH1oGJ1eDE7YBFR1TW950qffnpx/0hByusAOVbu2zjThk9Vcjs+Q==
 
 signal-exit@^3.0.0, signal-exit@^3.0.2:
