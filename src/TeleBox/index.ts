@@ -178,6 +178,11 @@ export class TeleBox {
         const collectorRect$ = createVal(collectorRect, shallowequal);
 
         const title$ = createVal(title);
+        title$.reaction((title, _, skipUpdate) => {
+            if (!skipUpdate) {
+                this.titleBar.setTitle(title);
+            }
+        });
 
         const visible$ = createVal(visible);
         visible$.reaction((visible, _, skipUpdate) => {
