@@ -1,167 +1,374 @@
-import "./style.scss";
-import collectorSVG from "./icons/collector.svg";
-import type { TeleStyles } from "../typings";
-import type {
-    ReadonlyVal,
-    ReadonlyValEnhancedResult,
-    ValEnhancedResult,
-} from "value-enhancer";
-import { derive } from "value-enhancer";
-import {
-    withValueEnhancer,
-    Val,
-    withReadonlyValueEnhancer,
-    ValManager,
-} from "value-enhancer";
-import { SideEffectManager } from "side-effect-manager";
-import type { TeleBoxRect } from "../TeleBox/typings";
+import './style.scss'
+import collectorSVG from './icons/collector.svg'
+import type { TeleStyles } from '../typings'
+import type { TeleBox } from '../TeleBox'
+import { createSideEffectBinder } from 'value-enhancer'
+import type { Val } from 'value-enhancer'
+import { SideEffectManager } from 'side-effect-manager'
+import { onTickEnd } from '../schedulers'
+import { getHiddenElementSize } from './utils'
+import { isAndroid, isIOS } from '../utils'
 
 export interface TeleBoxCollectorConfig {
-    namespace?: string;
-    styles?: TeleStyles;
-    root: HTMLElement;
-    minimized$: ReadonlyVal<boolean>;
-    readonly$: ReadonlyVal<boolean>;
-    darkMode$: ReadonlyVal<boolean>;
-    onClick?: () => void;
+    visible?: boolean
+    readonly?: boolean
+    darkMode?: boolean
+    namespace?: string
+    styles?: TeleStyles
+    onClick?: () => void
+    minimizedBoxes?: string[]
+    boxes?: TeleBox[]
+    externalEvents?: any
+    appReadonly?: boolean
 }
-
-type ValConfig = {
-    styles: Val<TeleStyles>;
-    $collector: Val<HTMLElement>;
-};
-
-type MyReadonlyValConfig = {
-    rect: ReadonlyVal<TeleBoxRect | undefined>;
-    visible: ReadonlyVal<boolean>;
-};
-
-type CombinedValEnhancedResult = ValEnhancedResult<ValConfig> &
-    ReadonlyValEnhancedResult<MyReadonlyValConfig>;
-
-export interface TeleBoxCollector extends CombinedValEnhancedResult {}
 
 export class TeleBoxCollector {
     public constructor({
-        minimized$,
-        readonly$,
-        darkMode$,
-        namespace = "telebox",
+        visible = true,
+        readonly = false,
+        darkMode = false,
+        namespace = 'telebox',
         styles = {},
-        root,
         onClick,
-    }: TeleBoxCollectorConfig) {
-        this.namespace = namespace;
+        minimizedBoxes = [],
+        boxes = [],
+        externalEvents,
+        appReadonly
+    }: TeleBoxCollectorConfig = {}) {
+        this.externalEvents = externalEvents
+        this._sideEffect = new SideEffectManager()
+        const { createVal } = createSideEffectBinder(this._sideEffect as any)
+        this._visible = visible
+        this._readonly = readonly
+        this._darkMode = darkMode
+        this.namespace = namespace
+        this.styles = styles
+        this.minimizedBoxes = minimizedBoxes
+        this.boxes = boxes
+        this.onClick = onClick
+        this.appReadonly = appReadonly
 
-        const valManager = new ValManager();
-        this._sideEffect.addDisposer(() => valManager.destroy());
+        this.popupVisible$ = createVal(false)
 
-        const rect$ = new Val<TeleBoxRect | undefined>(void 0);
-        const visible$ = derive(minimized$);
-        const styles$ = new Val(styles);
-        const el$ = new Val<HTMLElement>(document.createElement("button"));
+        this.popupVisible$.reaction((popupVisible) => {
+            this.$titles?.classList.toggle(
+                this.wrapClassName("collector-hide"),
+                !popupVisible
+            );
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                    this.$titles?.classList.toggle(
+                        this.wrapClassName(
+                            "collector-titles-visible"
+                        ),
+                        popupVisible
+                    );
+                });
+            });
+        })
 
-        const valConfig: ValConfig = {
-            styles: styles$,
-            $collector: el$,
+        const blurPopup = (ev: PointerEvent): void => {
+            if (!this.popupVisible$) return
+
+            const target = ev.target as HTMLElement
+
+            if (target.className?.includes?.('collector')) return
+
+            this.popupVisible$.setValue(false)
         };
-
-        withValueEnhancer(this, valConfig, valManager);
-
-        const myReadonlyValConfig: MyReadonlyValConfig = {
-            rect: rect$,
-            visible: visible$,
-        };
-
-        withReadonlyValueEnhancer(this, myReadonlyValConfig, valManager);
-
-        el$.value.className = this.wrapClassName("collector");
-        el$.value.style.backgroundImage = `url('${collectorSVG}')`;
-
-        this._sideEffect.addDisposer(
-            el$.subscribe(($collector) => {
-                this._sideEffect.add(() => {
-                    root.appendChild($collector);
-                    return () => $collector.remove();
-                }, "telebox-collector-mount");
-
-                this._sideEffect.addEventListener(
-                    $collector,
-                    "click",
-                    () => {
-                        if (!readonly$.value) {
-                            onClick?.();
-                        }
-                    },
-                    {},
-                    "telebox-collector-click"
-                );
-
-                this._sideEffect.addDisposer(
-                    [
-                        visible$.subscribe((visible) => {
-                            $collector.classList.toggle(
-                                this.wrapClassName("collector-visible"),
-                                visible
-                            );
-                        }),
-                        readonly$.subscribe((readonly) => {
-                            $collector.classList.toggle(
-                                this.wrapClassName("collector-readonly"),
-                                readonly
-                            );
-                        }),
-                        darkMode$.subscribe((darkMode) => {
-                            $collector.classList.toggle(
-                                this.wrapClassName("color-scheme-dark"),
-                                darkMode
-                            );
-                            $collector.classList.toggle(
-                                this.wrapClassName("color-scheme-light"),
-                                !darkMode
-                            );
-                        }),
-                        styles$.subscribe((styles) => {
-                            Object.keys(styles).forEach((key) => {
-                                const value = styles[
-                                    key as keyof TeleStyles
-                                ] as string;
-                                if (value != null) {
-                                    $collector.style[key as keyof TeleStyles] =
-                                        value;
-                                }
-                            });
-                        }),
-                        // Place after $collector appended to the DOM so that rect calc works
-                        minimized$.subscribe((minimized) => {
-                            if (minimized) {
-                                const { x, y, width, height } =
-                                    $collector.getBoundingClientRect();
-                                const rootRect = root.getBoundingClientRect();
-                                rect$.setValue({
-                                    x: x - rootRect.x,
-                                    y: y - rootRect.y,
-                                    width,
-                                    height,
-                                });
-                            }
-                        }),
-                    ],
-                    "telebox-collector-el"
-                );
-            })
+        this._sideEffect.addEventListener(
+            window,
+            "pointerdown",
+            blurPopup,
+            true
         );
     }
 
-    public readonly namespace: string;
+    public readonly styles: TeleStyles
 
-    protected readonly _sideEffect = new SideEffectManager();
+    public readonly namespace: string
+    private appReadonly: boolean | undefined
+
+    public get visible(): boolean {
+        return this._visible
+    }
+
+    public get readonly(): boolean {
+        return this._readonly
+    }
+
+    public get darkMode(): boolean {
+        return this._darkMode
+    }
+
+    private externalEvents: any
+
+    public onClick: ((boxId: string) => void) | undefined
+
+    public $collector: HTMLElement | undefined
+    private wrp$: HTMLElement | undefined
+    private count$: HTMLElement | undefined
+    private $titles: HTMLElement | undefined
+    protected root: HTMLElement | undefined
+
+    /**
+     * Mount collector to a root element.
+     */
+    public mount(root: HTMLElement): this {
+        this.render(root)
+        this.root = root
+        return this
+    }
+
+    /**
+     * Unmount collector from the root element.
+     */
+    public unmount(): this {
+        if (this.$collector) {
+            this.$collector.remove()
+        }
+        return this
+    }
+
+    public setVisible(visible: boolean): this {
+        if (this._visible !== visible) {
+            this._visible = visible
+            if (this.$collector) {
+                // this.$collector.classList.toggle(this.wrapClassName('collector-visible'), visible)
+                this.wrp$?.classList.toggle(this.wrapClassName('collector-visible'), visible)
+                if (!visible) {
+                    this.popupVisible$.setValue(false)
+                } else {
+                    this.renderTitles()
+                }
+            }
+        }
+        return this
+    }
+
+    public setReadonly(readonly: boolean): this {
+        if (this._readonly !== readonly) {
+            this._readonly = readonly
+            if (this.$collector) {
+                this.$collector.classList.toggle(this.wrapClassName('collector-readonly'), readonly)
+            }
+        }
+        return this
+    }
+
+    public setDarkMode(darkMode: boolean): this {
+        if (this._darkMode !== darkMode) {
+            this._darkMode = darkMode
+            if (this.$collector) {
+                this.$collector.classList.toggle(this.wrapClassName('color-scheme-dark'), darkMode)
+                this.$collector.classList.toggle(
+                    this.wrapClassName('color-scheme-light'),
+                    !darkMode
+                )
+            }
+        }
+        return this
+    }
+
+    public setStyles(styles: TeleStyles): this {
+        Object.assign(this.styles, styles)
+        if (this.wrp$) {
+            const $collector = this.wrp$
+            Object.keys(styles).forEach((key) => {
+                const value = styles[key as keyof TeleStyles] as string
+                if (value != null) {
+                    $collector.style[key as keyof TeleStyles] = value
+                }
+            })
+        }
+        return this
+    }
+
+    public setMinimizedBoxes(boxes: string[]): void {
+        this.minimizedBoxes = boxes
+        if (this.count$) {
+            this.count$.textContent = String(this.minimizedBoxes?.length) || '0'
+        }
+
+        this.renderTitles()
+    }
+
+    public setBoxes (boxes: TeleBox[]):void {
+        this.boxes = boxes
+        this.renderTitles()
+    }
+
+    public render(root: HTMLElement): HTMLElement {
+        if (isAndroid() || isIOS()) {
+            const nonElement = document.createElement('div')
+            nonElement.className = this.wrapClassName('collector-hide')
+            return nonElement
+        }
+        if (!this.$collector) {
+            this.$collector = document.createElement('button')
+            this.$collector.className = this.wrapClassName('collector')
+            this.$collector.style.backgroundImage = `url('${collectorSVG}')`
+            this.wrp$ = document.createElement('div')
+            this.count$ = document.createElement('div')
+
+            this.wrp$.className = this.wrapClassName('collector-wrp')
+            this.count$.className = this.wrapClassName('collector-count')
+
+            this.wrp$.appendChild(this.count$)
+            this.wrp$.appendChild(this.$collector)
+
+            this.wrp$.addEventListener('click', this.handleCollectorClick)
+
+            if (this._visible) {
+                // this.$collector.classList.add(this.wrapClassName('collector-visible'))
+                this.wrp$.classList.toggle(this.wrapClassName('collector-visible'))
+
+                this.renderTitles();
+            }
+
+            if (this._readonly) {
+                this.$collector.classList.add(this.wrapClassName('collector-readonly'))
+            }
+
+            this.$collector.classList.add(
+                this.wrapClassName(this._darkMode ? 'color-scheme-dark' : 'color-scheme-light')
+            )
+
+            this.setStyles(this.styles)
+            root.appendChild(this.wrp$)
+        }
+
+        return this.$collector
+    }
+
+    protected renderTitles(): HTMLElement {
+        if (!this.$titles) {
+            this.$titles = document.createElement('div')
+            this.$titles.className = this.wrapClassName('collector-titles')
+
+            this.$titles.classList.toggle(
+                this.wrapClassName('collector-hide'),
+                !this.popupVisible$.value
+            )
+        }
+
+        this._sideEffect.addEventListener(
+            this.$titles,
+            'wheel',
+            (ev) => {
+                if (!ev.deltaX) {
+                    (ev.currentTarget as HTMLElement).scrollBy({
+                        left: ev.deltaY > 0 ? 250 : -250,
+                        behavior: 'smooth'
+                    })
+                }
+            },
+            { passive: false },
+            'min-popup-render-wheel-titles'
+        )
+
+        const existContent: HTMLDivElement = this.$titles.querySelector(
+            `.${this.wrapClassName('collector-titles-content')}`
+        ) as HTMLDivElement
+        const $content: HTMLDivElement = existContent ?? document.createElement('div')
+        $content.className = this.wrapClassName('collector-titles-content')
+        if (!existContent) {
+            this.$titles.appendChild($content)
+
+            this._sideEffect.addEventListener(
+                $content,
+                'click',
+                (ev) => {
+                    const target = ev.target as HTMLElement
+                    if (target.dataset?.teleBoxID?.length) {
+                        this.onClick?.(target.dataset?.teleBoxID)
+                    }
+                },
+                {},
+                'telebox-collector-titles-content-click'
+            )
+        }
+
+        $content.innerHTML = ''
+
+        const disposers = this.boxes?.filter((box) => this.minimizedBoxes?.includes(box.id))
+            .map((box) => {
+                const $tab = document.createElement('button')
+                $tab.className = this.wrapClassName('collector-titles-tab')
+                $tab.textContent = box.title
+                $tab.dataset.teleBoxID = box.id
+                $tab.dataset.teleTitleBarNoDblClick = 'true'
+
+                $content.appendChild($tab)
+
+                return box._title$.reaction((title) => ($tab.textContent = title))
+            })
+
+        this._sideEffect.addDisposer(
+            () => disposers?.forEach((disposer) => disposer()),
+            'min-popup-render-tab-titles'
+        )
+
+        const existTitles = this.wrp$?.querySelector(
+            `.${this.wrapClassName('collector-titles')}`
+        )
+        if (!existTitles) {
+            this.wrp$?.appendChild(this.$titles)
+        } else {
+            this.wrp$?.replaceChild(this.$titles, existTitles)
+        }
+
+        onTickEnd(() => {
+            if (!this.$titles) return
+            if (!this.wrp$) return
+            if (!this.root) return
+
+            const parentRect = this.wrp$?.getBoundingClientRect()
+            const rootRect = this.root?.getBoundingClientRect()
+            const popupSize = getHiddenElementSize(this.$titles)
+
+            const isAvailableSpaceTop = parentRect.top - rootRect.top > popupSize.height
+
+            const topPosition = -popupSize.height - 10
+            if (!isAvailableSpaceTop) {
+                // const availableHeight = parentRect.top > 60 ? parentRect.top : 60
+                // this.$titles.style.height = `${availableHeight}px`
+            }
+
+
+            this.$titles.style.top = `${topPosition}px`
+            this.$titles.style.left = `0px`
+        })
+
+        return this.$titles
+    }
 
     public destroy(): void {
-        this._sideEffect.flushAll();
+        if (this.$collector) {
+            this.$collector.removeEventListener('click', this.handleCollectorClick)
+            this.$collector.remove()
+            this.$collector = void 0
+        }
+        this.onClick = void 0
     }
 
     public wrapClassName(className: string): string {
-        return `${this.namespace}-${className}`;
+        return `${this.namespace}-${className}`
     }
+
+    protected _visible: boolean
+
+    protected _readonly: boolean
+
+    protected _darkMode: boolean
+    protected minimizedBoxes: TeleBoxCollectorConfig['minimizedBoxes']
+    protected boxes: TeleBoxCollectorConfig['boxes']
+
+    protected handleCollectorClick = (): void => {
+        if (!this._readonly && this.onClick) {
+            this.popupVisible$.setValue(!this.popupVisible$.value)
+        }
+    }
+    protected _sideEffect: SideEffectManager
+    protected popupVisible$: Val<boolean>
 }

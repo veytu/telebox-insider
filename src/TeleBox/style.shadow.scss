@@ -22,7 +22,12 @@
     align-items: center;
     position: relative;
 }
-
+.#{$namespace}-content-wrap {
+    width: 100%;
+    flex: 1;
+    @include clr(background-color, boxContainerBackground);
+    position: relative;
+}
 .#{$namespace}-content {
     width: 100%;
     height: 100%;
@@ -34,9 +39,9 @@
     position: absolute;
     z-index: 1;
     overflow: hidden;
-
+    overflow-y: auto;
     @include clr(background-color, boxStageBackground);
-    @include clr(box-shadow, boxStageShadow);
+    // @include clr(box-shadow, boxStageShadow);
 }
 
 .#{$namespace}-footer-wrap {
@@ -67,7 +72,7 @@
 
     .#{$namespace}-box-stage {
         @include clr-dark(background-color, boxStageBackground);
-        @include clr-dark(box-shadow, boxStageShadow);
+        // @include clr-dark(box-shadow, boxStageShadow);
     }
 
     .#{$namespace}-footer-wrap {

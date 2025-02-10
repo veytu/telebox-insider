@@ -5,9 +5,10 @@
     @include no-user-select;
 
     box-sizing: border-box;
-    height: 26px;
+    height: 2.778vw;
     display: flex;
     align-items: center;
+    justify-content: space-between;
     user-select: none;
     touch-action: manipulation;
 
@@ -17,7 +18,7 @@
 }
 
 .#{$namespace}-title-area {
-    padding-left: 16px;
+    padding-left: 1.11vw;
     overflow: hidden;
     position: relative;
     height: 100%;
@@ -33,12 +34,13 @@
     overflow: hidden;
     margin: 0;
     padding: 0;
-    font-size: 14px;
+    font-size: 1vw;
     font-weight: 400;
     font-family: PingFangSC-Regular, PingFang SC;
     white-space: nowrap;
     word-break: keep-all;
     text-overflow: ellipsis;
+    flex: 1;
 }
 
 .#{$namespace}-drag-area {
@@ -54,18 +56,24 @@
 }
 
 .#{$namespace}-titlebar-btns {
-    padding-right: 16px;
+    padding-right: 1.11vw;
     white-space: nowrap;
     word-break: keep-all;
     margin-left: auto;
     font-size: 0;
+    z-index: 11;
+}
+
+.#{$namespace}-titlebar-btns-disable {
+    visibility: hidden;
+    pointer-events: none;
 }
 
 .#{$namespace}-titlebar-btn {
     @include no-user-select;
 
-    width: 22px;
-    height: 22px;
+    width: 1.528vw;
+    height: 1.528vw;
     padding: 0;
     outline: none;
     border: none;
@@ -73,18 +81,22 @@
     cursor: pointer;
 
     & ~ & {
-        margin-left: 10px;
+        margin-left: 0.694vw;
     }
 }
 
 .#{$namespace}-titlebar-btn-icon {
-    width: 22px;
-    height: 22px;
+    width: 1.667vw;
+    height: 1.667vw;
 }
 
 .#{$namespace}-readonly {
     .#{$namespace}-titlebar-btn {
         cursor: not-allowed;
+    }
+    .#{$namespace}-titlebar-btns {
+        visibility: hidden;
+        pointer-events: none;
     }
 }
 

@@ -8,28 +8,38 @@
     top: 0;
     left: 0;
     z-index: $base-z-index;
-    transition: width 0.4s cubic-bezier(0.4, 0.9, 0.71, 1.02),
-        height 0.4s cubic-bezier(0.55, 0.82, 0.63, 0.95),
-        opacity 0.6s cubic-bezier(0.7, 0, 0.84, 0), transform 0.4s ease;
+    transition: box-shadow 0.3s ease;
 }
 
 .#{$namespace}-box-main {
     @include clr(border, boxBorder);
-    @include clr(box-shadow, boxShadow);
-
+    transition: box-shadow 0.3s cubic-bezier(0.4, 0.9, 0.71, 1.02);
     position: relative;
     width: 100%;
     height: 100%;
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    border-radius: 6px;
+    border-radius: 8px;
+    &:hover {
+        @include clr(box-shadow, boxShadow);
+    }
 }
 
 .#{$namespace}-titlebar-wrap {
     flex-shrink: 0;
     position: relative;
     z-index: 1;
+}
+
+.#{$namespace}-maximized {
+    .#{$namespace}-box-main {
+      .#{$namespace}-titlebar-wrap {
+        display: none !important;
+      }
+      border: 0px;
+      border-radius: 0;
+    }
 }
 
 .#{$namespace}-main {
@@ -53,7 +63,9 @@
     // enable pointermove event on touch devices
     touch-action: none;
 }
-
+.#{$namespace}-footer-hide {
+    display: none;
+}
 .#{$namespace}-n {
     width: 100%;
     height: 5px;
@@ -176,17 +188,14 @@
 }
 
 .#{$namespace}-minimized {
-    transition: width 0.05s cubic-bezier(0.4, 0.9, 0.71, 1.02),
-        height 0.05s cubic-bezier(0.55, 0.82, 0.63, 0.95),
-        opacity 0.6s cubic-bezier(0.7, 0, 0.84, 0), transform 0.6s ease;
-    opacity: 0;
     pointer-events: none;
     user-select: none;
+    display: none !important;
 }
 
 .#{$namespace}-transforming {
     will-change: transform;
-    transition: opacity 0.6s cubic-bezier(0.7, 0, 0.84, 0);
+    // transition: opacity 0.6s cubic-bezier(0.7, 0, 0.84, 0);
 }
 
 .#{$namespace}-readonly {
@@ -202,5 +211,11 @@
     .#{$namespace}-box-main {
         @include clr-dark(border, boxBorder);
         @include clr-dark(box-shadow, boxShadow);
+    }
+}
+
+.hide-scroll {
+    &::-webkit-scrollbar {
+        display: none;
     }
 }
