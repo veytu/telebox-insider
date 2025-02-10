@@ -114,6 +114,7 @@ export class TeleBoxManager {
 
         const input_minimized$ = new Val(minimized);
         const input_maximized$ = new Val(maximized);
+        const boxCount = new Val(0);
         const maximized$ = combine(
             [input_maximized$, fullscreen$],
             ([maximized, fullscreen]) => (fullscreen ? true : maximized)
@@ -126,6 +127,8 @@ export class TeleBoxManager {
             input_maximized$.setValue(maximized, skipUpdate);
         this.setMinimized = (minimized, skipUpdate) =>
             input_minimized$.setValue(minimized, skipUpdate);
+        this.delBoxCount = (count) => boxCount.setValue(count ?? boxCount.value - 1);
+        this.addBoxCount = (count) => boxCount.setValue(count ?? boxCount.value + 1);
 
         const rootRect$ = new Val<TeleBoxRect>(
             {
@@ -385,6 +388,7 @@ export class TeleBoxManager {
                 readonly$: readonly$,
                 darkMode$: darkMode$,
                 namespace,
+                boxCount: boxCount,
                 root: this.$container,
                 onClick: () => input_minimized$.setValue(false),
             });
@@ -473,6 +477,8 @@ export class TeleBoxManager {
 
     public setMinimized: (minimized: boolean, skipUpdate?: boolean) => void;
     public setMaximized: (maximized: boolean, skipUpdate?: boolean) => void;
+    public delBoxCount: (count?: number) => void
+    public addBoxCount: (count?: number) => void
 
     /** @deprecated use setMaximized and setMinimized instead */
     public setState(state: TeleBoxState, skipUpdate = false): this {
@@ -567,6 +573,7 @@ export class TeleBoxManager {
 
         this.events.emit(TELE_BOX_MANAGER_EVENT.Created, box);
 
+        this.addBoxCount()
         return box;
     }
 
@@ -621,6 +628,7 @@ export class TeleBoxManager {
                 }
                 this.events.emit(TELE_BOX_MANAGER_EVENT.Removed, deletedBoxes);
             }
+            this.delBoxCount()
             return deletedBoxes[0];
         }
         return;
@@ -644,6 +652,7 @@ export class TeleBoxManager {
             }
             this.events.emit(TELE_BOX_MANAGER_EVENT.Removed, deletedBoxes);
         }
+        this.delBoxCount(0)
         return deletedBoxes;
     }
 

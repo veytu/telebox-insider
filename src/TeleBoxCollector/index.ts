@@ -23,12 +23,17 @@ export interface TeleBoxCollectorConfig {
     minimized$: ReadonlyVal<boolean>;
     readonly$: ReadonlyVal<boolean>;
     darkMode$: ReadonlyVal<boolean>;
+    boxCount: ReadonlyVal<number>;
     onClick?: () => void;
 }
 
 type ValConfig = {
     styles: Val<TeleStyles>;
     $collector: Val<HTMLElement>;
+};
+
+type WrpValConfig = {
+    $wrp: Val<HTMLElement>;
 };
 
 type MyReadonlyValConfig = {
@@ -46,6 +51,7 @@ export class TeleBoxCollector {
         minimized$,
         readonly$,
         darkMode$,
+        boxCount,
         namespace = "telebox",
         styles = {},
         root,
@@ -60,6 +66,8 @@ export class TeleBoxCollector {
         const visible$ = derive(minimized$);
         const styles$ = new Val(styles);
         const el$ = new Val<HTMLElement>(document.createElement("button"));
+        const wrp$ = new Val<HTMLElement>(document.createElement("div"));
+        const count$ = new Val<HTMLElement>(document.createElement("div"));
 
         const valConfig: ValConfig = {
             styles: styles$,
@@ -78,10 +86,16 @@ export class TeleBoxCollector {
         el$.value.className = this.wrapClassName("collector");
         el$.value.style.backgroundImage = `url('${collectorSVG}')`;
 
+        wrp$.value.className = this.wrapClassName("collector-wrp")
+        count$.value.className = this.wrapClassName("collector-count")
+
+        wrp$.value.appendChild(count$.value)
+
         this._sideEffect.addDisposer(
             el$.subscribe(($collector) => {
                 this._sideEffect.add(() => {
-                    root.appendChild($collector);
+                    root.appendChild(wrp$.value)
+                    wrp$.value.appendChild($collector);
                     return () => $collector.remove();
                 }, "telebox-collector-mount");
 
@@ -104,9 +118,20 @@ export class TeleBoxCollector {
                                 this.wrapClassName("collector-visible"),
                                 visible
                             );
+                            wrp$.value.classList.toggle(
+                                this.wrapClassName("collector-visible"),
+                                visible
+                            );
+                        }),
+                        boxCount.subscribe((count) => {
+                            count$.value.innerHTML = count.toString();
                         }),
                         readonly$.subscribe((readonly) => {
-                            $collector.classList.toggle(
+                            // $collector.classList.toggle(
+                            //     this.wrapClassName("collector-readonly"),
+                            //     readonly
+                            // );
+                            wrp$.value.classList.toggle(
                                 this.wrapClassName("collector-readonly"),
                                 readonly
                             );
@@ -120,6 +145,14 @@ export class TeleBoxCollector {
                                 this.wrapClassName("color-scheme-light"),
                                 !darkMode
                             );
+                            wrp$.value.classList.toggle(
+                                this.wrapClassName("color-scheme-dark"),
+                                darkMode
+                            );
+                            wrp$.value.classList.toggle(
+                                this.wrapClassName("color-scheme-light"),
+                                !darkMode
+                            );
                         }),
                         styles$.subscribe((styles) => {
                             Object.keys(styles).forEach((key) => {
@@ -127,7 +160,7 @@ export class TeleBoxCollector {
                                     key as keyof TeleStyles
                                 ] as string;
                                 if (value != null) {
-                                    $collector.style[key as keyof TeleStyles] =
+                                    wrp$.value.style[key as keyof TeleStyles] =
                                         value;
                                 }
                             });

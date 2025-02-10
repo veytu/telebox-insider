@@ -1,15 +1,36 @@
 @import "../scss/variables.scss";
 @import "../scss/mixins.scss";
 
+.#{$namespace}-collector-wrp {
+    @include no-user-select;
+
+    visibility: hidden;
+    position: absolute;
+    z-index: $collector-z-index;
+    border-radius: 50%;
+    cursor: pointer;
+    user-select: none;
+    pointer-events: none;
+    background-color: #fff;
+    height: 56px;
+    width: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+    padding: 0;
+    border: none;
+    outline: none;
+    @include clr(box-shadow, collectorShadow);
+}
+
 .#{$namespace}-collector {
     @include no-user-select;
 
     visibility: hidden;
     display: block;
-    position: absolute;
-    z-index: $collector-z-index;
-    width: 40px;
-    height: 40px;
+    width: 48px;
+    height: 48px;
     margin: 0;
     padding: 0;
     border: none;
@@ -20,12 +41,37 @@
     user-select: none;
     pointer-events: none;
     background-repeat: no-repeat;
-    background-size: 18px 16px;
+    background-size: 28px 28px;
     background-position: center;
     -webkit-tap-highlight-color: transparent;
 
     @include clr(background-color, collectorBackground);
-    @include clr(box-shadow, collectorShadow);
+}
+
+.#{$namespace}-collector-count {
+    @include no-user-select;
+
+    position: absolute;
+    z-index: $collector-z-index;
+    border-radius: 100%;
+    user-select: none;
+    pointer-events: none;
+    background-color: rgba(141, 143, 166, 1);
+    height: 14px;
+    min-width: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+    padding: 0;
+    border: none;
+    outline: none;
+    right: 0px;
+    top: 0px;
+    border: 1px solid #fff;
+    color: #fff;
+    font-weight: 400;
+    font-size: 11px;
 }
 
 .#{$namespace}-collector-visible {

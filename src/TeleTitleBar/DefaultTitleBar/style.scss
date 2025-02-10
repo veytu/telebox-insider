@@ -5,9 +5,10 @@
     @include no-user-select;
 
     box-sizing: border-box;
-    height: 26px;
+    height: 40px;
     display: flex;
     align-items: center;
+    justify-content: space-between;
     user-select: none;
     touch-action: manipulation;
 
@@ -39,6 +40,7 @@
     white-space: nowrap;
     word-break: keep-all;
     text-overflow: ellipsis;
+    flex: 1;
 }
 
 .#{$namespace}-drag-area {
@@ -59,6 +61,7 @@
     word-break: keep-all;
     margin-left: auto;
     font-size: 0;
+    z-index: 11;
 }
 
 .#{$namespace}-titlebar-btn {
@@ -78,8 +81,8 @@
 }
 
 .#{$namespace}-titlebar-btn-icon {
-    width: 22px;
-    height: 22px;
+    width: 24px;
+    height: 24px;
 }
 
 .#{$namespace}-readonly {

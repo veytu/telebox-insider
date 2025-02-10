@@ -149,8 +149,8 @@ export class DefaultTitleBar implements TeleTitleBar {
                 "render-btns-container-click"
             );
 
+            $titleArea.appendChild($buttonsContainer);
             this.$titleBar.appendChild($titleArea);
-            this.$titleBar.appendChild($buttonsContainer);
         }
 
         return this.$titleBar;
