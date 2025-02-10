@@ -32,10 +32,6 @@ type ValConfig = {
     $collector: Val<HTMLElement>;
 };
 
-type WrpValConfig = {
-    $wrp: Val<HTMLElement>;
-};
-
 type MyReadonlyValConfig = {
     rect: ReadonlyVal<TeleBoxRect | undefined>;
     visible: ReadonlyVal<boolean>;
