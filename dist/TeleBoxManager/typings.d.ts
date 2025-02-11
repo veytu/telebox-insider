@@ -20,6 +20,8 @@ export interface TeleBoxManagerConfig extends Pick<TeleBoxConfig, "namespace"> {
     readonly maximized?: boolean;
     /** Minimize box. Overwrites maximized state. Default false. */
     readonly minimized?: boolean;
+    /** Overwrites normal box list */
+    readonly normalBoxes?: string[];
     /** Is box readonly */
     readonly readonly?: boolean;
     /** Custom styles for telebox manager container */

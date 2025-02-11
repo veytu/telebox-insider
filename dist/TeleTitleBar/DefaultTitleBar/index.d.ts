@@ -11,7 +11,7 @@ export interface DefaultTitleBarConfig extends TeleTitleBarConfig {
     buttons?: ReadonlyArray<DefaultTitleBarButton>;
 }
 export declare class DefaultTitleBar implements TeleTitleBar {
-    constructor({ readonly$, state$, title$, buttons, onEvent, onDragStart, namespace, }: DefaultTitleBarConfig);
+    constructor({ readonly$, state$, title$, buttons, onEvent, onDragStart, namespace, boxId }: DefaultTitleBarConfig);
     readonly namespace: string;
     $titleBar: HTMLElement | undefined;
     $dragArea: HTMLElement;
@@ -27,6 +27,7 @@ export declare class DefaultTitleBar implements TeleTitleBar {
     protected buttons: ReadonlyArray<DefaultTitleBarButton>;
     protected state$: TeleTitleBarConfig["state$"];
     protected sideEffect: SideEffectManager;
+    protected boxId: string;
     protected lastTitleBarClick: {
         timestamp: number;
         clientX: number;

@@ -5,3 +5,4 @@ export declare function getBoxDefaultName(): string;
 export declare function identity<TValue>(value: TValue): TValue;
 export declare function isTruthy<TValue>(value: TValue): boolean;
 export declare function isFalsy<TValue>(value: TValue): boolean;
+export declare function findMaxItem<TValue>(arr: TValue[], key: keyof TValue): TValue;

@@ -4,7 +4,7 @@ import { SideEffectManager } from "side-effect-manager";
 import type { ReadonlyVal, ReadonlyValEnhancedResult, ValEnhancedResult } from "value-enhancer";
 import { Val } from "value-enhancer";
 import type { TeleTitleBar } from "../TeleTitleBar";
-import type { TeleBoxConfig, TeleBoxState, TeleBoxCoord, TeleBoxSize, TeleBoxRect } from "./typings";
+import type { TeleBoxConfig, TeleBoxState, TeleBoxCoord, TeleBoxSize, TeleBoxRect, TeleBoxDelegateEventData } from "./typings";
 export * from "./constants";
 export * from "./typings";
 declare type RequiredTeleBoxConfig = Required<TeleBoxConfig>;
@@ -101,7 +101,7 @@ export declare class TeleBox {
         readonly: boolean;
         destroyed: undefined;
     }, "close" | "focus" | "blur" | "destroyed">;
-    readonly _delegateEvents: Emittery<{
+    readonly _delegateEvents: Emittery<TeleBoxDelegateEventData, {
         close: undefined;
         maximize: undefined;
         minimize: undefined;
@@ -109,7 +109,7 @@ export declare class TeleBox {
         close: undefined;
         maximize: undefined;
         minimize: undefined;
-    }, "close" | "maximize" | "minimize">;
+    }>;
     protected _sideEffect: SideEffectManager;
     titleBar: TeleTitleBar;
     /** Minimum box width relative to stage area. 0~1. Default 0. */

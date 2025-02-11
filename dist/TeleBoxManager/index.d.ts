@@ -35,7 +35,7 @@ declare type CombinedValEnhancedResult = ValEnhancedResult<ValConfig> & Readonly
 export interface TeleBoxManager extends CombinedValEnhancedResult {
 }
 export declare class TeleBoxManager {
-    constructor({ root, fullscreen, prefersColorScheme, minimized, maximized, fence, collector, namespace, readonly, stageRatio, containerStyle, stageStyle, defaultBoxBodyStyle, defaultBoxStageStyle, theme, }?: TeleBoxManagerConfig);
+    constructor({ root, fullscreen, prefersColorScheme, minimized, maximized, normalBoxes, fence, collector, namespace, readonly, stageRatio, containerStyle, stageStyle, defaultBoxBodyStyle, defaultBoxStageStyle, theme, }?: TeleBoxManagerConfig);
     readonly $container: HTMLDivElement;
     readonly $stage: HTMLDivElement;
     get boxes(): ReadonlyArray<TeleBox>;
@@ -77,8 +77,7 @@ export declare class TeleBoxManager {
     readonly namespace: string;
     setMinimized: (minimized: boolean, skipUpdate?: boolean) => void;
     setMaximized: (maximized: boolean, skipUpdate?: boolean) => void;
-    delBoxCount: (count?: number) => void;
-    addBoxCount: (count?: number) => void;
+    setNormalboxes: (normalBoxes: string[]) => void;
     /** @deprecated use setMaximized and setMinimized instead */
     setState(state: TeleBoxState, skipUpdate?: boolean): this;
     create(config?: TeleBoxManagerCreateConfig, smartPosition?: boolean): ReadonlyTeleBox;
@@ -105,6 +104,7 @@ export declare class TeleBoxManager {
     blurAll(skipUpdate?: boolean): void;
     collector: TeleBoxCollector;
     titleBar: MaxTitleBar;
+    protected normalBoxes: Val<string[]>;
     protected boxes$: Val<TeleBox[]>;
     protected topBox$: Val<TeleBox | undefined>;
     protected teleBoxMatcher(config: TeleBoxManagerQueryConfig): (box: TeleBox) => boolean;

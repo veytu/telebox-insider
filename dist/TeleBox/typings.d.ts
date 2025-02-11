@@ -122,6 +122,7 @@ export declare type TeleBoxEvent = keyof TeleBoxEventConfig;
 export declare type TeleBoxEvents = Emittery<TeleBoxEventConfig>;
 export declare type TeleBoxHandleType = TELE_BOX_RESIZE_HANDLE | typeof TeleBoxDragHandleType;
 declare type CheckTeleBoxDelegateConfig<T extends Record<`${TELE_BOX_DELEGATE_EVENT}`, any>> = T;
+export declare type TeleBoxDelegateEventData = Record<`${TELE_BOX_DELEGATE_EVENT}`, any>;
 export declare type TeleBoxDelegateEventConfig = CheckTeleBoxDelegateConfig<{
     close: undefined;
     maximize: undefined;

@@ -4,6 +4,7 @@ import type { ReadonlyVal, ReadonlyValEnhancedResult, ValEnhancedResult } from "
 import { Val } from "value-enhancer";
 import { SideEffectManager } from "side-effect-manager";
 import type { TeleBoxRect } from "../TeleBox/typings";
+import { TeleBox } from "../TeleBox";
 export interface TeleBoxCollectorConfig {
     namespace?: string;
     styles?: TeleStyles;
@@ -11,7 +12,7 @@ export interface TeleBoxCollectorConfig {
     minimized$: ReadonlyVal<boolean>;
     readonly$: ReadonlyVal<boolean>;
     darkMode$: ReadonlyVal<boolean>;
-    boxCount: ReadonlyVal<number>;
+    boxes$: ReadonlyVal<TeleBox[]>;
     onClick?: () => void;
 }
 declare type ValConfig = {
@@ -26,7 +27,7 @@ declare type CombinedValEnhancedResult = ValEnhancedResult<ValConfig> & Readonly
 export interface TeleBoxCollector extends CombinedValEnhancedResult {
 }
 export declare class TeleBoxCollector {
-    constructor({ minimized$, readonly$, darkMode$, boxCount, namespace, styles, root, onClick, }: TeleBoxCollectorConfig);
+    constructor({ minimized$, readonly$, darkMode$, boxes$, namespace, styles, root, onClick, }: TeleBoxCollectorConfig);
     readonly namespace: string;
     protected readonly _sideEffect: SideEffectManager;
     destroy(): void;
