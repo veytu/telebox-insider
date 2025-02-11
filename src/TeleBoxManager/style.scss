@@ -37,7 +37,14 @@
     position: relative;
     overflow: hidden;
     @include clr(background, managerStageBackground);
-    @include clr(box-shadow, managerStageShadow);
+    // @include clr(box-shadow, managerStageShadow);
+    .#{$namespace}-maximized {
+      .#{$namespace}-box-main {
+        .#{$namespace}-titlebar-wrap {
+          display: none !important;
+        }
+      }
+    }
 }
 
 .#{$namespace}-color-scheme-dark {

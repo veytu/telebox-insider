@@ -34,9 +34,9 @@
     position: absolute;
     z-index: 1;
     overflow: hidden;
-
+    overflow-y: auto;
     @include clr(background-color, boxStageBackground);
-    @include clr(box-shadow, boxStageShadow);
+    // @include clr(box-shadow, boxStageShadow);
 }
 
 .#{$namespace}-footer-wrap {
@@ -67,7 +67,7 @@
 
     .#{$namespace}-box-stage {
         @include clr-dark(background-color, boxStageBackground);
-        @include clr-dark(box-shadow, boxStageShadow);
+        // @include clr-dark(box-shadow, boxStageShadow);
     }
 
     .#{$namespace}-footer-wrap {

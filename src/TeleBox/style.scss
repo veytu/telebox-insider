@@ -10,13 +10,13 @@
     z-index: $base-z-index;
     transition: width 0.4s cubic-bezier(0.4, 0.9, 0.71, 1.02),
         height 0.4s cubic-bezier(0.55, 0.82, 0.63, 0.95),
-        opacity 0.6s cubic-bezier(0.7, 0, 0.84, 0), transform 0.4s ease;
+        opacity 0.6s cubic-bezier(0.7, 0, 0.84, 0), transform 0.4s ease,
+        box-shadow 0.4s ease;
 }
 
 .#{$namespace}-box-main {
     @include clr(border, boxBorder);
-    @include clr(box-shadow, boxShadow);
-
+    transition: box-shadow 0.4s cubic-bezier(0.4, 0.9, 0.71, 1.02);
     position: relative;
     width: 100%;
     height: 100%;
@@ -24,6 +24,9 @@
     flex-direction: column;
     overflow: hidden;
     border-radius: 8px;
+    &:hover {
+        @include clr(box-shadow, boxShadow);
+    }
 }
 
 .#{$namespace}-titlebar-wrap {

@@ -32,3 +32,11 @@ export function isTruthy<TValue>(value: TValue): boolean {
 export function isFalsy<TValue>(value: TValue): boolean {
     return !value;
 }
+
+export function findMaxItem<TValue>(arr: TValue[], key: keyof TValue): TValue {
+    const max = arr.reduce((maxItem, current) => {
+        return current[key] > maxItem[key] ? current : maxItem;
+    });
+
+    return max;
+}

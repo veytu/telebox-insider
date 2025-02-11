@@ -8,7 +8,7 @@ $collector-z-index: $stage-z-index + 10;
 $tele-colors: (
     managerContainerBackground: rgba(245, 245, 252, 1),
     managerStageBackground: #fff,
-    managerStageShadow: 0px 0px 16px rgba(0, 0, 0, 0.08),
+    // managerStageShadow: 0px 0px 16px rgba(0, 0, 0, 0.08),
     boxContainerBackground: rgba(245, 245, 252, 1),
     boxStageBackground: #fff,
     boxStageShadow: 0px 0px 16px rgba(0, 0, 0, 0.08),
@@ -31,7 +31,7 @@ $tele-colors: (
 $tele-colors-dark: (
     managerContainerBackground: #25282e,
     managerStageBackground: #272a30,
-    managerStageShadow: 0px 0px 16px rgba(0, 0, 0, 0.24),
+    // managerStageShadow: 0px 0px 16px rgba(0, 0, 0, 0.24),
     boxContainerBackground: #25282e,
     boxStageBackground: #272a30,
     boxStageShadow: 0px 0px 16px rgba(0, 0, 0, 0.24),

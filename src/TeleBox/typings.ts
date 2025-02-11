@@ -134,6 +134,8 @@ type CheckTeleBoxDelegateConfig<
     T extends Record<`${TELE_BOX_DELEGATE_EVENT}`, any>
 > = T;
 
+export type TeleBoxDelegateEventData = Record<`${TELE_BOX_DELEGATE_EVENT}`, any>
+
 export type TeleBoxDelegateEventConfig = CheckTeleBoxDelegateConfig<{
     close: undefined;
     maximize: undefined;

@@ -43,7 +43,7 @@ const createSelector = (
 const manager = new TeleBoxManager({
     fence: false,
     root: board,
-    stageRatio: 9 / 16,
+    stageRatio: 2/3,
 });
 
 manager.collector.setStyles({
@@ -54,21 +54,21 @@ manager.collector.setStyles({
 
 (window as any).manager = manager;
 
+let data = 1
+
 createBtn("Create").addEventListener("click", () => {
-    const title = faker.datatype.boolean()
-        ? faker.commerce.productName()
-        : faker.random.words(50);
+    const title = String(data++)
     const box = manager.create({
         minHeight: 0.1,
         minWidth: 0.1,
-        title: title.slice(0, 50),
+        title,
         focus: true,
         enableShadowDOM: enableShadowDOM$.value,
     });
 
     const content = document.createElement("div");
     content.className = "content";
-    content.textContent = `Content ${title}`;
+    content.textContent = title;
 
     box.mountStage(content);
     box.mountStyles(contentStyle);

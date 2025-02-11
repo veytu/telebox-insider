@@ -13,8 +13,9 @@ export interface TeleTitleBarConfig {
     title$: ReadonlyVal<string, boolean>;
     state$: ReadonlyVal<TeleBoxState, boolean>;
     namespace?: string;
-    onEvent?: (event: TeleTitleBarEvent) => void;
+    onEvent?: (event: TeleTitleBarEvent, data?: any) => void;
     onDragStart?: (event: PointerEvent) => void;
+    boxId?: string
 }
 
 export interface TeleTitleBar {

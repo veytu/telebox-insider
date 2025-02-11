@@ -15,6 +15,7 @@ import {
 } from "value-enhancer";
 import { SideEffectManager } from "side-effect-manager";
 import type { TeleBoxRect } from "../TeleBox/typings";
+import { TeleBox } from "../TeleBox";
 
 export interface TeleBoxCollectorConfig {
     namespace?: string;
@@ -23,7 +24,7 @@ export interface TeleBoxCollectorConfig {
     minimized$: ReadonlyVal<boolean>;
     readonly$: ReadonlyVal<boolean>;
     darkMode$: ReadonlyVal<boolean>;
-    boxCount: ReadonlyVal<number>;
+    boxes$: ReadonlyVal<TeleBox[]>;
     onClick?: () => void;
 }
 
@@ -47,7 +48,7 @@ export class TeleBoxCollector {
         minimized$,
         readonly$,
         darkMode$,
-        boxCount,
+        boxes$,
         namespace = "telebox",
         styles = {},
         root,
@@ -119,8 +120,8 @@ export class TeleBoxCollector {
                                 visible
                             );
                         }),
-                        boxCount.subscribe((count) => {
-                            count$.value.innerHTML = count.toString();
+                        boxes$.subscribe((boxes) => {
+                            count$.value.innerHTML = boxes.length.toString();
                         }),
                         readonly$.subscribe((readonly) => {
                             // $collector.classList.toggle(

@@ -13,7 +13,9 @@ export type MaxTitleBarTitle = Pick<TeleBox, "id" | "title">;
 export interface MaxTitleBarConfig extends DefaultTitleBarConfig {
     darkMode$: ReadonlyVal<boolean>;
     boxes$: ReadonlyVal<TeleBox[]>;
+    normalBoxes$: ReadonlyVal<string[]>;
     rootRect$: ReadonlyVal<TeleBoxRect>;
+    stageRect$: ReadonlyVal<TeleBoxRect>;
     root: HTMLElement;
 }
 
@@ -24,6 +26,8 @@ export class MaxTitleBar extends DefaultTitleBar {
         this.boxes$ = config.boxes$;
         this.rootRect$ = config.rootRect$;
         this.darkMode$ = config.darkMode$;
+        this.stageRect$ = config.stageRect$;
+        this.normalBoxes$ = config.normalBoxes$
 
         config.root.appendChild(this.render());
     }
@@ -82,7 +86,11 @@ export class MaxTitleBar extends DefaultTitleBar {
                         readonly
                     );
                 }),
-                combine([this.state$, this.boxes$]).subscribe(
+                this.stageRect$.subscribe((stageRect) => {
+                    $titleBar.style.width = stageRect.width + "px";
+                    $titleBar.style.left = stageRect.x + 4 + "px";
+                }),
+                combine([this.state$, this.boxes$, this.normalBoxes$]).subscribe(
                     ([state, titles]) => {
                         if (state === TELE_BOX_STATE.Maximized) {
                             $titleBar.classList.toggle(
@@ -138,13 +146,14 @@ export class MaxTitleBar extends DefaultTitleBar {
         $content.className = this.wrapClassName("titles-content");
         this.$titles.appendChild($content);
 
-        const disposers = this.boxes$.value.map((box) => {
+        const disposers = this.boxes$.value.filter(box => !this.normalBoxes$.value.includes(box.id)).map((box) => {
             const $tab = document.createElement("button");
             $tab.className = this.wrapClassName("titles-tab");
             $tab.textContent = box.title;
             $tab.dataset.teleBoxID = box.id;
             $tab.dataset.teleTitleBarNoDblClick = "true";
 
+            console.log(this.focusedBox)
             if (this.focusedBox && box.id === this.focusedBox.id) {
                 $tab.classList.add(this.wrapClassName("titles-tab-focus"));
             }
@@ -167,6 +176,8 @@ export class MaxTitleBar extends DefaultTitleBar {
     protected darkMode$: MaxTitleBarConfig["darkMode$"];
     protected boxes$: MaxTitleBarConfig["boxes$"];
     protected rootRect$: MaxTitleBarConfig["rootRect$"];
+    protected stageRect$: MaxTitleBarConfig["stageRect$"];
+    protected normalBoxes$: MaxTitleBarConfig["normalBoxes$"];
 
     protected $titles: HTMLElement | undefined;
 }

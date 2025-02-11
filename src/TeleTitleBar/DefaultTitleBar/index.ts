@@ -34,6 +34,7 @@ export class DefaultTitleBar implements TeleTitleBar {
         onEvent,
         onDragStart,
         namespace = "telebox",
+        boxId
     }: DefaultTitleBarConfig) {
         this.readonly$ = readonly$;
         this.state$ = state$;
@@ -41,6 +42,7 @@ export class DefaultTitleBar implements TeleTitleBar {
         this.onEvent = onEvent;
         this.onDragStart = onDragStart;
         this.namespace = namespace;
+        this.boxId = boxId || ''
 
         this.buttons = buttons || [
             {
@@ -95,6 +97,7 @@ export class DefaultTitleBar implements TeleTitleBar {
                 )} ${iconClassName}`;
                 $btn.dataset.teleTitleBarBtnIndex = teleTitleBarBtnIndex;
                 $btn.dataset.teleTitleBarNoDblClick = "true";
+                $btn.dataset.teleBoxID = this.boxId;
                 $buttonsContainer.appendChild($btn);
             });
 
@@ -141,6 +144,8 @@ export class DefaultTitleBar implements TeleTitleBar {
                             this.onEvent({
                                 type: btn.type,
                                 value: btn.value,
+                                index: teleTitleBarBtnIndex,
+                                boxId: this.boxId
                             } as TeleTitleBarEvent);
                         }
                     }
@@ -199,6 +204,8 @@ export class DefaultTitleBar implements TeleTitleBar {
 
     protected sideEffect = new SideEffectManager();
 
+    protected boxId: string;
+
     protected lastTitleBarClick = {
         timestamp: 0,
         clientX: -100,
@@ -228,7 +235,7 @@ export class DefaultTitleBar implements TeleTitleBar {
             ) {
                 // double click
                 if (this.onEvent) {
-                    this.onEvent({ type: TELE_BOX_DELEGATE_EVENT.Maximize });
+                    this.onEvent({ type: TELE_BOX_DELEGATE_EVENT.Maximize, boxId: this.boxId} as TeleTitleBarEvent);
                 }
             }
         } else if (this.onDragStart) {

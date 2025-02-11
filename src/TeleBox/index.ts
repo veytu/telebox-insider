@@ -36,6 +36,7 @@ import type {
     TeleBoxEvent,
     TeleBoxDelegateEventConfig,
     TeleBoxRect,
+    TeleBoxDelegateEventData,
 } from "./typings";
 import { calcStageRect } from "./utils";
 
@@ -161,8 +162,10 @@ export class TeleBox {
 
         const maximized$ = combine(
             [boxMaximized$, managerMaximized$],
-            ([boxMaximized, managerMaximized]) =>
-                boxMaximized ?? managerMaximized
+            ([boxMaximized, managerMaximized]) => {
+                return boxMaximized ?? managerMaximized
+            }
+
         );
         const minimized$ = combine(
             [boxMinimized$, managerMinimized$],
@@ -176,12 +179,13 @@ export class TeleBox {
 
         const state$ = combine(
             [minimized$, maximized$],
-            ([minimized, maximized]): TeleBoxState =>
-                minimized
-                    ? TELE_BOX_STATE.Minimized
-                    : maximized
-                    ? TELE_BOX_STATE.Maximized
-                    : TELE_BOX_STATE.Normal
+            ([minimized, maximized]): TeleBoxState => {
+                return minimized
+                ? TELE_BOX_STATE.Minimized
+                : maximized
+                ? TELE_BOX_STATE.Maximized
+                : TELE_BOX_STATE.Normal
+            }
         );
 
         const minSize$ = new Val(
@@ -317,7 +321,8 @@ export class TeleBox {
                 title$: title$,
                 namespace: this.namespace,
                 onDragStart: (event) => this._handleTrackStart?.(event),
-                onEvent: (event) => this._delegateEvents.emit(event.type),
+                onEvent: (event) => this._delegateEvents.emit(event.type, this.id),
+                boxId: this.id
             });
 
         this._sideEffect.addDisposer(
@@ -407,6 +412,7 @@ export class TeleBox {
     >();
 
     public readonly _delegateEvents = new Emittery<
+        TeleBoxDelegateEventData,
         TeleBoxDelegateEventConfig,
         TeleBoxDelegateEventConfig
     >();
