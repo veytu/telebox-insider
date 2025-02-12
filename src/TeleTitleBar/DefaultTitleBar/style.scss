@@ -15,14 +15,6 @@
     @include clr(color, titlebarColor);
     @include clr(background-color, titlebarBackground);
     @include clr(border-bottom, titlebarBorderBottom);
-
-    &.#{$namespace}-max-titlebar-active {
-        opacity: 0;
-        transition: opacity 0.2s ease-in;
-        &:hover {
-            opacity: 1;
-        }
-    }
 }
 
 .#{$namespace}-title-area {

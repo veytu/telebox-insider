@@ -49,7 +49,7 @@ const manager = new TeleBoxManager({
 manager.collector.setStyles({
     position: "absolute",
     bottom: "10px",
-    right: "50px",
+    left: "50px",
 });
 
 (window as any).manager = manager;
@@ -73,9 +73,9 @@ createBtn("Create").addEventListener("click", () => {
     box.mountStage(content);
     box.mountStyles(contentStyle);
 
-    if (manager.minimized) {
-        manager.setMinimized(false);
-    }
+    // if (manager.minimized) {
+    //     manager.setMinimized(false);
+    // }
 });
 
 createBtn("Remove").addEventListener("click", () => {

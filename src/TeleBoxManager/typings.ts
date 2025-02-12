@@ -17,12 +17,10 @@ export interface TeleBoxManagerConfig extends Pick<TeleBoxConfig, "namespace"> {
     readonly fence?: boolean;
     /** Prefers Box color scheme. Default light. */
     readonly prefersColorScheme?: TeleBoxColorScheme;
-    /** Maximize box. Default false. */
-    readonly maximized?: boolean;
-    /** Minimize box. Overwrites maximized state. Default false. */
-    readonly minimized?: boolean;
-    /** Overwrites normal box list */
-    readonly normalBoxes?: string[];
+    /** Minimize box list. Default []. */
+    readonly minimizedBoxes?: string[];
+    /** Maximize box list. Default []. */
+    readonly maximizedBoxes?: string[];
     /** Is box readonly */
     readonly readonly?: boolean;
     /** Custom styles for telebox manager container */
@@ -94,8 +92,8 @@ export type TeleBoxManagerEventConfig = CheckTeleBoxManagerConfig<{
     created: ReadonlyTeleBox;
     removed: ReadonlyTeleBox[];
     state: TeleBoxState;
-    maximized: boolean;
-    minimized: boolean;
+    maximized: string[];
+    minimized: string[];
     move: ReadonlyTeleBox;
     resize: ReadonlyTeleBox;
     intrinsic_move: ReadonlyTeleBox;

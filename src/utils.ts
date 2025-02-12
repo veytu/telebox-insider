@@ -40,3 +40,67 @@ export function findMaxItem<TValue>(arr: TValue[], key: keyof TValue): TValue {
 
     return max;
 }
+
+export function uniqueByObjectKey<TValue>(
+    arr: TValue[],
+    key: keyof TValue
+): TValue[] {
+    return arr.reduce((acc, item) => {
+        if (!acc.find((j) => j[key] == item[key])) acc.push(item);
+        return acc;
+    }, [] as TValue[]);
+}
+
+export function uniqueByVal<T>(arr: T[]): T[] {
+    return arr.reduce((acc, item) => {
+        if (!acc.includes(item)) acc.push(item);
+        return acc;
+    }, [] as T[]);
+}
+
+export function removeByVal<T>(arr: T[], val: T): T[] {
+    const index = arr.indexOf(val);
+
+    if (index < 0) {
+        return arr;
+    }
+
+    const newArr = [...arr];
+
+    newArr.splice(index, 1);
+
+    return newArr;
+}
+
+export function removeByIndex(arr: any[], index: number): any[] {
+    const newArr = [...arr];
+
+    if (index < 0 || index > arr.length) return arr;
+
+    newArr.splice(index, 1);
+
+    return newArr;
+}
+
+export function removeValues<T>(array: T[], valuesToRemove: T[]): T[] {
+    return array.filter((item) => !valuesToRemove.includes(item));
+}
+
+export function excludeFromBoth<T>(c: T[], a: T[], b: T[]): T[] {
+    const aSet = new Set(a);
+    const bSet = new Set(b);
+    return c.filter((item) => !aSet.has(item) && !bSet.has(item));
+}
+
+export const isIOS = (): boolean => {
+    return (
+        typeof navigator !== "undefined" &&
+        typeof window !== "undefined" &&
+        /iPad|iPhone|iPod/.test(window.navigator.userAgent)
+    );
+};
+
+export const isAndroid = (): boolean => {
+    return typeof navigator !== "undefined" && /Android/.test(window.navigator.userAgent);
+};
+

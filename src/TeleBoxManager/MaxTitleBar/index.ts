@@ -3,7 +3,7 @@ import "./style.scss";
 import type { TeleBox } from "../../TeleBox";
 import type { DefaultTitleBarConfig } from "../../TeleTitleBar";
 import { DefaultTitleBar } from "../../TeleTitleBar";
-import { TELE_BOX_STATE } from "../../TeleBox/constants";
+// import { TELE_BOX_STATE } from "../../TeleBox/constants";
 import type { TeleBoxRect } from "../../TeleBox/typings";
 import type { ReadonlyVal } from "value-enhancer";
 import { combine } from "value-enhancer";
@@ -13,7 +13,8 @@ export type MaxTitleBarTitle = Pick<TeleBox, "id" | "title">;
 export interface MaxTitleBarConfig extends DefaultTitleBarConfig {
     darkMode$: ReadonlyVal<boolean>;
     boxes$: ReadonlyVal<TeleBox[]>;
-    normalBoxes$: ReadonlyVal<string[]>;
+    maximizedBoxes$: ReadonlyVal<string[]>;
+    minimizedBoxes$: ReadonlyVal<string[]>;
     rootRect$: ReadonlyVal<TeleBoxRect>;
     stageRect$: ReadonlyVal<TeleBoxRect>;
     root: HTMLElement;
@@ -27,7 +28,8 @@ export class MaxTitleBar extends DefaultTitleBar {
         this.rootRect$ = config.rootRect$;
         this.darkMode$ = config.darkMode$;
         this.stageRect$ = config.stageRect$;
-        this.normalBoxes$ = config.normalBoxes$
+        this.maximizedBoxes$ = config.maximizedBoxes$;
+        this.minimizedBoxes$ = config.minimizedBoxes$;
 
         config.root.appendChild(this.render());
     }
@@ -37,7 +39,7 @@ export class MaxTitleBar extends DefaultTitleBar {
             return;
         }
 
-        if (this.$titles && this.state$.value === TELE_BOX_STATE.Maximized) {
+        if (this.$titles && this.maximizedBoxes$.value.length > 0) {
             const { children } = this.$titles.firstElementChild as HTMLElement;
             for (let i = children.length - 1; i >= 0; i -= 1) {
                 const $tab = children[i] as HTMLElement;
@@ -71,15 +73,18 @@ export class MaxTitleBar extends DefaultTitleBar {
 
         this.sideEffect.addDisposer(
             [
-                combine([this.boxes$, this.state$]).subscribe(
-                    ([boxes, state]) => {
-                        $titleBar.classList.toggle(
-                            this.wrapClassName("max-titlebar-active"),
-                            state === TELE_BOX_STATE.Maximized &&
-                                boxes.length > 0
-                        );
-                    }
-                ),
+                combine([
+                    this.boxes$,
+                    this.maximizedBoxes$,
+                    this.minimizedBoxes$,
+                ]).subscribe(([boxes, maximizedBoxes, minimizedBoxes]) => {
+                    $titleBar.classList.toggle(
+                        this.wrapClassName("max-titlebar-active"),
+                        maximizedBoxes.length > 0 &&
+                            boxes.length > 0 &&
+                            maximizedBoxes.filter(boxId => !minimizedBoxes.includes(boxId)).length > 0
+                    );
+                }),
                 this.readonly$.subscribe((readonly) => {
                     $titleBar.classList.toggle(
                         this.wrapClassName("readonly"),
@@ -87,25 +92,27 @@ export class MaxTitleBar extends DefaultTitleBar {
                     );
                 }),
                 this.stageRect$.subscribe((stageRect) => {
-                    $titleBar.style.width = stageRect.width + "px";
-                    $titleBar.style.left = stageRect.x + 4 + "px";
+                    $titleBar.style.width = stageRect.width + 1 + "px";
+                    $titleBar.style.left = stageRect.x + "px";
                 }),
-                combine([this.state$, this.boxes$, this.normalBoxes$]).subscribe(
-                    ([state, titles]) => {
-                        if (state === TELE_BOX_STATE.Maximized) {
-                            $titleBar.classList.toggle(
-                                this.wrapClassName("max-titlebar-single-title"),
-                                titles.length === 1
+                combine([
+                    this.boxes$,
+                    this.maximizedBoxes$,
+                    this.minimizedBoxes$,
+                ]).subscribe(([titles, maximizedBoxes]) => {
+                    if (maximizedBoxes.length > 0) {
+                        $titleBar.classList.toggle(
+                            this.wrapClassName("max-titlebar-single-title"),
+                            titles.length === 1
+                        );
+                        if (titles.length !== 1) {
+                            $titleBar.replaceChild(
+                                this.renderTitles(),
+                                $titleBar.firstElementChild as HTMLElement
                             );
-                            if (titles.length !== 1) {
-                                $titleBar.replaceChild(
-                                    this.renderTitles(),
-                                    $titleBar.firstElementChild as HTMLElement
-                                );
-                            }
                         }
                     }
-                ),
+                }),
             ],
             "max-render"
         );
@@ -146,22 +153,26 @@ export class MaxTitleBar extends DefaultTitleBar {
         $content.className = this.wrapClassName("titles-content");
         this.$titles.appendChild($content);
 
-        const disposers = this.boxes$.value.filter(box => !this.normalBoxes$.value.includes(box.id)).map((box) => {
-            const $tab = document.createElement("button");
-            $tab.className = this.wrapClassName("titles-tab");
-            $tab.textContent = box.title;
-            $tab.dataset.teleBoxID = box.id;
-            $tab.dataset.teleTitleBarNoDblClick = "true";
+        const disposers = this.boxes$.value
+            .filter((box) => this.maximizedBoxes$.value.includes(box.id))
+            .filter((box) => !this.minimizedBoxes$.value.includes(box.id))
+            .map((box) => {
+                const $tab = document.createElement("button");
+                $tab.className = this.wrapClassName("titles-tab");
+                $tab.textContent = box.title;
+                $tab.dataset.teleBoxID = box.id;
+                $tab.dataset.teleTitleBarNoDblClick = "true";
 
-            console.log(this.focusedBox)
-            if (this.focusedBox && box.id === this.focusedBox.id) {
-                $tab.classList.add(this.wrapClassName("titles-tab-focus"));
-            }
+                if (this.focusedBox && box.id === this.focusedBox.id) {
+                    $tab.classList.add(this.wrapClassName("titles-tab-focus"));
+                }
 
-            $content.appendChild($tab);
+                $content.appendChild($tab);
 
-            return box._title$.reaction((title) => ($tab.textContent = title));
-        });
+                return box._title$.reaction(
+                    (title) => ($tab.textContent = title)
+                );
+            });
 
         this.sideEffect.addDisposer(
             () => disposers.forEach((disposer) => disposer()),
@@ -177,7 +188,8 @@ export class MaxTitleBar extends DefaultTitleBar {
     protected boxes$: MaxTitleBarConfig["boxes$"];
     protected rootRect$: MaxTitleBarConfig["rootRect$"];
     protected stageRect$: MaxTitleBarConfig["stageRect$"];
-    protected normalBoxes$: MaxTitleBarConfig["normalBoxes$"];
+    protected maximizedBoxes$: MaxTitleBarConfig["maximizedBoxes$"];
+    protected minimizedBoxes$: MaxTitleBarConfig["minimizedBoxes$"];
 
     protected $titles: HTMLElement | undefined;
 }

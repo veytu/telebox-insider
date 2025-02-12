@@ -6,7 +6,7 @@ $stage-z-index: $max-titlebar-z-index + 10;
 $collector-z-index: $stage-z-index + 10;
 
 $tele-colors: (
-    managerContainerBackground: rgba(245, 245, 252, 1),
+    managerContainerBackground: #F5F5FC,
     managerStageBackground: #fff,
     // managerStageShadow: 0px 0px 16px rgba(0, 0, 0, 0.08),
     boxContainerBackground: rgba(245, 245, 252, 1),

@@ -60,3 +60,7 @@
         }
     }
 }
+
+.#{$namespace}-hide {
+    display: none !important;
+}

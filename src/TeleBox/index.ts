@@ -39,6 +39,7 @@ import type {
     TeleBoxDelegateEventData,
 } from "./typings";
 import { calcStageRect } from "./utils";
+import { fastRaf } from "../schedulers";
 
 export * from "./constants";
 export * from "./typings";
@@ -728,13 +729,28 @@ export class TeleBox {
         this._sideEffect.add(() => {
             const minimizedClassName = this.wrapClassName("minimized");
             const maximizedClassName = this.wrapClassName("maximized");
+            const hideClassName = this.wrapClassName("hide");
             const MAXIMIZED_TIMER_ID = "box-maximized-timer";
 
             return this._state$.subscribe((state) => {
-                this.$box.classList.toggle(
-                    minimizedClassName,
-                    state === TELE_BOX_STATE.Minimized
-                );
+                if (state === TELE_BOX_STATE.Minimized) {
+                    this.$box.classList.toggle(
+                        minimizedClassName,
+                        true
+                    );
+                    this.$box.classList.toggle(
+                        hideClassName,
+                        true
+                    );
+                } else {
+                    this.$box.classList.toggle(hideClassName, false)
+                    fastRaf(() => {
+                        this.$box.classList.toggle(
+                            minimizedClassName,
+                            false
+                        );
+                    })
+                }
 
                 if (state === TELE_BOX_STATE.Maximized) {
                     this._sideEffect.flush(MAXIMIZED_TIMER_ID);
