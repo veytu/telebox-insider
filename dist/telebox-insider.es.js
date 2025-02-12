@@ -6,7 +6,7 @@ import { ValManager, Val, combine, withReadonlyValueEnhancer, withValueEnhancer,
 import { ResizeObserver as ResizeObserver$2 } from "@juggle/resize-observer";
 var style$4 = /* @__PURE__ */ (() => '.tele-fancy-scrollbar {\n  overscroll-behavior: contain;\n  overflow: auto;\n  overflow-y: scroll;\n  overflow-y: overlay;\n  -webkit-overflow-scrolling: touch;\n  -ms-overflow-style: -ms-autohiding-scrollbar;\n  scrollbar-width: auto;\n}\n.tele-fancy-scrollbar::-webkit-scrollbar {\n  height: 8px;\n  width: 8px;\n}\n.tele-fancy-scrollbar::-webkit-scrollbar-track {\n  background-color: transparent;\n}\n.tele-fancy-scrollbar::-webkit-scrollbar-thumb {\n  background-color: rgba(68, 78, 96, 0.1);\n  background-color: transparent;\n  border-radius: 4px;\n  transition: background-color 0.4s;\n}\n.tele-fancy-scrollbar:hover::-webkit-scrollbar-thumb {\n  background-color: rgba(68, 78, 96, 0.1);\n}\n.tele-fancy-scrollbar::-webkit-scrollbar-thumb:hover {\n  background-color: rgba(68, 78, 96, 0.2);\n}\n.tele-fancy-scrollbar::-webkit-scrollbar-thumb:active {\n  background-color: rgba(68, 78, 96, 0.2);\n}\n.tele-fancy-scrollbar::-webkit-scrollbar-thumb:vertical {\n  min-height: 50px;\n}\n.tele-fancy-scrollbar::-webkit-scrollbar-thumb:horizontal {\n  min-width: 50px;\n}\n.telebox-quarantine {\n  all: initial;\n  position: relative;\n  width: 100%;\n  height: 100%;\n  display: flex;\n  flex-direction: column;\n}\n.telebox-body-wrap {\n  color: #191919;\n  color: var(--tele-boxColor, #191919);\n  flex: 1;\n  width: 100%;\n  overflow: hidden;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  position: relative;\n}\n.telebox-content {\n  width: 100%;\n  height: 100%;\n  position: relative;\n  background-color: #f5f5fc;\n  background-color: var(--tele-boxContainerBackground, #f5f5fc);\n}\n.telebox-box-stage {\n  position: absolute;\n  z-index: 1;\n  overflow: hidden;\n  overflow-y: auto;\n  background-color: #fff;\n  background-color: var(--tele-boxStageBackground, #fff);\n}\n.telebox-footer-wrap {\n  flex-shrink: 0;\n  display: flex;\n  flex-direction: column;\n  color: #191919;\n  color: var(--tele-boxFooterColor, #191919);\n  background-color: #fff;\n  background-color: var(--tele-boxFooterBackground, #fff);\n}\n.telebox-footer-wrap::before {\n  content: "";\n  display: block;\n  flex: 1;\n}\n.telebox-color-scheme-dark {\n  color-scheme: dark;\n}\n.telebox-color-scheme-dark .telebox-body-wrap {\n  color: #e9e9e9;\n  color: var(--tele-boxColor, #e9e9e9);\n}\n.telebox-color-scheme-dark .telebox-content {\n  background-color: #25282e;\n  background-color: var(--tele-boxContainerBackground, #25282e);\n}\n.telebox-color-scheme-dark .telebox-box-stage {\n  background-color: #272a30;\n  background-color: var(--tele-boxStageBackground, #272a30);\n}\n.telebox-color-scheme-dark .telebox-footer-wrap {\n  color: #e9e9e9;\n  color: var(--tele-boxFooterColor, #e9e9e9);\n  background-color: #383b42;\n  background-color: var(--tele-boxFooterBackground, #383b42);\n}\n.telebox-box {\n  position: absolute;\n  top: 0;\n  left: 0;\n  z-index: 100;\n  transition: width 0.4s cubic-bezier(0.4, 0.9, 0.71, 1.02), height 0.4s cubic-bezier(0.55, 0.82, 0.63, 0.95), opacity 0.6s cubic-bezier(0.7, 0, 0.84, 0), transform 0.4s ease, box-shadow 0.4s ease;\n}\n.telebox-box-main {\n  border: 1px solid #DFE0ED;\n  border: var(--tele-boxBorder, 1px solid #DFE0ED);\n  transition: box-shadow 0.4s cubic-bezier(0.4, 0.9, 0.71, 1.02);\n  position: relative;\n  width: 100%;\n  height: 100%;\n  display: flex;\n  flex-direction: column;\n  overflow: hidden;\n  border-radius: 8px;\n}\n.telebox-box-main:hover {\n  box-shadow: 6px 4px 25px 0px rgba(32, 35, 56, 0.2);\n  box-shadow: var(--tele-boxShadow, 6px 4px 25px 0px rgba(32, 35, 56, 0.2));\n}\n.telebox-titlebar-wrap {\n  flex-shrink: 0;\n  position: relative;\n  z-index: 1;\n}\n.telebox-main {\n  position: relative;\n  flex: 1;\n  width: 100%;\n  overflow: hidden;\n}\n.telebox-quarantine-outer {\n  width: 100%;\n  height: 100%;\n  overflow: hidden;\n}\n.telebox-resize-handle {\n  user-select: none;\n  -webkit-touch-callout: none;\n  -webkit-user-select: none;\n  position: absolute;\n  z-index: 2147483647;\n  touch-action: none;\n}\n.telebox-n {\n  width: 100%;\n  height: 5px;\n  left: 0;\n  top: -5px;\n  cursor: n-resize;\n}\n.telebox-s {\n  width: 100%;\n  height: 5px;\n  left: 0;\n  bottom: -5px;\n  cursor: s-resize;\n}\n.telebox-w {\n  width: 5px;\n  height: 100%;\n  left: -5px;\n  top: 0;\n  cursor: w-resize;\n}\n.telebox-e {\n  width: 5px;\n  height: 100%;\n  right: -5px;\n  top: 0;\n  cursor: e-resize;\n}\n.telebox-nw {\n  width: 15px;\n  height: 15px;\n  top: -5px;\n  left: -5px;\n  cursor: nw-resize;\n}\n.telebox-ne {\n  width: 15px;\n  height: 15px;\n  top: -5px;\n  right: -5px;\n  cursor: ne-resize;\n}\n.telebox-se {\n  width: 15px;\n  height: 15px;\n  bottom: -5px;\n  right: -5px;\n  cursor: se-resize;\n}\n.telebox-sw {\n  width: 15px;\n  height: 15px;\n  bottom: -5px;\n  left: -5px;\n  cursor: sw-resize;\n}\n.telebox-track-mask {\n  user-select: none;\n  -webkit-touch-callout: none;\n  -webkit-user-select: none;\n  position: fixed;\n  top: 0;\n  left: 0;\n  z-index: 2147483647;\n  width: 100%;\n  height: 100%;\n  background: rgba(0, 0, 0, 0.0001);\n  cursor: move;\n}\n.telebox-cursor-n {\n  cursor: n-resize;\n}\n.telebox-cursor-s {\n  cursor: s-resize;\n}\n.telebox-cursor-w {\n  cursor: w-resize;\n}\n.telebox-cursor-e {\n  cursor: e-resize;\n}\n.telebox-cursor-nw {\n  cursor: nw-resize;\n}\n.telebox-cursor-ne {\n  cursor: ne-resize;\n}\n.telebox-cursor-se {\n  cursor: se-resize;\n}\n.telebox-cursor-sw {\n  cursor: sw-resize;\n}\n.telebox-maximized .telebox-resize-handles,\n.telebox-no-resize .telebox-resize-handles {\n  display: none;\n}\n.telebox-maximized {\n  box-shadow: none;\n  transition: none;\n}\n.telebox-minimized {\n  transition: width 0.05s cubic-bezier(0.4, 0.9, 0.71, 1.02), height 0.05s cubic-bezier(0.55, 0.82, 0.63, 0.95), opacity 0.6s cubic-bezier(0.7, 0, 0.84, 0), transform 0.6s ease;\n  opacity: 0;\n  pointer-events: none;\n  user-select: none;\n}\n.telebox-transforming {\n  will-change: transform;\n  transition: opacity 0.6s cubic-bezier(0.7, 0, 0.84, 0);\n}\n.telebox-readonly .telebox-resize-handle {\n  cursor: initial !important;\n  pointer-events: none !important;\n}\n.telebox-color-scheme-dark {\n  color-scheme: dark;\n}\n.telebox-color-scheme-dark .telebox-box-main {\n  border: 1px solid #383b42;\n  border: var(--tele-boxBorder, 1px solid #383b42);\n  box-shadow: 0px 4px 10px 0px rgba(56, 59, 66, 0.15);\n  box-shadow: var(--tele-boxShadow, 0px 4px 10px 0px rgba(56, 59, 66, 0.15));\n}')();
 var shadowStyles = /* @__PURE__ */ (() => '.tele-fancy-scrollbar {\n  overscroll-behavior: contain;\n  overflow: auto;\n  overflow-y: scroll;\n  overflow-y: overlay;\n  -webkit-overflow-scrolling: touch;\n  -ms-overflow-style: -ms-autohiding-scrollbar;\n  scrollbar-width: auto;\n}\n.tele-fancy-scrollbar::-webkit-scrollbar {\n  height: 8px;\n  width: 8px;\n}\n.tele-fancy-scrollbar::-webkit-scrollbar-track {\n  background-color: transparent;\n}\n.tele-fancy-scrollbar::-webkit-scrollbar-thumb {\n  background-color: rgba(68, 78, 96, 0.1);\n  background-color: transparent;\n  border-radius: 4px;\n  transition: background-color 0.4s;\n}\n.tele-fancy-scrollbar:hover::-webkit-scrollbar-thumb {\n  background-color: rgba(68, 78, 96, 0.1);\n}\n.tele-fancy-scrollbar::-webkit-scrollbar-thumb:hover {\n  background-color: rgba(68, 78, 96, 0.2);\n}\n.tele-fancy-scrollbar::-webkit-scrollbar-thumb:active {\n  background-color: rgba(68, 78, 96, 0.2);\n}\n.tele-fancy-scrollbar::-webkit-scrollbar-thumb:vertical {\n  min-height: 50px;\n}\n.tele-fancy-scrollbar::-webkit-scrollbar-thumb:horizontal {\n  min-width: 50px;\n}\n.telebox-quarantine {\n  all: initial;\n  position: relative;\n  width: 100%;\n  height: 100%;\n  display: flex;\n  flex-direction: column;\n}\n.telebox-body-wrap {\n  color: #191919;\n  color: var(--tele-boxColor, #191919);\n  flex: 1;\n  width: 100%;\n  overflow: hidden;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  position: relative;\n}\n.telebox-content {\n  width: 100%;\n  height: 100%;\n  position: relative;\n  background-color: #f5f5fc;\n  background-color: var(--tele-boxContainerBackground, #f5f5fc);\n}\n.telebox-box-stage {\n  position: absolute;\n  z-index: 1;\n  overflow: hidden;\n  overflow-y: auto;\n  background-color: #fff;\n  background-color: var(--tele-boxStageBackground, #fff);\n}\n.telebox-footer-wrap {\n  flex-shrink: 0;\n  display: flex;\n  flex-direction: column;\n  color: #191919;\n  color: var(--tele-boxFooterColor, #191919);\n  background-color: #fff;\n  background-color: var(--tele-boxFooterBackground, #fff);\n}\n.telebox-footer-wrap::before {\n  content: "";\n  display: block;\n  flex: 1;\n}\n.telebox-color-scheme-dark {\n  color-scheme: dark;\n}\n.telebox-color-scheme-dark .telebox-body-wrap {\n  color: #e9e9e9;\n  color: var(--tele-boxColor, #e9e9e9);\n}\n.telebox-color-scheme-dark .telebox-content {\n  background-color: #25282e;\n  background-color: var(--tele-boxContainerBackground, #25282e);\n}\n.telebox-color-scheme-dark .telebox-box-stage {\n  background-color: #272a30;\n  background-color: var(--tele-boxStageBackground, #272a30);\n}\n.telebox-color-scheme-dark .telebox-footer-wrap {\n  color: #e9e9e9;\n  color: var(--tele-boxFooterColor, #e9e9e9);\n  background-color: #383b42;\n  background-color: var(--tele-boxFooterBackground, #383b42);\n}')();
-var style$3 = /* @__PURE__ */ (() => '.telebox-titlebar {\n  user-select: none;\n  -webkit-touch-callout: none;\n  -webkit-user-select: none;\n  box-sizing: border-box;\n  height: 40px;\n  display: flex;\n  align-items: center;\n  justify-content: space-between;\n  user-select: none;\n  touch-action: manipulation;\n  color: #484C70;\n  color: var(--tele-titlebarColor, #484C70);\n  background-color: #EBECFA;\n  background-color: var(--tele-titlebarBackground, #EBECFA);\n  border-bottom: 0px solid #eeeef7;\n  border-bottom: var(--tele-titlebarBorderBottom, 0px solid #eeeef7);\n}\n.telebox-titlebar.telebox-max-titlebar-active {\n  opacity: 0;\n  transition: opacity 0.2s ease-in;\n}\n.telebox-titlebar.telebox-max-titlebar-active:hover {\n  opacity: 1;\n}\n.telebox-title-area {\n  padding-left: 16px;\n  overflow: hidden;\n  position: relative;\n  height: 100%;\n  flex: 1;\n  display: flex;\n  align-items: center;\n}\n.telebox-title {\n  user-select: none;\n  -webkit-touch-callout: none;\n  -webkit-user-select: none;\n  color: #484C70;\n  color: var(--tele-titlebarColor, #484C70);\n  overflow: hidden;\n  margin: 0;\n  padding: 0;\n  font-size: 14px;\n  font-weight: 400;\n  font-family: PingFangSC-Regular, PingFang SC;\n  white-space: nowrap;\n  word-break: keep-all;\n  text-overflow: ellipsis;\n  flex: 1;\n}\n.telebox-drag-area {\n  position: absolute;\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  margin: auto;\n  z-index: 10;\n  touch-action: none;\n}\n.telebox-titlebar-btns {\n  padding-right: 16px;\n  white-space: nowrap;\n  word-break: keep-all;\n  margin-left: auto;\n  font-size: 0;\n  z-index: 11;\n}\n.telebox-titlebar-btn {\n  user-select: none;\n  -webkit-touch-callout: none;\n  -webkit-user-select: none;\n  width: 22px;\n  height: 22px;\n  padding: 0;\n  outline: none;\n  border: none;\n  background: transparent;\n  cursor: pointer;\n}\n.telebox-titlebar-btn ~ .telebox-titlebar-btn {\n  margin-left: 10px;\n}\n.telebox-titlebar-btn-icon {\n  width: 24px;\n  height: 24px;\n}\n.telebox-readonly .telebox-titlebar-btn {\n  cursor: not-allowed;\n}\n.telebox-titlebar-icon-minimize {\n  background: center/cover no-repeat;\n  background-image: url("data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iMTIiIGZpbGw9IiNGNUY1RkMiLz4KPHBhdGggZmlsbC1ydWxlPSJldmVub2RkIiBjbGlwLXJ1bGU9ImV2ZW5vZGQiIGQ9Ik02LjA1MDI1IDEyQzYuMDUwMjUgMTEuNDQ3NyA2LjQ5Nzk3IDExIDcuMDUwMjUgMTFMMTYuOTQ5NyAxMUMxNy41MDIgMTEgMTcuOTQ5NyAxMS40NDc3IDE3Ljk0OTcgMTJDMTcuOTQ5NyAxMi41NTIzIDE3LjUwMiAxMyAxNi45NDk3IDEzTDcuMDUwMjUgMTNDNi40OTc5NyAxMyA2LjA1MDI1IDEyLjU1MjMgNi4wNTAyNSAxMloiIGZpbGw9IiM4RDhGQTYiLz4KPC9zdmc+Cg==");\n  background-image: var(--tele-titlebarIconMinimize, url("data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iMTIiIGZpbGw9IiNGNUY1RkMiLz4KPHBhdGggZmlsbC1ydWxlPSJldmVub2RkIiBjbGlwLXJ1bGU9ImV2ZW5vZGQiIGQ9Ik02LjA1MDI1IDEyQzYuMDUwMjUgMTEuNDQ3NyA2LjQ5Nzk3IDExIDcuMDUwMjUgMTFMMTYuOTQ5NyAxMUMxNy41MDIgMTEgMTcuOTQ5NyAxMS40NDc3IDE3Ljk0OTcgMTJDMTcuOTQ5NyAxMi41NTIzIDE3LjUwMiAxMyAxNi45NDk3IDEzTDcuMDUwMjUgMTNDNi40OTc5NyAxMyA2LjA1MDI1IDEyLjU1MjMgNi4wNTAyNSAxMloiIGZpbGw9IiM4RDhGQTYiLz4KPC9zdmc+Cg=="));\n}\n.telebox-titlebar-icon-maximize {\n  background: center/cover no-repeat;\n  background-image: url("data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iMTIiIGZpbGw9IiNGNUY1RkMiLz4KPGcgY2xpcC1wYXRoPSJ1cmwoI2NsaXAwXzExNTMzXzI4Mjg4MykiPgo8cGF0aCBkPSJNMTcuNzUgNS43NUgxMy40ODQ0QzEzLjAzOTEgNS43NSAxMi44MTU2IDYuMjg3NSAxMy4xMjk3IDYuNjAzMTJMMTQuODUzMSA4LjMzMTI1TDEyLjY5MDYgMTAuNDg3NUMxMi40NjcyIDEwLjcwOTQgMTIuNDY3MiAxMS4wNzAzIDEyLjY4OTEgMTEuMjkzOEMxMi45MTA5IDExLjUxNzIgMTMuMjcxOSAxMS41MTcyIDEzLjQ5NTMgMTEuMjk1M0wxNS42NTc4IDkuMTM5MDZMMTcuMzgxMyAxMC44NjcyQzE3LjY5NTMgMTEuMTgyOCAxOC4yMzQ0IDEwLjk2MDkgMTguMjM1OSAxMC41MTU2TDE4LjI0ODQgNi4yNUMxOC4yNTE2IDUuOTc1IDE4LjAyNjYgNS43NSAxNy43NSA1Ljc1Wk0xMC41MDMxIDEyLjcwMzFMOC4zNDA2MyAxNC44NTk0TDYuNjE3MiAxMy4xMzEyQzYuMzAzMTMgMTIuODE1NiA1Ljc2NDA3IDEzLjAzNzUgNS43NjI1MSAxMy40ODI4TDUuNzUwMDEgMTcuNzQ4NEM1Ljc0ODQ1IDE4LjAyNSA1Ljk3MzQ1IDE4LjI1IDYuMjUwMDEgMTguMjVIMTAuNTE1NkMxMC45NjA5IDE4LjI1IDExLjE4NDQgMTcuNzEyNSAxMC44NzAzIDE3LjM5NjlMOS4xNDUzMiAxNS42NjcyTDExLjMwNzggMTMuNTEwOUMxMS41MzEzIDEzLjI4OTEgMTEuNTMxMyAxMi45MjgxIDExLjMwOTQgMTIuNzA0N0MxMS4wODc1IDEyLjQ4MTMgMTAuNzI2NiAxMi40ODEzIDEwLjUwMzEgMTIuNzAzMVoiIGZpbGw9IiM4RDhGQTYiLz4KPC9nPgo8ZGVmcz4KPGNsaXBQYXRoIGlkPSJjbGlwMF8xMTUzM18yODI4ODMiPgo8cmVjdCB3aWR0aD0iMTQiIGhlaWdodD0iMTQiIGZpbGw9IndoaXRlIiB0cmFuc2Zvcm09InRyYW5zbGF0ZSg1IDUpIi8+CjwvY2xpcFBhdGg+CjwvZGVmcz4KPC9zdmc+Cg==");\n  background-image: var(--tele-titlebarIconMaximize, url("data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iMTIiIGZpbGw9IiNGNUY1RkMiLz4KPGcgY2xpcC1wYXRoPSJ1cmwoI2NsaXAwXzExNTMzXzI4Mjg4MykiPgo8cGF0aCBkPSJNMTcuNzUgNS43NUgxMy40ODQ0QzEzLjAzOTEgNS43NSAxMi44MTU2IDYuMjg3NSAxMy4xMjk3IDYuNjAzMTJMMTQuODUzMSA4LjMzMTI1TDEyLjY5MDYgMTAuNDg3NUMxMi40NjcyIDEwLjcwOTQgMTIuNDY3MiAxMS4wNzAzIDEyLjY4OTEgMTEuMjkzOEMxMi45MTA5IDExLjUxNzIgMTMuMjcxOSAxMS41MTcyIDEzLjQ5NTMgMTEuMjk1M0wxNS42NTc4IDkuMTM5MDZMMTcuMzgxMyAxMC44NjcyQzE3LjY5NTMgMTEuMTgyOCAxOC4yMzQ0IDEwLjk2MDkgMTguMjM1OSAxMC41MTU2TDE4LjI0ODQgNi4yNUMxOC4yNTE2IDUuOTc1IDE4LjAyNjYgNS43NSAxNy43NSA1Ljc1Wk0xMC41MDMxIDEyLjcwMzFMOC4zNDA2MyAxNC44NTk0TDYuNjE3MiAxMy4xMzEyQzYuMzAzMTMgMTIuODE1NiA1Ljc2NDA3IDEzLjAzNzUgNS43NjI1MSAxMy40ODI4TDUuNzUwMDEgMTcuNzQ4NEM1Ljc0ODQ1IDE4LjAyNSA1Ljk3MzQ1IDE4LjI1IDYuMjUwMDEgMTguMjVIMTAuNTE1NkMxMC45NjA5IDE4LjI1IDExLjE4NDQgMTcuNzEyNSAxMC44NzAzIDE3LjM5NjlMOS4xNDUzMiAxNS42NjcyTDExLjMwNzggMTMuNTEwOUMxMS41MzEzIDEzLjI4OTEgMTEuNTMxMyAxMi45MjgxIDExLjMwOTQgMTIuNzA0N0MxMS4wODc1IDEyLjQ4MTMgMTAuNzI2NiAxMi40ODEzIDEwLjUwMzEgMTIuNzAzMVoiIGZpbGw9IiM4RDhGQTYiLz4KPC9nPgo8ZGVmcz4KPGNsaXBQYXRoIGlkPSJjbGlwMF8xMTUzM18yODI4ODMiPgo8cmVjdCB3aWR0aD0iMTQiIGhlaWdodD0iMTQiIGZpbGw9IndoaXRlIiB0cmFuc2Zvcm09InRyYW5zbGF0ZSg1IDUpIi8+CjwvY2xpcFBhdGg+CjwvZGVmcz4KPC9zdmc+Cg=="));\n}\n.telebox-titlebar-icon-maximize.is-active {\n  background-image: url("data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iMTIiIGZpbGw9IiNGNUY1RkMiLz4KPGcgY2xpcC1wYXRoPSJ1cmwoI2NsaXAwXzMxNV80NzQwOTQpIj4KPHBhdGggZD0iTTEwLjk3NzEgMTIuNTM3M0g2LjcxMTUyQzYuMjY2MjEgMTIuNTM3MyA2LjA0Mjc3IDEzLjA3NDggNi4zNTY4NCAxMy4zOTA0TDguMDgwMjcgMTUuMTE4Nkw1LjkxNzc3IDE3LjI3NDhDNS42OTQzNCAxNy40OTY3IDUuNjk0MzQgMTcuODU3NiA1LjkxNjIxIDE4LjA4MTFDNi4xMzgwOSAxOC4zMDQ1IDYuNDk5MDIgMTguMzA0NSA2LjcyMjQ2IDE4LjA4MjZMOC44ODQ5NiAxNS45MjY0TDEwLjYwODQgMTcuNjU0NUMxMC45MjI1IDE3Ljk3MDEgMTEuNDYxNSAxNy43NDgyIDExLjQ2MzEgMTcuMzAyOUwxMS40NzU2IDEzLjAzNzNDMTEuNDc3MSAxMi43NjIzIDExLjI1MzcgMTIuNTM3MyAxMC45NzcxIDEyLjUzNzNaTTE3LjI3NzEgNS45MTU0M0wxNS4xMTQ2IDguMDcxNjhMMTMuMzkxMiA2LjM0MzU2QzEzLjA3NzEgNi4wMjc5MyAxMi41MzgxIDYuMjQ5ODEgMTIuNTM2NSA2LjY5NTEyTDEyLjUyNCAxMC45NjA3QzEyLjUyMjUgMTEuMjM3MyAxMi43NDc1IDExLjQ2MjMgMTMuMDI0IDExLjQ2MjNIMTcuMjg5NkMxNy43MzUgMTEuNDYyMyAxNy45NTg0IDEwLjkyNDggMTcuNjQ0MyAxMC42MDkyTDE1LjkxOTMgOC44ODEwNkwxOC4wODE4IDYuNzI0ODFDMTguMzA1MyA2LjUwMjkzIDE4LjMwNTMgNi4xNDIgMTguMDgzNCA1LjkxODU2QzE3Ljg2MTUgNS42OTUxMiAxNy41MDA2IDUuNjkzNTYgMTcuMjc3MSA1LjkxNTQzWiIgZmlsbD0iIzhEOEZBNiIvPgo8L2c+CjxkZWZzPgo8Y2xpcFBhdGggaWQ9ImNsaXAwXzMxNV80NzQwOTQiPgo8cmVjdCB3aWR0aD0iMTQiIGhlaWdodD0iMTQiIGZpbGw9IndoaXRlIiB0cmFuc2Zvcm09InRyYW5zbGF0ZSg1IDUpIi8+CjwvY2xpcFBhdGg+CjwvZGVmcz4KPC9zdmc+Cg==");\n  background-image: var(--tele-titlebarIconMaximizeActive, url("data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iMTIiIGZpbGw9IiNGNUY1RkMiLz4KPGcgY2xpcC1wYXRoPSJ1cmwoI2NsaXAwXzMxNV80NzQwOTQpIj4KPHBhdGggZD0iTTEwLjk3NzEgMTIuNTM3M0g2LjcxMTUyQzYuMjY2MjEgMTIuNTM3MyA2LjA0Mjc3IDEzLjA3NDggNi4zNTY4NCAxMy4zOTA0TDguMDgwMjcgMTUuMTE4Nkw1LjkxNzc3IDE3LjI3NDhDNS42OTQzNCAxNy40OTY3IDUuNjk0MzQgMTcuODU3NiA1LjkxNjIxIDE4LjA4MTFDNi4xMzgwOSAxOC4zMDQ1IDYuNDk5MDIgMTguMzA0NSA2LjcyMjQ2IDE4LjA4MjZMOC44ODQ5NiAxNS45MjY0TDEwLjYwODQgMTcuNjU0NUMxMC45MjI1IDE3Ljk3MDEgMTEuNDYxNSAxNy43NDgyIDExLjQ2MzEgMTcuMzAyOUwxMS40NzU2IDEzLjAzNzNDMTEuNDc3MSAxMi43NjIzIDExLjI1MzcgMTIuNTM3MyAxMC45NzcxIDEyLjUzNzNaTTE3LjI3NzEgNS45MTU0M0wxNS4xMTQ2IDguMDcxNjhMMTMuMzkxMiA2LjM0MzU2QzEzLjA3NzEgNi4wMjc5MyAxMi41MzgxIDYuMjQ5ODEgMTIuNTM2NSA2LjY5NTEyTDEyLjUyNCAxMC45NjA3QzEyLjUyMjUgMTEuMjM3MyAxMi43NDc1IDExLjQ2MjMgMTMuMDI0IDExLjQ2MjNIMTcuMjg5NkMxNy43MzUgMTEuNDYyMyAxNy45NTg0IDEwLjkyNDggMTcuNjQ0MyAxMC42MDkyTDE1LjkxOTMgOC44ODEwNkwxOC4wODE4IDYuNzI0ODFDMTguMzA1MyA2LjUwMjkzIDE4LjMwNTMgNi4xNDIgMTguMDgzNCA1LjkxODU2QzE3Ljg2MTUgNS42OTUxMiAxNy41MDA2IDUuNjkzNTYgMTcuMjc3MSA1LjkxNTQzWiIgZmlsbD0iIzhEOEZBNiIvPgo8L2c+CjxkZWZzPgo8Y2xpcFBhdGggaWQ9ImNsaXAwXzMxNV80NzQwOTQiPgo8cmVjdCB3aWR0aD0iMTQiIGhlaWdodD0iMTQiIGZpbGw9IndoaXRlIiB0cmFuc2Zvcm09InRyYW5zbGF0ZSg1IDUpIi8+CjwvY2xpcFBhdGg+CjwvZGVmcz4KPC9zdmc+Cg=="));\n}\n.telebox-titlebar-icon-close {\n  background: center/cover no-repeat;\n  background-image: url("data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iMTIiIGZpbGw9IiNGNUY1RkMiLz4KPHBhdGggZmlsbC1ydWxlPSJldmVub2RkIiBjbGlwLXJ1bGU9ImV2ZW5vZGQiIGQ9Ik0xNi4yMDcxIDkuMjA3MTFDMTYuNTk3NiA4LjgxNjU4IDE2LjU5NzYgOC4xODM0MiAxNi4yMDcxIDcuNzkyODlDMTUuODE2NiA3LjQwMjM3IDE1LjE4MzQgNy40MDIzNyAxNC43OTI5IDcuNzkyODlMMTIgMTAuNTg1OEw5LjIwNzExIDcuNzkyODlDOC44MTY1OCA3LjQwMjM3IDguMTgzNDIgNy40MDIzNyA3Ljc5Mjg5IDcuNzkyODlDNy40MDIzNyA4LjE4MzQyIDcuNDAyMzcgOC44MTY1OCA3Ljc5Mjg5IDkuMjA3MTFMMTAuNTg1OCAxMkw3Ljc5Mjg5IDE0Ljc5MjlDNy40MDIzNyAxNS4xODM0IDcuNDAyMzcgMTUuODE2NiA3Ljc5Mjg5IDE2LjIwNzFDOC4xODM0MiAxNi41OTc2IDguODE2NTggMTYuNTk3NiA5LjIwNzExIDE2LjIwNzFMMTIgMTMuNDE0MkwxNC43OTI5IDE2LjIwNzFDMTUuMTgzNCAxNi41OTc2IDE1LjgxNjYgMTYuNTk3NiAxNi4yMDcxIDE2LjIwNzFDMTYuNTk3NiAxNS44MTY2IDE2LjU5NzYgMTUuMTgzNCAxNi4yMDcxIDE0Ljc5MjlMMTMuNDE0MiAxMkwxNi4yMDcxIDkuMjA3MTFaIiBmaWxsPSIjOEQ4RkE2Ii8+Cjwvc3ZnPgo=");\n  background-image: var(--tele-titlebarIconClose, url("data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iMTIiIGZpbGw9IiNGNUY1RkMiLz4KPHBhdGggZmlsbC1ydWxlPSJldmVub2RkIiBjbGlwLXJ1bGU9ImV2ZW5vZGQiIGQ9Ik0xNi4yMDcxIDkuMjA3MTFDMTYuNTk3NiA4LjgxNjU4IDE2LjU5NzYgOC4xODM0MiAxNi4yMDcxIDcuNzkyODlDMTUuODE2NiA3LjQwMjM3IDE1LjE4MzQgNy40MDIzNyAxNC43OTI5IDcuNzkyODlMMTIgMTAuNTg1OEw5LjIwNzExIDcuNzkyODlDOC44MTY1OCA3LjQwMjM3IDguMTgzNDIgNy40MDIzNyA3Ljc5Mjg5IDcuNzkyODlDNy40MDIzNyA4LjE4MzQyIDcuNDAyMzcgOC44MTY1OCA3Ljc5Mjg5IDkuMjA3MTFMMTAuNTg1OCAxMkw3Ljc5Mjg5IDE0Ljc5MjlDNy40MDIzNyAxNS4xODM0IDcuNDAyMzcgMTUuODE2NiA3Ljc5Mjg5IDE2LjIwNzFDOC4xODM0MiAxNi41OTc2IDguODE2NTggMTYuNTk3NiA5LjIwNzExIDE2LjIwNzFMMTIgMTMuNDE0MkwxNC43OTI5IDE2LjIwNzFDMTUuMTgzNCAxNi41OTc2IDE1LjgxNjYgMTYuNTk3NiAxNi4yMDcxIDE2LjIwNzFDMTYuNTk3NiAxNS44MTY2IDE2LjU5NzYgMTUuMTgzNCAxNi4yMDcxIDE0Ljc5MjlMMTMuNDE0MiAxMkwxNi4yMDcxIDkuMjA3MTFaIiBmaWxsPSIjOEQ4RkE2Ii8+Cjwvc3ZnPgo="));\n}\n.telebox-color-scheme-dark {\n  color-scheme: dark;\n}\n.telebox-color-scheme-dark .telebox-title {\n  color: #e9e9e9;\n  color: var(--tele-titlebarColor, #e9e9e9);\n}\n.telebox-color-scheme-dark .telebox-titlebar {\n  color: #e9e9e9;\n  color: var(--tele-titlebarColor, #e9e9e9);\n  background-color: #383b42;\n  background-color: var(--tele-titlebarBackground, #383b42);\n  border-bottom: none;\n  border-bottom: var(--tele-titlebarBorderBottom, none);\n}')();
+var style$3 = /* @__PURE__ */ (() => '.telebox-titlebar {\n  user-select: none;\n  -webkit-touch-callout: none;\n  -webkit-user-select: none;\n  box-sizing: border-box;\n  height: 40px;\n  display: flex;\n  align-items: center;\n  justify-content: space-between;\n  user-select: none;\n  touch-action: manipulation;\n  color: #484C70;\n  color: var(--tele-titlebarColor, #484C70);\n  background-color: #EBECFA;\n  background-color: var(--tele-titlebarBackground, #EBECFA);\n  border-bottom: 0px solid #eeeef7;\n  border-bottom: var(--tele-titlebarBorderBottom, 0px solid #eeeef7);\n}\n\n.telebox-title-area {\n  padding-left: 16px;\n  overflow: hidden;\n  position: relative;\n  height: 100%;\n  flex: 1;\n  display: flex;\n  align-items: center;\n}\n\n.telebox-title {\n  user-select: none;\n  -webkit-touch-callout: none;\n  -webkit-user-select: none;\n  color: #484C70;\n  color: var(--tele-titlebarColor, #484C70);\n  overflow: hidden;\n  margin: 0;\n  padding: 0;\n  font-size: 14px;\n  font-weight: 400;\n  font-family: PingFangSC-Regular, PingFang SC;\n  white-space: nowrap;\n  word-break: keep-all;\n  text-overflow: ellipsis;\n  flex: 1;\n}\n\n.telebox-drag-area {\n  position: absolute;\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  margin: auto;\n  z-index: 10;\n  touch-action: none;\n}\n\n.telebox-titlebar-btns {\n  padding-right: 16px;\n  white-space: nowrap;\n  word-break: keep-all;\n  margin-left: auto;\n  font-size: 0;\n  z-index: 11;\n}\n\n.telebox-titlebar-btn {\n  user-select: none;\n  -webkit-touch-callout: none;\n  -webkit-user-select: none;\n  width: 22px;\n  height: 22px;\n  padding: 0;\n  outline: none;\n  border: none;\n  background: transparent;\n  cursor: pointer;\n}\n\n.telebox-titlebar-btn ~ .telebox-titlebar-btn {\n  margin-left: 10px;\n}\n\n.telebox-titlebar-btn-icon {\n  width: 24px;\n  height: 24px;\n}\n\n.telebox-readonly .telebox-titlebar-btn {\n  cursor: not-allowed;\n}\n\n.telebox-titlebar-icon-minimize {\n  background: center/cover no-repeat;\n  background-image: url("data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iMTIiIGZpbGw9IiNGNUY1RkMiLz4KPHBhdGggZmlsbC1ydWxlPSJldmVub2RkIiBjbGlwLXJ1bGU9ImV2ZW5vZGQiIGQ9Ik02LjA1MDI1IDEyQzYuMDUwMjUgMTEuNDQ3NyA2LjQ5Nzk3IDExIDcuMDUwMjUgMTFMMTYuOTQ5NyAxMUMxNy41MDIgMTEgMTcuOTQ5NyAxMS40NDc3IDE3Ljk0OTcgMTJDMTcuOTQ5NyAxMi41NTIzIDE3LjUwMiAxMyAxNi45NDk3IDEzTDcuMDUwMjUgMTNDNi40OTc5NyAxMyA2LjA1MDI1IDEyLjU1MjMgNi4wNTAyNSAxMloiIGZpbGw9IiM4RDhGQTYiLz4KPC9zdmc+Cg==");\n  background-image: var(--tele-titlebarIconMinimize, url("data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iMTIiIGZpbGw9IiNGNUY1RkMiLz4KPHBhdGggZmlsbC1ydWxlPSJldmVub2RkIiBjbGlwLXJ1bGU9ImV2ZW5vZGQiIGQ9Ik02LjA1MDI1IDEyQzYuMDUwMjUgMTEuNDQ3NyA2LjQ5Nzk3IDExIDcuMDUwMjUgMTFMMTYuOTQ5NyAxMUMxNy41MDIgMTEgMTcuOTQ5NyAxMS40NDc3IDE3Ljk0OTcgMTJDMTcuOTQ5NyAxMi41NTIzIDE3LjUwMiAxMyAxNi45NDk3IDEzTDcuMDUwMjUgMTNDNi40OTc5NyAxMyA2LjA1MDI1IDEyLjU1MjMgNi4wNTAyNSAxMloiIGZpbGw9IiM4RDhGQTYiLz4KPC9zdmc+Cg=="));\n}\n\n.telebox-titlebar-icon-maximize {\n  background: center/cover no-repeat;\n  background-image: url("data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iMTIiIGZpbGw9IiNGNUY1RkMiLz4KPGcgY2xpcC1wYXRoPSJ1cmwoI2NsaXAwXzExNTMzXzI4Mjg4MykiPgo8cGF0aCBkPSJNMTcuNzUgNS43NUgxMy40ODQ0QzEzLjAzOTEgNS43NSAxMi44MTU2IDYuMjg3NSAxMy4xMjk3IDYuNjAzMTJMMTQuODUzMSA4LjMzMTI1TDEyLjY5MDYgMTAuNDg3NUMxMi40NjcyIDEwLjcwOTQgMTIuNDY3MiAxMS4wNzAzIDEyLjY4OTEgMTEuMjkzOEMxMi45MTA5IDExLjUxNzIgMTMuMjcxOSAxMS41MTcyIDEzLjQ5NTMgMTEuMjk1M0wxNS42NTc4IDkuMTM5MDZMMTcuMzgxMyAxMC44NjcyQzE3LjY5NTMgMTEuMTgyOCAxOC4yMzQ0IDEwLjk2MDkgMTguMjM1OSAxMC41MTU2TDE4LjI0ODQgNi4yNUMxOC4yNTE2IDUuOTc1IDE4LjAyNjYgNS43NSAxNy43NSA1Ljc1Wk0xMC41MDMxIDEyLjcwMzFMOC4zNDA2MyAxNC44NTk0TDYuNjE3MiAxMy4xMzEyQzYuMzAzMTMgMTIuODE1NiA1Ljc2NDA3IDEzLjAzNzUgNS43NjI1MSAxMy40ODI4TDUuNzUwMDEgMTcuNzQ4NEM1Ljc0ODQ1IDE4LjAyNSA1Ljk3MzQ1IDE4LjI1IDYuMjUwMDEgMTguMjVIMTAuNTE1NkMxMC45NjA5IDE4LjI1IDExLjE4NDQgMTcuNzEyNSAxMC44NzAzIDE3LjM5NjlMOS4xNDUzMiAxNS42NjcyTDExLjMwNzggMTMuNTEwOUMxMS41MzEzIDEzLjI4OTEgMTEuNTMxMyAxMi45MjgxIDExLjMwOTQgMTIuNzA0N0MxMS4wODc1IDEyLjQ4MTMgMTAuNzI2NiAxMi40ODEzIDEwLjUwMzEgMTIuNzAzMVoiIGZpbGw9IiM4RDhGQTYiLz4KPC9nPgo8ZGVmcz4KPGNsaXBQYXRoIGlkPSJjbGlwMF8xMTUzM18yODI4ODMiPgo8cmVjdCB3aWR0aD0iMTQiIGhlaWdodD0iMTQiIGZpbGw9IndoaXRlIiB0cmFuc2Zvcm09InRyYW5zbGF0ZSg1IDUpIi8+CjwvY2xpcFBhdGg+CjwvZGVmcz4KPC9zdmc+Cg==");\n  background-image: var(--tele-titlebarIconMaximize, url("data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iMTIiIGZpbGw9IiNGNUY1RkMiLz4KPGcgY2xpcC1wYXRoPSJ1cmwoI2NsaXAwXzExNTMzXzI4Mjg4MykiPgo8cGF0aCBkPSJNMTcuNzUgNS43NUgxMy40ODQ0QzEzLjAzOTEgNS43NSAxMi44MTU2IDYuMjg3NSAxMy4xMjk3IDYuNjAzMTJMMTQuODUzMSA4LjMzMTI1TDEyLjY5MDYgMTAuNDg3NUMxMi40NjcyIDEwLjcwOTQgMTIuNDY3MiAxMS4wNzAzIDEyLjY4OTEgMTEuMjkzOEMxMi45MTA5IDExLjUxNzIgMTMuMjcxOSAxMS41MTcyIDEzLjQ5NTMgMTEuMjk1M0wxNS42NTc4IDkuMTM5MDZMMTcuMzgxMyAxMC44NjcyQzE3LjY5NTMgMTEuMTgyOCAxOC4yMzQ0IDEwLjk2MDkgMTguMjM1OSAxMC41MTU2TDE4LjI0ODQgNi4yNUMxOC4yNTE2IDUuOTc1IDE4LjAyNjYgNS43NSAxNy43NSA1Ljc1Wk0xMC41MDMxIDEyLjcwMzFMOC4zNDA2MyAxNC44NTk0TDYuNjE3MiAxMy4xMzEyQzYuMzAzMTMgMTIuODE1NiA1Ljc2NDA3IDEzLjAzNzUgNS43NjI1MSAxMy40ODI4TDUuNzUwMDEgMTcuNzQ4NEM1Ljc0ODQ1IDE4LjAyNSA1Ljk3MzQ1IDE4LjI1IDYuMjUwMDEgMTguMjVIMTAuNTE1NkMxMC45NjA5IDE4LjI1IDExLjE4NDQgMTcuNzEyNSAxMC44NzAzIDE3LjM5NjlMOS4xNDUzMiAxNS42NjcyTDExLjMwNzggMTMuNTEwOUMxMS41MzEzIDEzLjI4OTEgMTEuNTMxMyAxMi45MjgxIDExLjMwOTQgMTIuNzA0N0MxMS4wODc1IDEyLjQ4MTMgMTAuNzI2NiAxMi40ODEzIDEwLjUwMzEgMTIuNzAzMVoiIGZpbGw9IiM4RDhGQTYiLz4KPC9nPgo8ZGVmcz4KPGNsaXBQYXRoIGlkPSJjbGlwMF8xMTUzM18yODI4ODMiPgo8cmVjdCB3aWR0aD0iMTQiIGhlaWdodD0iMTQiIGZpbGw9IndoaXRlIiB0cmFuc2Zvcm09InRyYW5zbGF0ZSg1IDUpIi8+CjwvY2xpcFBhdGg+CjwvZGVmcz4KPC9zdmc+Cg=="));\n}\n\n.telebox-titlebar-icon-maximize.is-active {\n  background-image: url("data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iMTIiIGZpbGw9IiNGNUY1RkMiLz4KPGcgY2xpcC1wYXRoPSJ1cmwoI2NsaXAwXzMxNV80NzQwOTQpIj4KPHBhdGggZD0iTTEwLjk3NzEgMTIuNTM3M0g2LjcxMTUyQzYuMjY2MjEgMTIuNTM3MyA2LjA0Mjc3IDEzLjA3NDggNi4zNTY4NCAxMy4zOTA0TDguMDgwMjcgMTUuMTE4Nkw1LjkxNzc3IDE3LjI3NDhDNS42OTQzNCAxNy40OTY3IDUuNjk0MzQgMTcuODU3NiA1LjkxNjIxIDE4LjA4MTFDNi4xMzgwOSAxOC4zMDQ1IDYuNDk5MDIgMTguMzA0NSA2LjcyMjQ2IDE4LjA4MjZMOC44ODQ5NiAxNS45MjY0TDEwLjYwODQgMTcuNjU0NUMxMC45MjI1IDE3Ljk3MDEgMTEuNDYxNSAxNy43NDgyIDExLjQ2MzEgMTcuMzAyOUwxMS40NzU2IDEzLjAzNzNDMTEuNDc3MSAxMi43NjIzIDExLjI1MzcgMTIuNTM3MyAxMC45NzcxIDEyLjUzNzNaTTE3LjI3NzEgNS45MTU0M0wxNS4xMTQ2IDguMDcxNjhMMTMuMzkxMiA2LjM0MzU2QzEzLjA3NzEgNi4wMjc5MyAxMi41MzgxIDYuMjQ5ODEgMTIuNTM2NSA2LjY5NTEyTDEyLjUyNCAxMC45NjA3QzEyLjUyMjUgMTEuMjM3MyAxMi43NDc1IDExLjQ2MjMgMTMuMDI0IDExLjQ2MjNIMTcuMjg5NkMxNy43MzUgMTEuNDYyMyAxNy45NTg0IDEwLjkyNDggMTcuNjQ0MyAxMC42MDkyTDE1LjkxOTMgOC44ODEwNkwxOC4wODE4IDYuNzI0ODFDMTguMzA1MyA2LjUwMjkzIDE4LjMwNTMgNi4xNDIgMTguMDgzNCA1LjkxODU2QzE3Ljg2MTUgNS42OTUxMiAxNy41MDA2IDUuNjkzNTYgMTcuMjc3MSA1LjkxNTQzWiIgZmlsbD0iIzhEOEZBNiIvPgo8L2c+CjxkZWZzPgo8Y2xpcFBhdGggaWQ9ImNsaXAwXzMxNV80NzQwOTQiPgo8cmVjdCB3aWR0aD0iMTQiIGhlaWdodD0iMTQiIGZpbGw9IndoaXRlIiB0cmFuc2Zvcm09InRyYW5zbGF0ZSg1IDUpIi8+CjwvY2xpcFBhdGg+CjwvZGVmcz4KPC9zdmc+Cg==");\n  background-image: var(--tele-titlebarIconMaximizeActive, url("data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iMTIiIGZpbGw9IiNGNUY1RkMiLz4KPGcgY2xpcC1wYXRoPSJ1cmwoI2NsaXAwXzMxNV80NzQwOTQpIj4KPHBhdGggZD0iTTEwLjk3NzEgMTIuNTM3M0g2LjcxMTUyQzYuMjY2MjEgMTIuNTM3MyA2LjA0Mjc3IDEzLjA3NDggNi4zNTY4NCAxMy4zOTA0TDguMDgwMjcgMTUuMTE4Nkw1LjkxNzc3IDE3LjI3NDhDNS42OTQzNCAxNy40OTY3IDUuNjk0MzQgMTcuODU3NiA1LjkxNjIxIDE4LjA4MTFDNi4xMzgwOSAxOC4zMDQ1IDYuNDk5MDIgMTguMzA0NSA2LjcyMjQ2IDE4LjA4MjZMOC44ODQ5NiAxNS45MjY0TDEwLjYwODQgMTcuNjU0NUMxMC45MjI1IDE3Ljk3MDEgMTEuNDYxNSAxNy43NDgyIDExLjQ2MzEgMTcuMzAyOUwxMS40NzU2IDEzLjAzNzNDMTEuNDc3MSAxMi43NjIzIDExLjI1MzcgMTIuNTM3MyAxMC45NzcxIDEyLjUzNzNaTTE3LjI3NzEgNS45MTU0M0wxNS4xMTQ2IDguMDcxNjhMMTMuMzkxMiA2LjM0MzU2QzEzLjA3NzEgNi4wMjc5MyAxMi41MzgxIDYuMjQ5ODEgMTIuNTM2NSA2LjY5NTEyTDEyLjUyNCAxMC45NjA3QzEyLjUyMjUgMTEuMjM3MyAxMi43NDc1IDExLjQ2MjMgMTMuMDI0IDExLjQ2MjNIMTcuMjg5NkMxNy43MzUgMTEuNDYyMyAxNy45NTg0IDEwLjkyNDggMTcuNjQ0MyAxMC42MDkyTDE1LjkxOTMgOC44ODEwNkwxOC4wODE4IDYuNzI0ODFDMTguMzA1MyA2LjUwMjkzIDE4LjMwNTMgNi4xNDIgMTguMDgzNCA1LjkxODU2QzE3Ljg2MTUgNS42OTUxMiAxNy41MDA2IDUuNjkzNTYgMTcuMjc3MSA1LjkxNTQzWiIgZmlsbD0iIzhEOEZBNiIvPgo8L2c+CjxkZWZzPgo8Y2xpcFBhdGggaWQ9ImNsaXAwXzMxNV80NzQwOTQiPgo8cmVjdCB3aWR0aD0iMTQiIGhlaWdodD0iMTQiIGZpbGw9IndoaXRlIiB0cmFuc2Zvcm09InRyYW5zbGF0ZSg1IDUpIi8+CjwvY2xpcFBhdGg+CjwvZGVmcz4KPC9zdmc+Cg=="));\n}\n\n.telebox-titlebar-icon-close {\n  background: center/cover no-repeat;\n  background-image: url("data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iMTIiIGZpbGw9IiNGNUY1RkMiLz4KPHBhdGggZmlsbC1ydWxlPSJldmVub2RkIiBjbGlwLXJ1bGU9ImV2ZW5vZGQiIGQ9Ik0xNi4yMDcxIDkuMjA3MTFDMTYuNTk3NiA4LjgxNjU4IDE2LjU5NzYgOC4xODM0MiAxNi4yMDcxIDcuNzkyODlDMTUuODE2NiA3LjQwMjM3IDE1LjE4MzQgNy40MDIzNyAxNC43OTI5IDcuNzkyODlMMTIgMTAuNTg1OEw5LjIwNzExIDcuNzkyODlDOC44MTY1OCA3LjQwMjM3IDguMTgzNDIgNy40MDIzNyA3Ljc5Mjg5IDcuNzkyODlDNy40MDIzNyA4LjE4MzQyIDcuNDAyMzcgOC44MTY1OCA3Ljc5Mjg5IDkuMjA3MTFMMTAuNTg1OCAxMkw3Ljc5Mjg5IDE0Ljc5MjlDNy40MDIzNyAxNS4xODM0IDcuNDAyMzcgMTUuODE2NiA3Ljc5Mjg5IDE2LjIwNzFDOC4xODM0MiAxNi41OTc2IDguODE2NTggMTYuNTk3NiA5LjIwNzExIDE2LjIwNzFMMTIgMTMuNDE0MkwxNC43OTI5IDE2LjIwNzFDMTUuMTgzNCAxNi41OTc2IDE1LjgxNjYgMTYuNTk3NiAxNi4yMDcxIDE2LjIwNzFDMTYuNTk3NiAxNS44MTY2IDE2LjU5NzYgMTUuMTgzNCAxNi4yMDcxIDE0Ljc5MjlMMTMuNDE0MiAxMkwxNi4yMDcxIDkuMjA3MTFaIiBmaWxsPSIjOEQ4RkE2Ii8+Cjwvc3ZnPgo=");\n  background-image: var(--tele-titlebarIconClose, url("data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iMTIiIGZpbGw9IiNGNUY1RkMiLz4KPHBhdGggZmlsbC1ydWxlPSJldmVub2RkIiBjbGlwLXJ1bGU9ImV2ZW5vZGQiIGQ9Ik0xNi4yMDcxIDkuMjA3MTFDMTYuNTk3NiA4LjgxNjU4IDE2LjU5NzYgOC4xODM0MiAxNi4yMDcxIDcuNzkyODlDMTUuODE2NiA3LjQwMjM3IDE1LjE4MzQgNy40MDIzNyAxNC43OTI5IDcuNzkyODlMMTIgMTAuNTg1OEw5LjIwNzExIDcuNzkyODlDOC44MTY1OCA3LjQwMjM3IDguMTgzNDIgNy40MDIzNyA3Ljc5Mjg5IDcuNzkyODlDNy40MDIzNyA4LjE4MzQyIDcuNDAyMzcgOC44MTY1OCA3Ljc5Mjg5IDkuMjA3MTFMMTAuNTg1OCAxMkw3Ljc5Mjg5IDE0Ljc5MjlDNy40MDIzNyAxNS4xODM0IDcuNDAyMzcgMTUuODE2NiA3Ljc5Mjg5IDE2LjIwNzFDOC4xODM0MiAxNi41OTc2IDguODE2NTggMTYuNTk3NiA5LjIwNzExIDE2LjIwNzFMMTIgMTMuNDE0MkwxNC43OTI5IDE2LjIwNzFDMTUuMTgzNCAxNi41OTc2IDE1LjgxNjYgMTYuNTk3NiAxNi4yMDcxIDE2LjIwNzFDMTYuNTk3NiAxNS44MTY2IDE2LjU5NzYgMTUuMTgzNCAxNi4yMDcxIDE0Ljc5MjlMMTMuNDE0MiAxMkwxNi4yMDcxIDkuMjA3MTFaIiBmaWxsPSIjOEQ4RkE2Ii8+Cjwvc3ZnPgo="));\n}\n\n.telebox-color-scheme-dark {\n  color-scheme: dark;\n}\n\n.telebox-color-scheme-dark .telebox-title {\n  color: #e9e9e9;\n  color: var(--tele-titlebarColor, #e9e9e9);\n}\n\n.telebox-color-scheme-dark .telebox-titlebar {\n  color: #e9e9e9;\n  color: var(--tele-titlebarColor, #e9e9e9);\n  background-color: #383b42;\n  background-color: var(--tele-titlebarBackground, #383b42);\n  border-bottom: none;\n  border-bottom: var(--tele-titlebarBorderBottom, none);\n}')();
 var TELE_BOX_COLOR_SCHEME = /* @__PURE__ */ ((TELE_BOX_COLOR_SCHEME2) => {
   TELE_BOX_COLOR_SCHEME2["Light"] = "light";
   TELE_BOX_COLOR_SCHEME2["Dark"] = "dark";
@@ -66,6 +66,33 @@ let defaultBoxCount = 1;
 function getBoxDefaultName() {
   return `New Box ${defaultBoxCount++}`;
 }
+function uniqueByVal(arr) {
+  return arr.reduce((acc, item) => {
+    if (!acc.includes(item))
+      acc.push(item);
+    return acc;
+  }, []);
+}
+function removeByVal(arr, val) {
+  const index = arr.indexOf(val);
+  if (index < 0) {
+    return arr;
+  }
+  const newArr = [...arr];
+  newArr.splice(index, 1);
+  return newArr;
+}
+function excludeFromBoth(c, a, b) {
+  const aSet = new Set(a);
+  const bSet = new Set(b);
+  return c.filter((item) => !aSet.has(item) && !bSet.has(item));
+}
+const isIOS = () => {
+  return typeof navigator !== "undefined" && typeof window !== "undefined" && /iPad|iPhone|iPod/.test(window.navigator.userAgent);
+};
+const isAndroid = () => {
+  return typeof navigator !== "undefined" && /Android/.test(window.navigator.userAgent);
+};
 class DefaultTitleBar {
   constructor({
     readonly$,
@@ -238,6 +265,46 @@ function calcStageRect([rootRect, ratio]) {
     width: preferredWidth,
     height: rootRect.height
   };
+}
+let fastRafCallbacks;
+let fastRafPrimaryCallbacks;
+function fastRaf(callback, isPrimary = false) {
+  if (!fastRafCallbacks) {
+    fastRafCallbacks = isPrimary ? [] : [callback];
+    fastRafPrimaryCallbacks = isPrimary ? [callback] : [];
+    requestAnimationFrame(() => {
+      const currentCallbacks = fastRafCallbacks;
+      const currentPrimaryCallbacks = fastRafPrimaryCallbacks;
+      fastRafCallbacks = void 0;
+      fastRafPrimaryCallbacks = void 0;
+      currentPrimaryCallbacks == null ? void 0 : currentPrimaryCallbacks.forEach((cb) => cb());
+      currentCallbacks == null ? void 0 : currentCallbacks.forEach((cb) => cb());
+    });
+  } else if (isPrimary) {
+    fastRafPrimaryCallbacks == null ? void 0 : fastRafPrimaryCallbacks.push(callback);
+  } else {
+    fastRafCallbacks.push(callback);
+  }
+}
+let onTickEndCallbacks;
+let onTickEndPrimaryCallbacks;
+function onTickEnd(callback, isPrimary = false) {
+  if (!onTickEndCallbacks) {
+    onTickEndCallbacks = isPrimary ? [] : [callback];
+    onTickEndPrimaryCallbacks = isPrimary ? [callback] : [];
+    Promise.resolve().then(() => {
+      const currentCallbacks = onTickEndCallbacks;
+      const currentPrimaryCallbacks = onTickEndPrimaryCallbacks;
+      onTickEndCallbacks = void 0;
+      onTickEndPrimaryCallbacks = void 0;
+      currentPrimaryCallbacks == null ? void 0 : currentPrimaryCallbacks.forEach((cb) => cb());
+      currentCallbacks == null ? void 0 : currentCallbacks.forEach((cb) => cb());
+    });
+  } else if (isPrimary) {
+    onTickEndPrimaryCallbacks == null ? void 0 : onTickEndPrimaryCallbacks.push(callback);
+  } else {
+    onTickEndCallbacks.push(callback);
+  }
 }
 const ResizeObserver$1 = window.ResizeObserver || ResizeObserver$2;
 class TeleBox {
@@ -592,9 +659,18 @@ class TeleBox {
     this._sideEffect.add(() => {
       const minimizedClassName = this.wrapClassName("minimized");
       const maximizedClassName = this.wrapClassName("maximized");
+      const hideClassName = this.wrapClassName("hide");
       const MAXIMIZED_TIMER_ID = "box-maximized-timer";
       return this._state$.subscribe((state) => {
-        this.$box.classList.toggle(minimizedClassName, state === TELE_BOX_STATE.Minimized);
+        if (state === TELE_BOX_STATE.Minimized) {
+          this.$box.classList.toggle(minimizedClassName, true);
+          this.$box.classList.toggle(hideClassName, true);
+        } else {
+          this.$box.classList.toggle(hideClassName, false);
+          fastRaf(() => {
+            this.$box.classList.toggle(minimizedClassName, false);
+          });
+        }
         if (state === TELE_BOX_STATE.Maximized) {
           this._sideEffect.flush(MAXIMIZED_TIMER_ID);
           this.$box.classList.toggle(maximizedClassName, true);
@@ -905,12 +981,24 @@ class TeleBox {
     return `${this.namespace}-${className}`;
   }
 }
-var style$2 = /* @__PURE__ */ (() => ".telebox-manager-container {\n  position: relative;\n  overflow: hidden;\n  width: 100%;\n  height: 100%;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  --tele-managerContainerBackground: #f5f5fc;\n  --tele-managerStageBackground: #fff;\n  --tele-boxContainerBackground: #f5f5fc;\n  --tele-boxStageBackground: #fff;\n  --tele-boxStageShadow: 0px 0px 16px rgba(0, 0, 0, 0.08);\n  --tele-boxColor: #191919;\n  --tele-boxBorder: 1px solid #DFE0ED;\n  --tele-boxShadow: 6px 4px 25px 0px rgba(32, 35, 56, 0.2);\n  --tele-boxFooterColor: #191919;\n  --tele-boxFooterBackground: #fff;\n  --tele-titlebarColor: #484C70;\n  --tele-titlebarBackground: #EBECFA;\n  --tele-titlebarBorderBottom: 0px solid #eeeef7;\n  --tele-titlebarTabColor: #484C70;\n  --tele-titlebarTabFocusColor: #FF5353;\n  --tele-titlebarTabBackground: #F0F1FC;\n  --tele-titlebarTabDividerColor: #e5e5f0;\n  --tele-collectorBackground: #8d8fa6;\n  --tele-collectorShadow: 6px 4px 25px 0px rgba(32, 35, 56, 0.2);\n  background: #f5f5fc;\n  background: var(--tele-managerContainerBackground, #f5f5fc);\n}\n.telebox-manager-container.telebox-is-maximized > .telebox-manager-stage, .telebox-manager-container.telebox-is-minimized > .telebox-manager-stage {\n  overflow: visible;\n}\n.telebox-manager-container.telebox-is-fullscreen .telebox-titlebar-icon-maximize,\n.telebox-manager-container.telebox-is-fullscreen .telebox-titlebar-icon-minimize {\n  display: none !important;\n}\n.telebox-manager-container.telebox-hide-fullscreen-titlebar .telebox-titlebar {\n  display: none !important;\n}\n.telebox-manager-stage {\n  position: relative;\n  overflow: hidden;\n  background: #fff;\n  background: var(--tele-managerStageBackground, #fff);\n}\n.telebox-manager-stage .telebox-maximized .telebox-box-main .telebox-titlebar-wrap {\n  display: none !important;\n}\n.telebox-color-scheme-dark {\n  color-scheme: dark;\n}\n.telebox-color-scheme-dark.telebox-manager-container {\n  --tele-managerContainerBackground: #25282e;\n  --tele-managerStageBackground: #272a30;\n  --tele-boxContainerBackground: #25282e;\n  --tele-boxStageBackground: #272a30;\n  --tele-boxStageShadow: 0px 0px 16px rgba(0, 0, 0, 0.24);\n  --tele-boxColor: #e9e9e9;\n  --tele-boxBorder: 1px solid #383b42;\n  --tele-boxShadow: 0px 4px 10px 0px rgba(56, 59, 66, 0.15);\n  --tele-boxFooterColor: #e9e9e9;\n  --tele-boxFooterBackground: #383b42;\n  --tele-titlebarColor: #e9e9e9;\n  --tele-titlebarBackground: #383b42;\n  --tele-titlebarBorderBottom: none;\n  --tele-titlebarTabColor: #e9e9e9;\n  --tele-titlebarTabFocusColor: #357bf6;\n  --tele-titlebarTabBackground: transparent;\n  --tele-titlebarTabDividerColor: #7b88a0;\n  --tele-collectorBackground: #383b42;\n  --tele-collectorShadow: 0px 2px 6px 0px rgba(47, 65, 146, 0.15);\n  background: #25282e;\n  background: var(--tele-managerContainerBackground, #25282e);\n}\n.telebox-color-scheme-dark.telebox-manager-container > .telebox-manager-stage {\n  background: #272a30;\n  background: var(--tele-managerStageBackground, #272a30);\n  box-shadow: var(--tele-managerStageShadow, );\n}")();
-var style$1 = /* @__PURE__ */ (() => ".telebox-collector-wrp {\n  user-select: none;\n  -webkit-touch-callout: none;\n  -webkit-user-select: none;\n  visibility: hidden;\n  position: absolute;\n  z-index: 5120;\n  border-radius: 50%;\n  cursor: pointer;\n  user-select: none;\n  pointer-events: none;\n  background-color: #fff;\n  height: 56px;\n  width: 56px;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  margin: 0;\n  padding: 0;\n  border: none;\n  outline: none;\n  box-shadow: 6px 4px 25px 0px rgba(32, 35, 56, 0.2);\n  box-shadow: var(--tele-collectorShadow, 6px 4px 25px 0px rgba(32, 35, 56, 0.2));\n}\n\n.telebox-collector {\n  user-select: none;\n  -webkit-touch-callout: none;\n  -webkit-user-select: none;\n  visibility: hidden;\n  display: block;\n  width: 48px;\n  height: 48px;\n  margin: 0;\n  padding: 0;\n  border: none;\n  outline: none;\n  font-size: 0;\n  border-radius: 50%;\n  cursor: pointer;\n  user-select: none;\n  pointer-events: none;\n  background-repeat: no-repeat;\n  background-size: 28px 28px;\n  background-position: center;\n  -webkit-tap-highlight-color: transparent;\n  background-color: #8d8fa6;\n  background-color: var(--tele-collectorBackground, #8d8fa6);\n}\n\n.telebox-collector-count {\n  user-select: none;\n  -webkit-touch-callout: none;\n  -webkit-user-select: none;\n  position: absolute;\n  z-index: 5120;\n  border-radius: 100%;\n  user-select: none;\n  pointer-events: none;\n  background-color: #8d8fa6;\n  height: 14px;\n  min-width: 14px;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  margin: 0;\n  padding: 0;\n  border: none;\n  outline: none;\n  right: 0px;\n  top: 0px;\n  border: 1px solid #fff;\n  color: #fff;\n  font-weight: 400;\n  font-size: 11px;\n}\n\n.telebox-collector-visible {\n  visibility: visible;\n  pointer-events: initial;\n}\n\n.telebox-collector-readonly {\n  cursor: not-allowed;\n}\n\n.telebox-color-scheme-dark {\n  color-scheme: dark;\n}\n\n.telebox-color-scheme-dark.telebox-collector {\n  background-color: #383b42;\n  background-color: var(--tele-collectorBackground, #383b42);\n  box-shadow: 0px 2px 6px 0px rgba(47, 65, 146, 0.15);\n  box-shadow: var(--tele-collectorShadow, 0px 2px 6px 0px rgba(47, 65, 146, 0.15));\n}")();
+var style$2 = /* @__PURE__ */ (() => ".telebox-manager-container {\n  position: relative;\n  overflow: hidden;\n  width: 100%;\n  height: 100%;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  --tele-managerContainerBackground: #F5F5FC;\n  --tele-managerStageBackground: #fff;\n  --tele-boxContainerBackground: #f5f5fc;\n  --tele-boxStageBackground: #fff;\n  --tele-boxStageShadow: 0px 0px 16px rgba(0, 0, 0, 0.08);\n  --tele-boxColor: #191919;\n  --tele-boxBorder: 1px solid #DFE0ED;\n  --tele-boxShadow: 6px 4px 25px 0px rgba(32, 35, 56, 0.2);\n  --tele-boxFooterColor: #191919;\n  --tele-boxFooterBackground: #fff;\n  --tele-titlebarColor: #484C70;\n  --tele-titlebarBackground: #EBECFA;\n  --tele-titlebarBorderBottom: 0px solid #eeeef7;\n  --tele-titlebarTabColor: #484C70;\n  --tele-titlebarTabFocusColor: #FF5353;\n  --tele-titlebarTabBackground: #F0F1FC;\n  --tele-titlebarTabDividerColor: #e5e5f0;\n  --tele-collectorBackground: #8d8fa6;\n  --tele-collectorShadow: 6px 4px 25px 0px rgba(32, 35, 56, 0.2);\n  background: #F5F5FC;\n  background: var(--tele-managerContainerBackground, #F5F5FC);\n}\n.telebox-manager-container.telebox-is-maximized > .telebox-manager-stage, .telebox-manager-container.telebox-is-minimized > .telebox-manager-stage {\n  overflow: visible;\n}\n.telebox-manager-container.telebox-is-fullscreen .telebox-titlebar-icon-maximize,\n.telebox-manager-container.telebox-is-fullscreen .telebox-titlebar-icon-minimize {\n  display: none !important;\n}\n.telebox-manager-container.telebox-hide-fullscreen-titlebar .telebox-titlebar {\n  display: none !important;\n}\n.telebox-manager-stage {\n  position: relative;\n  overflow: hidden;\n  background: #fff;\n  background: var(--tele-managerStageBackground, #fff);\n}\n.telebox-manager-stage .telebox-maximized .telebox-box-main .telebox-titlebar-wrap {\n  display: none !important;\n}\n.telebox-color-scheme-dark {\n  color-scheme: dark;\n}\n.telebox-color-scheme-dark.telebox-manager-container {\n  --tele-managerContainerBackground: #25282e;\n  --tele-managerStageBackground: #272a30;\n  --tele-boxContainerBackground: #25282e;\n  --tele-boxStageBackground: #272a30;\n  --tele-boxStageShadow: 0px 0px 16px rgba(0, 0, 0, 0.24);\n  --tele-boxColor: #e9e9e9;\n  --tele-boxBorder: 1px solid #383b42;\n  --tele-boxShadow: 0px 4px 10px 0px rgba(56, 59, 66, 0.15);\n  --tele-boxFooterColor: #e9e9e9;\n  --tele-boxFooterBackground: #383b42;\n  --tele-titlebarColor: #e9e9e9;\n  --tele-titlebarBackground: #383b42;\n  --tele-titlebarBorderBottom: none;\n  --tele-titlebarTabColor: #e9e9e9;\n  --tele-titlebarTabFocusColor: #357bf6;\n  --tele-titlebarTabBackground: transparent;\n  --tele-titlebarTabDividerColor: #7b88a0;\n  --tele-collectorBackground: #383b42;\n  --tele-collectorShadow: 0px 2px 6px 0px rgba(47, 65, 146, 0.15);\n  background: #25282e;\n  background: var(--tele-managerContainerBackground, #25282e);\n}\n.telebox-color-scheme-dark.telebox-manager-container > .telebox-manager-stage {\n  background: #272a30;\n  background: var(--tele-managerStageBackground, #272a30);\n  box-shadow: var(--tele-managerStageShadow, );\n}\n.telebox-hide {\n  display: none !important;\n}")();
+var style$1 = /* @__PURE__ */ (() => ".telebox-collector-wrp {\n  user-select: none;\n  -webkit-touch-callout: none;\n  -webkit-user-select: none;\n  visibility: hidden;\n  position: absolute;\n  z-index: 5120;\n  border-radius: 50%;\n  cursor: pointer;\n  user-select: none;\n  pointer-events: none;\n  background-color: #fff;\n  height: 56px;\n  width: 56px;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  margin: 0;\n  padding: 0;\n  border: none;\n  outline: none;\n  box-shadow: 6px 4px 25px 0px rgba(32, 35, 56, 0.2);\n  box-shadow: var(--tele-collectorShadow, 6px 4px 25px 0px rgba(32, 35, 56, 0.2));\n}\n\n.telebox-collector-titles {\n  position: absolute;\n  box-shadow: 6px 4px 25px 0px rgba(32, 35, 56, 0.2);\n  box-shadow: var(--tele-collectorShadow, 6px 4px 25px 0px rgba(32, 35, 56, 0.2));\n  z-index: calc($collector-z-index + 1);\n  margin: 0;\n  padding: 12px 0;\n  border: none;\n  outline: none;\n  overflow-y: auto;\n  overflow-y: overlay;\n  top: 0;\n  left: -90px;\n  width: 180px;\n  max-height: 200px;\n  transition: opacity 0.3s ease-in;\n  opacity: 0;\n  -webkit-overflow-scrolling: touch;\n  -ms-overflow-style: -ms-autohiding-scrollbar;\n  scrollbar-width: auto;\n  display: block;\n  border-radius: 10px;\n  background-color: #f5f5fc;\n}\n\n.telebox-collector-titles.telebox-collector-hide {\n  display: none;\n}\n\n.telebox-collector-titles::-webkit-scrollbar {\n  height: 8px;\n  width: 8px;\n}\n\n.telebox-collector-titles::-webkit-scrollbar-track {\n  background-color: transparent;\n}\n\n.telebox-collector-titles::-webkit-scrollbar-thumb {\n  background-color: #ebecfa;\n  background-color: transparent;\n  border-radius: 4px;\n  transition: background-color 0.4s;\n}\n\n.telebox-collector-titles:hover::-webkit-scrollbar-thumb {\n  background-color: #ebecfa;\n}\n\n.telebox-collector-titles::-webkit-scrollbar-thumb:hover {\n  background-color: #ebecfa;\n}\n\n.telebox-collector-titles::-webkit-scrollbar-thumb:active {\n  background-color: #ebecfa;\n}\n\n.telebox-collector-titles::-webkit-scrollbar-thumb:vertical {\n  min-height: 50px;\n}\n\n.telebox-collector-titles::-webkit-scrollbar-thumb:horizontal {\n  min-width: 50px;\n}\n\n.telebox-collector-titles.telebox-collector-titles-visible {\n  opacity: 1;\n}\n\n.telebox-collector-titles .telebox-collector-titles-content {\n  width: 100%;\n  background: none;\n}\n\n.telebox-collector-titles .telebox-collector-titles-content .telebox-collector-titles-tab {\n  width: 100%;\n  text-align: left;\n  height: 36px;\n  padding: 0 20px;\n  line-height: 36px;\n  color: #484c70;\n  font-size: 14px;\n  font-weight: 400;\n  display: block;\n  text-overflow: ellipsis;\n  white-space: nowrap;\n  word-break: keep-all;\n  border: none;\n  cursor: pointer;\n  user-select: none;\n  outline: none;\n  background: none;\n}\n\n.telebox-collector-titles .telebox-collector-titles-content .telebox-collector-titles-tab:hover {\n  background-color: #ebecfa;\n}\n\n.telebox-collector {\n  user-select: none;\n  -webkit-touch-callout: none;\n  -webkit-user-select: none;\n  visibility: hidden;\n  display: block;\n  width: 48px;\n  height: 48px;\n  margin: 0;\n  padding: 0;\n  border: none;\n  outline: none;\n  font-size: 0;\n  border-radius: 50%;\n  cursor: pointer;\n  user-select: none;\n  pointer-events: none;\n  background-repeat: no-repeat;\n  background-size: 28px 28px;\n  background-position: center;\n  -webkit-tap-highlight-color: transparent;\n  background-color: #8d8fa6;\n  background-color: var(--tele-collectorBackground, #8d8fa6);\n}\n\n.telebox-collector-count {\n  user-select: none;\n  -webkit-touch-callout: none;\n  -webkit-user-select: none;\n  position: absolute;\n  z-index: 5120;\n  border-radius: 100%;\n  user-select: none;\n  pointer-events: none;\n  background-color: #8d8fa6;\n  height: 14px;\n  min-width: 14px;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  margin: 0;\n  padding: 0;\n  border: none;\n  outline: none;\n  right: 0px;\n  top: 0px;\n  border: 1px solid #fff;\n  color: #fff;\n  font-weight: 400;\n  font-size: 11px;\n}\n\n.telebox-collector-visible {\n  visibility: visible;\n  pointer-events: initial;\n}\n\n.telebox-collector-readonly {\n  cursor: not-allowed;\n}\n\n.telebox-color-scheme-dark {\n  color-scheme: dark;\n}\n\n.telebox-color-scheme-dark.telebox-collector {\n  background-color: #383b42;\n  background-color: var(--tele-collectorBackground, #383b42);\n  box-shadow: 0px 2px 6px 0px rgba(47, 65, 146, 0.15);\n  box-shadow: var(--tele-collectorShadow, 0px 2px 6px 0px rgba(47, 65, 146, 0.15));\n}")();
 var collectorSVG = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjgiIGhlaWdodD0iMjgiIHZpZXdCb3g9IjAgMCAyOCAyOCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGcgY2xpcC1wYXRoPSJ1cmwoI2NsaXAwXzFfNDQyNDQpIj4KPGcgZmlsdGVyPSJ1cmwoI2ZpbHRlcjBfZF8xXzQ0MjQ0KSI+CjxwYXRoIGQ9Ik0xNC4wMDAyIDE2LjE5NTNDMTMuODI0NyAxNi4xOTUzIDEzLjY1MjIgMTYuMTQ5MSAxMy41MDAyIDE2LjA2MTVMNC41MDAxNyAxMC44NjQzQzQuMDIxNzggMTAuNTg3OSAzLjg1Nzk2IDkuOTc2MTIgNC4xMzQyOCA5LjQ5NzczQzQuMjIyMDQgOS4zNDU3OSA0LjM0ODIzIDkuMjE5NiA0LjUwMDE3IDkuMTMxODRMMTMuNTAwMiAzLjkzODQ4QzEzLjgwOTggMy43NjA3NCAxNC4xOTA1IDMuNzYwNzQgMTQuNTAwMiAzLjkzODQ4TDIzLjUwMDIgOS4xMzE4NEMyMy45Nzg2IDkuNDA4MTYgMjQuMTQyNCAxMC4wMiAyMy44NjYxIDEwLjQ5ODRDMjMuNzc4MyAxMC42NTAzIDIzLjY1MjEgMTAuNzc2NSAyMy41MDAyIDEwLjg2NDNMMTQuNTAwMiAxNi4wNjE1QzE0LjM0ODEgMTYuMTQ5MSAxNC4xNzU3IDE2LjE5NTMgMTQuMDAwMiAxNi4xOTUzWiIgZmlsbD0id2hpdGUiLz4KPC9nPgo8ZyBmaWx0ZXI9InVybCgjZmlsdGVyMV9kXzFfNDQyNDQpIj4KPHBhdGggZD0iTTIzLjUwMDIgMTMuMTMxOUwyMS41MzYxIDExLjk5ODVMMTQuNTAwMiAxNi4wNjE2QzE0LjE5MDcgMTYuMjQgMTMuODA5NiAxNi4yNCAxMy41MDAyIDE2LjA2MTZMNi40NjQyOCAxMS45OTg1TDQuNTAwMTcgMTMuMTMxOUM0LjAyMTc4IDEzLjQwODIgMy44NTc5NiAxNC4wMiA0LjEzNDI4IDE0LjQ5ODRDNC4yMjIwNCAxNC42NTA0IDQuMzQ4MjMgMTQuNzc2NiA0LjUwMDE3IDE0Ljg2NDNMMTMuNTAwMiAyMC4wNjE2QzEzLjgwOTYgMjAuMjQgMTQuMTkwNyAyMC4yNCAxNC41MDAyIDIwLjA2MTZMMjMuNTAwMiAxNC44NjQzQzIzLjk3ODYgMTQuNTg4IDI0LjE0MjQgMTMuOTc2MiAyMy44NjYxIDEzLjQ5NzhDMjMuNzc4MyAxMy4zNDU5IDIzLjY1MjEgMTMuMjE5NyAyMy41MDAyIDEzLjEzMTlaIiBmaWxsPSJ3aGl0ZSIgZmlsbC1vcGFjaXR5PSIwLjgiIHNoYXBlLXJlbmRlcmluZz0iY3Jpc3BFZGdlcyIvPgo8L2c+CjxnIGZpbHRlcj0idXJsKCNmaWx0ZXIyX2RfMV80NDI0NCkiPgo8cGF0aCBkPSJNMjMuNTAwMiAxNy4xMzE5TDIxLjUzNjEgMTUuOTk4NUwxNC41MDAyIDIwLjA2MTZDMTQuMTkwNyAyMC4yNCAxMy44MDk2IDIwLjI0IDEzLjUwMDIgMjAuMDYxNkw2LjQ2NDI4IDE1Ljk5ODVMNC41MDAxNyAxNy4xMzE5QzQuMDIxNzggMTcuNDA4MiAzLjg1Nzk2IDE4LjAyIDQuMTM0MjggMTguNDk4NEM0LjIyMjA0IDE4LjY1MDQgNC4zNDgyMyAxOC43NzY2IDQuNTAwMTcgMTguODY0M0wxMy41MDAyIDI0LjA2MTZDMTMuODA5NiAyNC4yNCAxNC4xOTA3IDI0LjI0IDE0LjUwMDIgMjQuMDYxNkwyMy41MDAyIDE4Ljg2NDNDMjMuOTc4NiAxOC41ODggMjQuMTQyNCAxNy45NzYyIDIzLjg2NjEgMTcuNDk3OEMyMy43NzgzIDE3LjM0NTkgMjMuNjUyMSAxNy4yMTk3IDIzLjUwMDIgMTcuMTMxOVoiIGZpbGw9IndoaXRlIiBmaWxsLW9wYWNpdHk9IjAuNiIgc2hhcGUtcmVuZGVyaW5nPSJjcmlzcEVkZ2VzIi8+CjwvZz4KPC9nPgo8ZGVmcz4KPGZpbHRlciBpZD0iZmlsdGVyMF9kXzFfNDQyNDQiIHg9IjMiIHk9IjMuODA1MTgiIHdpZHRoPSIyMiIgaGVpZ2h0PSIxNC4zOTAxIiBmaWx0ZXJVbml0cz0idXNlclNwYWNlT25Vc2UiIGNvbG9yLWludGVycG9sYXRpb24tZmlsdGVycz0ic1JHQiI+CjxmZUZsb29kIGZsb29kLW9wYWNpdHk9IjAiIHJlc3VsdD0iQmFja2dyb3VuZEltYWdlRml4Ii8+CjxmZUNvbG9yTWF0cml4IGluPSJTb3VyY2VBbHBoYSIgdHlwZT0ibWF0cml4IiB2YWx1ZXM9IjAgMCAwIDAgMCAwIDAgMCAwIDAgMCAwIDAgMCAwIDAgMCAwIDEyNyAwIiByZXN1bHQ9ImhhcmRBbHBoYSIvPgo8ZmVPZmZzZXQgZHk9IjEiLz4KPGZlR2F1c3NpYW5CbHVyIHN0ZERldmlhdGlvbj0iMC41Ii8+CjxmZUNvbXBvc2l0ZSBpbjI9ImhhcmRBbHBoYSIgb3BlcmF0b3I9Im91dCIvPgo8ZmVDb2xvck1hdHJpeCB0eXBlPSJtYXRyaXgiIHZhbHVlcz0iMCAwIDAgMCAwLjU1Mjk0MSAwIDAgMCAwIDAuNTYwNzg0IDAgMCAwIDAgMC42NTA5OCAwIDAgMCAwLjE1IDAiLz4KPGZlQmxlbmQgbW9kZT0ibm9ybWFsIiBpbjI9IkJhY2tncm91bmRJbWFnZUZpeCIgcmVzdWx0PSJlZmZlY3QxX2Ryb3BTaGFkb3dfMV80NDI0NCIvPgo8ZmVCbGVuZCBtb2RlPSJub3JtYWwiIGluPSJTb3VyY2VHcmFwaGljIiBpbjI9ImVmZmVjdDFfZHJvcFNoYWRvd18xXzQ0MjQ0IiByZXN1bHQ9InNoYXBlIi8+CjwvZmlsdGVyPgo8ZmlsdGVyIGlkPSJmaWx0ZXIxX2RfMV80NDI0NCIgeD0iMyIgeT0iMTEuOTk4NSIgd2lkdGg9IjIyIiBoZWlnaHQ9IjEwLjE5NjgiIGZpbHRlclVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgY29sb3ItaW50ZXJwb2xhdGlvbi1maWx0ZXJzPSJzUkdCIj4KPGZlRmxvb2QgZmxvb2Qtb3BhY2l0eT0iMCIgcmVzdWx0PSJCYWNrZ3JvdW5kSW1hZ2VGaXgiLz4KPGZlQ29sb3JNYXRyaXggaW49IlNvdXJjZUFscGhhIiB0eXBlPSJtYXRyaXgiIHZhbHVlcz0iMCAwIDAgMCAwIDAgMCAwIDAgMCAwIDAgMCAwIDAgMCAwIDAgMTI3IDAiIHJlc3VsdD0iaGFyZEFscGhhIi8+CjxmZU9mZnNldCBkeT0iMSIvPgo8ZmVHYXVzc2lhbkJsdXIgc3RkRGV2aWF0aW9uPSIwLjUiLz4KPGZlQ29tcG9zaXRlIGluMj0iaGFyZEFscGhhIiBvcGVyYXRvcj0ib3V0Ii8+CjxmZUNvbG9yTWF0cml4IHR5cGU9Im1hdHJpeCIgdmFsdWVzPSIwIDAgMCAwIDAuNTUyOTQxIDAgMCAwIDAgMC41NjA3ODQgMCAwIDAgMCAwLjY1MDk4IDAgMCAwIDAuMTUgMCIvPgo8ZmVCbGVuZCBtb2RlPSJub3JtYWwiIGluMj0iQmFja2dyb3VuZEltYWdlRml4IiByZXN1bHQ9ImVmZmVjdDFfZHJvcFNoYWRvd18xXzQ0MjQ0Ii8+CjxmZUJsZW5kIG1vZGU9Im5vcm1hbCIgaW49IlNvdXJjZUdyYXBoaWMiIGluMj0iZWZmZWN0MV9kcm9wU2hhZG93XzFfNDQyNDQiIHJlc3VsdD0ic2hhcGUiLz4KPC9maWx0ZXI+CjxmaWx0ZXIgaWQ9ImZpbHRlcjJfZF8xXzQ0MjQ0IiB4PSIzIiB5PSIxNS45OTg1IiB3aWR0aD0iMjIiIGhlaWdodD0iMTAuMTk2OCIgZmlsdGVyVW5pdHM9InVzZXJTcGFjZU9uVXNlIiBjb2xvci1pbnRlcnBvbGF0aW9uLWZpbHRlcnM9InNSR0IiPgo8ZmVGbG9vZCBmbG9vZC1vcGFjaXR5PSIwIiByZXN1bHQ9IkJhY2tncm91bmRJbWFnZUZpeCIvPgo8ZmVDb2xvck1hdHJpeCBpbj0iU291cmNlQWxwaGEiIHR5cGU9Im1hdHJpeCIgdmFsdWVzPSIwIDAgMCAwIDAgMCAwIDAgMCAwIDAgMCAwIDAgMCAwIDAgMCAxMjcgMCIgcmVzdWx0PSJoYXJkQWxwaGEiLz4KPGZlT2Zmc2V0IGR5PSIxIi8+CjxmZUdhdXNzaWFuQmx1ciBzdGREZXZpYXRpb249IjAuNSIvPgo8ZmVDb21wb3NpdGUgaW4yPSJoYXJkQWxwaGEiIG9wZXJhdG9yPSJvdXQiLz4KPGZlQ29sb3JNYXRyaXggdHlwZT0ibWF0cml4IiB2YWx1ZXM9IjAgMCAwIDAgMC41NTI5NDEgMCAwIDAgMCAwLjU2MDc4NCAwIDAgMCAwIDAuNjUwOTggMCAwIDAgMC4xNSAwIi8+CjxmZUJsZW5kIG1vZGU9Im5vcm1hbCIgaW4yPSJCYWNrZ3JvdW5kSW1hZ2VGaXgiIHJlc3VsdD0iZWZmZWN0MV9kcm9wU2hhZG93XzFfNDQyNDQiLz4KPGZlQmxlbmQgbW9kZT0ibm9ybWFsIiBpbj0iU291cmNlR3JhcGhpYyIgaW4yPSJlZmZlY3QxX2Ryb3BTaGFkb3dfMV80NDI0NCIgcmVzdWx0PSJzaGFwZSIvPgo8L2ZpbHRlcj4KPGNsaXBQYXRoIGlkPSJjbGlwMF8xXzQ0MjQ0Ij4KPHJlY3Qgd2lkdGg9IjI4IiBoZWlnaHQ9IjI4IiBmaWxsPSJ3aGl0ZSIvPgo8L2NsaXBQYXRoPgo8L2RlZnM+Cjwvc3ZnPgo=";
+function getHiddenElementSize(element) {
+  const clone = element.cloneNode(true);
+  clone.style.position = "absolute";
+  clone.style.top = "-99999px";
+  clone.style.float = "none";
+  clone.style.visibility = "hidden";
+  clone.style.display = "block";
+  document.body.appendChild(clone);
+  const rect = clone.getBoundingClientRect();
+  document.body.removeChild(clone);
+  return { height: rect.height, width: rect.width };
+}
 class TeleBoxCollector {
   constructor({
-    minimized$,
+    minimizedBoxes$,
     readonly$,
     darkMode$,
     boxes$,
@@ -921,14 +1009,19 @@ class TeleBoxCollector {
   }) {
     this._sideEffect = new SideEffectManager();
     this.namespace = namespace;
+    this.boxes$ = boxes$;
+    this.minimizedBoxes$ = minimizedBoxes$;
+    this.root$ = root;
+    this.onClick$ = onClick;
     const valManager = new ValManager();
     this._sideEffect.addDisposer(() => valManager.destroy());
     const rect$ = new Val(void 0);
-    const visible$ = derive(minimized$);
+    const visible$ = derive(minimizedBoxes$, (minimizedBoxes) => minimizedBoxes.length > 0);
     const styles$ = new Val(styles);
     const el$ = new Val(document.createElement("button"));
     const wrp$ = new Val(document.createElement("div"));
     const count$ = new Val(document.createElement("div"));
+    const popupVisible$ = new Val(false);
     const valConfig = {
       styles: styles$,
       $collector: el$
@@ -936,7 +1029,9 @@ class TeleBoxCollector {
     withValueEnhancer(this, valConfig, valManager);
     const myReadonlyValConfig = {
       rect: rect$,
-      visible: visible$
+      visible: visible$,
+      wrp: wrp$,
+      popupVisible: popupVisible$
     };
     withReadonlyValueEnhancer(this, myReadonlyValConfig, valManager);
     el$.value.className = this.wrapClassName("collector");
@@ -952,16 +1047,32 @@ class TeleBoxCollector {
       }, "telebox-collector-mount");
       this._sideEffect.addEventListener($collector, "click", () => {
         if (!readonly$.value) {
-          onClick == null ? void 0 : onClick();
+          popupVisible$.setValue(!popupVisible$.value);
         }
       }, {}, "telebox-collector-click");
       this._sideEffect.addDisposer([
         visible$.subscribe((visible) => {
           $collector.classList.toggle(this.wrapClassName("collector-visible"), visible);
           wrp$.value.classList.toggle(this.wrapClassName("collector-visible"), visible);
+          if (!visible) {
+            popupVisible$.setValue(false);
+          } else {
+            this.renderTitles();
+          }
         }),
-        boxes$.subscribe((boxes) => {
-          count$.value.innerHTML = boxes.length.toString();
+        popupVisible$.subscribe((popupVisible) => {
+          var _a;
+          (_a = this.$titles) == null ? void 0 : _a.classList.toggle(this.wrapClassName("collector-hide"), !popupVisible);
+          requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+              var _a2;
+              (_a2 = this.$titles) == null ? void 0 : _a2.classList.toggle(this.wrapClassName("collector-titles-visible"), popupVisible);
+            });
+          });
+        }),
+        minimizedBoxes$.subscribe((minimizedBoxes) => {
+          count$.value.textContent = minimizedBoxes.length.toString();
+          this.renderTitles();
         }),
         readonly$.subscribe((readonly) => {
           wrp$.value.classList.toggle(this.wrapClassName("collector-readonly"), readonly);
@@ -980,8 +1091,8 @@ class TeleBoxCollector {
             }
           });
         }),
-        minimized$.subscribe((minimized) => {
-          if (minimized) {
+        minimizedBoxes$.subscribe((minimizedBoxes) => {
+          if (minimizedBoxes.length > 0) {
             const { x, y, width, height } = $collector.getBoundingClientRect();
             const rootRect = root.getBoundingClientRect();
             rect$.setValue({
@@ -994,9 +1105,83 @@ class TeleBoxCollector {
         })
       ], "telebox-collector-el");
     }));
+    const blurPopup = (ev) => {
+      if (!popupVisible$)
+        return;
+      const target = ev.target;
+      if (target.className.includes("collector"))
+        return;
+      popupVisible$.setValue(false);
+    };
+    this._sideEffect.addEventListener(window, "pointerdown", blurPopup, true);
+  }
+  renderTitles() {
+    if (!this.$titles) {
+      this.$titles = document.createElement("div");
+      this.$titles.className = this.wrapClassName("collector-titles");
+      this.$titles.classList.toggle(this.wrapClassName("collector-hide"), !this._popupVisible$.value);
+    }
+    this._sideEffect.addEventListener(this.$titles, "wheel", (ev) => {
+      if (!ev.deltaX) {
+        ev.currentTarget.scrollBy({
+          left: ev.deltaY > 0 ? 250 : -250,
+          behavior: "smooth"
+        });
+      }
+    }, { passive: false }, "min-popup-render-wheel-titles");
+    const existContent = this.$titles.querySelector(`.${this.wrapClassName("collector-titles-content")}`);
+    const $content = existContent != null ? existContent : document.createElement("div");
+    $content.className = this.wrapClassName("collector-titles-content");
+    if (!existContent) {
+      this.$titles.appendChild($content);
+      this._sideEffect.addEventListener($content, "click", (ev) => {
+        var _a, _b;
+        const target = ev.target;
+        (_b = this.onClick$) == null ? void 0 : _b.call(this, (_a = target.dataset) == null ? void 0 : _a.teleBoxID);
+      }, {}, "telebox-collector-titles-content-click");
+    }
+    $content.innerHTML = "";
+    const disposers = this.boxes$.value.filter((box) => this.minimizedBoxes$.value.includes(box.id)).map((box) => {
+      const $tab = document.createElement("button");
+      $tab.className = this.wrapClassName("collector-titles-tab");
+      $tab.textContent = box.title;
+      $tab.dataset.teleBoxID = box.id;
+      $tab.dataset.teleTitleBarNoDblClick = "true";
+      $content.appendChild($tab);
+      return box._title$.reaction((title) => $tab.textContent = title);
+    });
+    this._sideEffect.addDisposer(() => disposers.forEach((disposer) => disposer()), "min-popup-render-tab-titles");
+    const existTitles = this._wrp$.value.querySelector(`.${this.wrapClassName("collector-titles")}`);
+    if (!existTitles) {
+      this._wrp$.value.appendChild(this.$titles);
+    } else {
+      this._wrp$.value.replaceChild(this.$titles, existTitles);
+    }
+    onTickEnd(() => {
+      if (!this.$titles)
+        return;
+      const parentRect = this._wrp$.value.getBoundingClientRect();
+      const rootRect = this.root$.getBoundingClientRect();
+      const popupSize = getHiddenElementSize(this.$titles);
+      const isAvailableSpaceTop = parentRect.top - rootRect.top > popupSize.height;
+      const isAvailableSpaceLeft = parentRect.x - rootRect.x > popupSize.width / 2 - parentRect.width / 2;
+      const topPosition = -popupSize.height - 10;
+      let leftPosition = -(popupSize.width / 2 - parentRect.width / 2);
+      if (!isAvailableSpaceTop) {
+        const availableHeight = parentRect.top;
+        this.$titles.style.height = `${availableHeight}px`;
+      }
+      if (!isAvailableSpaceLeft) {
+        leftPosition = -(parentRect.x - rootRect.x - 4);
+      }
+      this.$titles.style.top = `${topPosition}px`;
+      this.$titles.style.left = `${leftPosition}px`;
+    });
+    return this.$titles;
   }
   destroy() {
     this._sideEffect.flushAll();
+    this.$titles = void 0;
   }
   wrapClassName(className) {
     return `${this.namespace}-${className}`;
@@ -1017,7 +1202,7 @@ var TELE_BOX_MANAGER_EVENT = /* @__PURE__ */ ((TELE_BOX_MANAGER_EVENT2) => {
   TELE_BOX_MANAGER_EVENT2["DarkMode"] = "dark_mode";
   return TELE_BOX_MANAGER_EVENT2;
 })(TELE_BOX_MANAGER_EVENT || {});
-var style = /* @__PURE__ */ (() => ".telebox-max-titlebar {\n  user-select: none;\n  -webkit-touch-callout: none;\n  -webkit-user-select: none;\n  display: none;\n  position: absolute;\n  top: 0;\n  left: 0;\n  width: 100%;\n  z-index: 5100;\n  border-top-left-radius: 6px;\n  border-top-right-radius: 6px;\n  background: #fff;\n}\n.telebox-max-titlebar .telebox-title {\n  display: none;\n}\n.telebox-max-titlebar.telebox-max-titlebar-single-title .telebox-titles {\n  display: none;\n}\n.telebox-max-titlebar.telebox-max-titlebar-single-title .telebox-title {\n  display: block;\n  color: #FF5353;\n  color: var(--tele-titlebarTabFocusColor, #FF5353);\n  background-color: #FFF5F5;\n  border: 1px solid rgba(255, 83, 83, 0.2);\n  height: 26px;\n  overflow: hidden;\n  max-width: 120px;\n  min-width: 64px;\n  padding: 0px 6px;\n  outline: none;\n  font-size: 13px;\n  font-family: PingFangSC-Regular, PingFang SC;\n  font-weight: 400;\n  text-overflow: ellipsis;\n  white-space: nowrap;\n  word-break: keep-all;\n  cursor: pointer;\n  user-select: none;\n  border-radius: 4px;\n  line-height: 26px;\n}\n.telebox-max-titlebar-active {\n  display: flex;\n}\n.telebox-titles {\n  height: 100%;\n  margin: 0;\n  overflow-y: hidden;\n  overflow-x: scroll;\n  overflow-x: overlay;\n  -webkit-overflow-scrolling: touch;\n  -ms-overflow-style: -ms-autohiding-scrollbar;\n  scrollbar-width: auto;\n}\n.telebox-titles::-webkit-scrollbar {\n  height: 4px;\n  width: 4px;\n}\n.telebox-titles::-webkit-scrollbar-track {\n  background-color: transparent;\n}\n.telebox-titles::-webkit-scrollbar-thumb {\n  background-color: rgba(238, 238, 247, 0.8);\n  background-color: transparent;\n  border-radius: 2px;\n  transition: background-color 0.4s;\n}\n.telebox-titles:hover::-webkit-scrollbar-thumb {\n  background-color: rgba(238, 238, 247, 0.8);\n}\n.telebox-titles::-webkit-scrollbar-thumb:hover {\n  background-color: #eeeef7;\n}\n.telebox-titles::-webkit-scrollbar-thumb:active {\n  background-color: #eeeef7;\n}\n.telebox-titles::-webkit-scrollbar-thumb:vertical {\n  min-height: 50px;\n}\n.telebox-titles::-webkit-scrollbar-thumb:horizontal {\n  min-width: 50px;\n}\n.telebox-titles-content {\n  height: 100%;\n  display: flex;\n  flex-wrap: nowrap;\n  align-items: center;\n  padding: 0;\n  gap: 8px;\n}\n.telebox-titles-tab {\n  height: 26px;\n  overflow: hidden;\n  max-width: 120px;\n  min-width: 64px;\n  padding: 4px 6px;\n  outline: none;\n  font-size: 13px;\n  font-family: PingFangSC-Regular, PingFang SC;\n  font-weight: 400;\n  text-overflow: ellipsis;\n  white-space: nowrap;\n  word-break: keep-all;\n  border: none;\n  cursor: pointer;\n  user-select: none;\n  border-radius: 4px;\n  border: 0.5px solid #F0F1FC;\n  color: #484C70;\n  color: var(--tele-titlebarTabColor, #484C70);\n  background-color: #F0F1FC;\n  background-color: var(--tele-titlebarTabBackground, #F0F1FC);\n}\n.telebox-titles-tab:hover {\n  color: #484C70;\n  background-color: #EBECFA;\n}\n.telebox-titles-tab-focus {\n  color: #FF5353;\n  color: var(--tele-titlebarTabFocusColor, #FF5353);\n  background-color: #FFF5F5;\n  border-color: rgba(255, 83, 83, 0.2);\n}\n.telebox-titles-tab-focus:hover {\n  color: #FF5353;\n  color: var(--tele-titlebarTabFocusColor, #FF5353);\n  background-color: #FFF5F5;\n  border-color: rgba(255, 83, 83, 0.2);\n}\n.telebox-readonly .telebox-titles-tab {\n  cursor: not-allowed;\n}\n.telebox-color-scheme-dark {\n  color-scheme: dark;\n}\n.telebox-color-scheme-dark .telebox-titles-tab {\n  color: #e9e9e9;\n  color: var(--tele-titlebarTabColor, #e9e9e9);\n  background-color: transparent;\n  background-color: var(--tele-titlebarTabBackground, transparent);\n  border-right-color: #7b88a0;\n  border-right-color: var(--tele-titlebarTabDividerColor, #7b88a0);\n}\n.telebox-color-scheme-dark .telebox-titles-tab-focus {\n  color: #357bf6;\n  color: var(--tele-titlebarTabFocusColor, #357bf6);\n}")();
+var style = /* @__PURE__ */ (() => ".telebox-max-titlebar {\n  user-select: none;\n  -webkit-touch-callout: none;\n  -webkit-user-select: none;\n  display: none;\n  position: absolute;\n  top: 0;\n  left: 0;\n  width: 100%;\n  z-index: 5100;\n  background: #fff;\n  padding: 0 8px;\n}\n.telebox-max-titlebar .telebox-title {\n  display: none;\n}\n.telebox-max-titlebar.telebox-max-titlebar-single-title .telebox-titles {\n  display: none;\n}\n.telebox-max-titlebar.telebox-max-titlebar-single-title .telebox-title {\n  display: block;\n  color: #FF5353;\n  color: var(--tele-titlebarTabFocusColor, #FF5353);\n  background-color: #FFF5F5;\n  border: 1px solid rgba(255, 83, 83, 0.2);\n  height: 26px;\n  overflow: hidden;\n  max-width: 120px;\n  min-width: 64px;\n  padding: 0px 6px;\n  outline: none;\n  font-size: 13px;\n  font-family: PingFangSC-Regular, PingFang SC;\n  font-weight: 400;\n  text-overflow: ellipsis;\n  white-space: nowrap;\n  word-break: keep-all;\n  cursor: pointer;\n  user-select: none;\n  border-radius: 4px;\n  line-height: 26px;\n}\n.telebox-max-titlebar-active {\n  display: flex;\n  opacity: 0;\n  transition: opacity 0.2s ease-in;\n}\n.telebox-max-titlebar-active:hover {\n  opacity: 1;\n}\n.touch-screen .telebox-max-titlebar-active {\n  opacity: 1;\n  display: flex;\n}\n.telebox-titles {\n  height: 100%;\n  margin: 0;\n  overflow-y: hidden;\n  overflow-x: scroll;\n  overflow-x: overlay;\n  -webkit-overflow-scrolling: touch;\n  -ms-overflow-style: -ms-autohiding-scrollbar;\n  scrollbar-width: auto;\n}\n.telebox-titles::-webkit-scrollbar {\n  height: 4px;\n  width: 4px;\n}\n.telebox-titles::-webkit-scrollbar-track {\n  background-color: transparent;\n}\n.telebox-titles::-webkit-scrollbar-thumb {\n  background-color: rgba(238, 238, 247, 0.8);\n  background-color: transparent;\n  border-radius: 2px;\n  transition: background-color 0.4s;\n}\n.telebox-titles:hover::-webkit-scrollbar-thumb {\n  background-color: rgba(238, 238, 247, 0.8);\n}\n.telebox-titles::-webkit-scrollbar-thumb:hover {\n  background-color: #eeeef7;\n}\n.telebox-titles::-webkit-scrollbar-thumb:active {\n  background-color: #eeeef7;\n}\n.telebox-titles::-webkit-scrollbar-thumb:vertical {\n  min-height: 50px;\n}\n.telebox-titles::-webkit-scrollbar-thumb:horizontal {\n  min-width: 50px;\n}\n.telebox-titles-content {\n  height: 100%;\n  display: flex;\n  flex-wrap: nowrap;\n  align-items: center;\n  padding: 0;\n  gap: 8px;\n}\n.telebox-titles-tab {\n  height: 26px;\n  overflow: hidden;\n  max-width: 120px;\n  min-width: 64px;\n  padding: 4px 6px;\n  outline: none;\n  font-size: 13px;\n  font-family: PingFangSC-Regular, PingFang SC;\n  font-weight: 400;\n  text-overflow: ellipsis;\n  white-space: nowrap;\n  word-break: keep-all;\n  border: none;\n  cursor: pointer;\n  user-select: none;\n  border-radius: 4px;\n  border: 0.5px solid #EBECFA;\n  color: #484C70;\n  color: var(--tele-titlebarTabColor, #484C70);\n  background-color: #F0F1FC;\n  background-color: var(--tele-titlebarTabBackground, #F0F1FC);\n}\n.telebox-titles-tab:hover {\n  color: #484C70;\n  background-color: #EBECFA;\n}\n.telebox-titles-tab-focus {\n  color: #FF5353;\n  color: var(--tele-titlebarTabFocusColor, #FF5353);\n  background-color: #FFF5F5;\n  border-color: rgba(255, 83, 83, 0.2);\n}\n.telebox-titles-tab-focus:hover {\n  color: #FF5353;\n  color: var(--tele-titlebarTabFocusColor, #FF5353);\n  background-color: #FFF5F5;\n  border-color: rgba(255, 83, 83, 0.2);\n}\n.telebox-readonly .telebox-titles-tab {\n  cursor: not-allowed;\n}\n.telebox-color-scheme-dark {\n  color-scheme: dark;\n}\n.telebox-color-scheme-dark .telebox-titles-tab {\n  color: #e9e9e9;\n  color: var(--tele-titlebarTabColor, #e9e9e9);\n  background-color: transparent;\n  background-color: var(--tele-titlebarTabBackground, transparent);\n  border-right-color: #7b88a0;\n  border-right-color: var(--tele-titlebarTabDividerColor, #7b88a0);\n}\n.telebox-color-scheme-dark .telebox-titles-tab-focus {\n  color: #357bf6;\n  color: var(--tele-titlebarTabFocusColor, #357bf6);\n}")();
 class MaxTitleBar extends DefaultTitleBar {
   constructor(config) {
     super(config);
@@ -1025,7 +1210,8 @@ class MaxTitleBar extends DefaultTitleBar {
     this.rootRect$ = config.rootRect$;
     this.darkMode$ = config.darkMode$;
     this.stageRect$ = config.stageRect$;
-    this.normalBoxes$ = config.normalBoxes$;
+    this.maximizedBoxes$ = config.maximizedBoxes$;
+    this.minimizedBoxes$ = config.minimizedBoxes$;
     config.root.appendChild(this.render());
   }
   focusBox(box) {
@@ -1033,7 +1219,7 @@ class MaxTitleBar extends DefaultTitleBar {
     if (this.focusedBox && this.focusedBox === box) {
       return;
     }
-    if (this.$titles && this.state$.value === TELE_BOX_STATE.Maximized) {
+    if (this.$titles && this.maximizedBoxes$.value.length > 0) {
       const { children } = this.$titles.firstElementChild;
       for (let i = children.length - 1; i >= 0; i -= 1) {
         const $tab = children[i];
@@ -1056,18 +1242,26 @@ class MaxTitleBar extends DefaultTitleBar {
     const $titleBar = super.render();
     $titleBar.classList.add(this.wrapClassName("max-titlebar"));
     this.sideEffect.addDisposer([
-      combine([this.boxes$, this.state$]).subscribe(([boxes, state]) => {
-        $titleBar.classList.toggle(this.wrapClassName("max-titlebar-active"), state === TELE_BOX_STATE.Maximized && boxes.length > 0);
+      combine([
+        this.boxes$,
+        this.maximizedBoxes$,
+        this.minimizedBoxes$
+      ]).subscribe(([boxes, maximizedBoxes, minimizedBoxes]) => {
+        $titleBar.classList.toggle(this.wrapClassName("max-titlebar-active"), maximizedBoxes.length > 0 && boxes.length > 0 && maximizedBoxes.filter((boxId) => !minimizedBoxes.includes(boxId)).length > 0);
       }),
       this.readonly$.subscribe((readonly) => {
         $titleBar.classList.toggle(this.wrapClassName("readonly"), readonly);
       }),
       this.stageRect$.subscribe((stageRect) => {
-        $titleBar.style.width = stageRect.width + "px";
-        $titleBar.style.left = stageRect.x + 4 + "px";
+        $titleBar.style.width = stageRect.width + 1 + "px";
+        $titleBar.style.left = stageRect.x + "px";
       }),
-      combine([this.state$, this.boxes$, this.normalBoxes$]).subscribe(([state, titles]) => {
-        if (state === TELE_BOX_STATE.Maximized) {
+      combine([
+        this.boxes$,
+        this.maximizedBoxes$,
+        this.minimizedBoxes$
+      ]).subscribe(([titles, maximizedBoxes]) => {
+        if (maximizedBoxes.length > 0) {
           $titleBar.classList.toggle(this.wrapClassName("max-titlebar-single-title"), titles.length === 1);
           if (titles.length !== 1) {
             $titleBar.replaceChild(this.renderTitles(), $titleBar.firstElementChild);
@@ -1099,13 +1293,12 @@ class MaxTitleBar extends DefaultTitleBar {
     const $content = document.createElement("div");
     $content.className = this.wrapClassName("titles-content");
     this.$titles.appendChild($content);
-    const disposers = this.boxes$.value.filter((box) => !this.normalBoxes$.value.includes(box.id)).map((box) => {
+    const disposers = this.boxes$.value.filter((box) => this.maximizedBoxes$.value.includes(box.id)).filter((box) => !this.minimizedBoxes$.value.includes(box.id)).map((box) => {
       const $tab = document.createElement("button");
       $tab.className = this.wrapClassName("titles-tab");
       $tab.textContent = box.title;
       $tab.dataset.teleBoxID = box.id;
       $tab.dataset.teleTitleBarNoDblClick = "true";
-      console.log(this.focusedBox);
       if (this.focusedBox && box.id === this.focusedBox.id) {
         $tab.classList.add(this.wrapClassName("titles-tab-focus"));
       }
@@ -1122,9 +1315,8 @@ class TeleBoxManager {
     root = null,
     fullscreen = false,
     prefersColorScheme = TELE_BOX_COLOR_SCHEME.Light,
-    minimized = false,
-    maximized = false,
-    normalBoxes = [],
+    minimizedBoxes = [],
+    maximizedBoxes = [],
     fence = true,
     collector,
     namespace = "telebox",
@@ -1150,14 +1342,13 @@ class TeleBoxManager {
     const defaultBoxBodyStyle$ = new Val(defaultBoxBodyStyle);
     const defaultBoxStageStyle$ = new Val(defaultBoxStageStyle);
     const fullscreen$ = new Val(fullscreen);
-    const input_minimized$ = new Val(minimized);
-    const input_maximized$ = new Val(maximized);
-    const maximized$ = combine([input_maximized$, fullscreen$], ([maximized2, fullscreen2]) => fullscreen2 ? true : maximized2);
-    const minimized$ = combine([input_minimized$, fullscreen$], ([minimized2, fullscreen2]) => fullscreen2 ? false : minimized2);
-    this.normalBoxes = new Val(normalBoxes);
-    this.setMaximized = (maximized2, skipUpdate) => input_maximized$.setValue(maximized2, skipUpdate);
-    this.setMinimized = (minimized2, skipUpdate) => input_minimized$.setValue(minimized2, skipUpdate);
-    this.setNormalboxes = (normalBoxes2) => this.normalBoxes.setValue(normalBoxes2);
+    const maximizedBoxes$ = new Val(maximizedBoxes);
+    const minimizedBoxes$ = new Val(minimizedBoxes);
+    if (root$.value) {
+      root$.value.classList.toggle("touch-screen", isIOS() || isAndroid());
+    }
+    this.setMaximizedBoxes = (maximizedBoxes2, skipUpdate) => maximizedBoxes$.setValue(uniqueByVal(maximizedBoxes2), skipUpdate);
+    this.setMinimizedBoxes = (minimizedBoxes2, skipUpdate) => minimizedBoxes$.setValue(uniqueByVal(minimizedBoxes2), skipUpdate);
     const rootRect$ = new Val({
       x: 0,
       y: 0,
@@ -1219,7 +1410,7 @@ class TeleBoxManager {
       }
     }));
     const darkMode$ = combine([prefersDark$, prefersColorScheme$], ([prefersDark, prefersColorScheme2]) => prefersColorScheme2 === "auto" ? prefersDark : prefersColorScheme2 === "dark");
-    const state$ = combine([minimized$, maximized$], ([minimized2, maximized2]) => minimized2 ? TELE_BOX_STATE.Minimized : maximized2 ? TELE_BOX_STATE.Maximized : TELE_BOX_STATE.Normal);
+    const state$ = combine([minimizedBoxes$, maximizedBoxes$], ([minimized, maximized]) => minimized.length ? TELE_BOX_STATE.Minimized : maximized.length ? TELE_BOX_STATE.Maximized : TELE_BOX_STATE.Normal);
     const theme$ = new Val(theme, {
       compare: shallowequal
     });
@@ -1228,9 +1419,7 @@ class TeleBoxManager {
       state: state$,
       root: root$,
       rootRect: rootRect$,
-      stageRect: stageRect$,
-      minimized: minimized$,
-      maximized: maximized$
+      stageRect: stageRect$
     };
     withReadonlyValueEnhancer(this, readonlyValConfig, valManager);
     const valConfig = {
@@ -1243,7 +1432,9 @@ class TeleBoxManager {
       stageStyle: stageStyle$,
       defaultBoxBodyStyle: defaultBoxBodyStyle$,
       defaultBoxStageStyle: defaultBoxStageStyle$,
-      theme: theme$
+      theme: theme$,
+      minimizedBoxes: minimizedBoxes$,
+      maximizedBoxes: maximizedBoxes$
     };
     withValueEnhancer(this, valConfig, valManager);
     const closeBtnClassName = this.wrapClassName("titlebar-icon-close");
@@ -1264,14 +1455,16 @@ class TeleBoxManager {
         if (id) {
           const box = this.getBox(id);
           if (box) {
-            this.focusBox(box);
-            this.makeBoxTop(box);
+            onTickEnd(() => {
+              this.focusBox(box);
+              this.makeBoxTop(box);
+            });
             return;
           }
         }
       }
     };
-    this._sideEffect.addEventListener(window, "pointerdown", checkFocusBox, true);
+    this._sideEffect.addEventListener(window, "pointerup", checkFocusBox, true);
     this.$container = document.createElement("div");
     this.$container.className = this.wrapClassName("manager-container");
     this.setTheme(theme);
@@ -1289,11 +1482,11 @@ class TeleBoxManager {
       combine([this.boxes$, fullscreen$], ([boxes, fullscreen2]) => fullscreen2 === "no-titlebar" || fullscreen2 === true && boxes.length <= 1).subscribe((hideSingleTabTitlebar) => {
         this.$container.classList.toggle(this.wrapClassName("hide-fullscreen-titlebar"), hideSingleTabTitlebar);
       }),
-      maximized$.subscribe((maximized2) => {
-        this.$container.classList.toggle(this.wrapClassName("is-maximized"), maximized2);
+      maximizedBoxes$.subscribe((maximizedBoxes2) => {
+        this.$container.classList.toggle(this.wrapClassName("is-maximized"), !!maximizedBoxes2.length);
       }),
-      minimized$.subscribe((minimized2) => {
-        this.$container.classList.toggle(this.wrapClassName("is-minimized"), minimized2);
+      minimizedBoxes$.subscribe((minimizedBoxes2) => {
+        this.$container.classList.toggle(this.wrapClassName("is-minimized"), !!minimizedBoxes2.length);
       }),
       combine([containerStyle$, theme$]).subscribe(([containerStyle2, theme2]) => {
         this.$container.style.cssText = containerStyle2;
@@ -1322,13 +1515,16 @@ class TeleBoxManager {
       })
     ]);
     this.collector = collector != null ? collector : new TeleBoxCollector({
-      minimized$,
+      minimizedBoxes$: this._minimizedBoxes$,
       readonly$,
       darkMode$,
       namespace,
       boxes$: this.boxes$,
       root: this.$container,
-      onClick: () => input_minimized$.setValue(false)
+      onClick: (boxId) => {
+        console.log(boxId, removeByVal(this._minimizedBoxes$.value.filter(Boolean), boxId));
+        this.setMinimizedBoxes(removeByVal(this._minimizedBoxes$.value.filter(Boolean), boxId));
+      }
     });
     this.titleBar = new MaxTitleBar({
       namespace: this.namespace,
@@ -1340,54 +1536,51 @@ class TeleBoxManager {
       rootRect$,
       stageRect$,
       root: this.$container,
-      normalBoxes$: this.normalBoxes,
+      maximizedBoxes$,
+      minimizedBoxes$,
       onEvent: (event) => {
-        var _a, _b, _c;
+        var _a, _b, _c, _d, _e, _f;
         switch (event.type) {
           case TELE_BOX_DELEGATE_EVENT.Maximize: {
-            if (maximized$.value) {
-              if ((_a = this.titleBar.focusedBox) == null ? void 0 : _a.id) {
-                const oldFocusId = (_b = this.titleBar.focusedBox) == null ? void 0 : _b.id;
-                const newNormalboxes = [
-                  ...this.normalBoxes.value,
-                  (_c = this.titleBar.focusedBox) == null ? void 0 : _c.id
-                ].reduce((acc, item) => {
-                  if (!acc.includes(item))
-                    acc.push(item);
-                  return acc;
-                }, []);
-                const nextFocusBoxes = this.boxes$.value.filter((box) => {
-                  var _a2;
-                  return box.id != ((_a2 = this.titleBar.focusedBox) == null ? void 0 : _a2.id) && !newNormalboxes.includes(box.id);
-                });
-                const maxIndexBox = nextFocusBoxes.reduce((maxItem, current) => {
-                  return current._zIndex$.value > maxItem._zIndex$.value ? current : maxItem;
-                });
-                this.setNormalboxes(newNormalboxes);
-                if (maxIndexBox) {
-                  const oldFocusBox = this.boxes$.value.find((box) => box.id == oldFocusId);
-                  if (oldFocusBox) {
-                    this.makeBoxTop(oldFocusBox);
-                  }
-                  this.titleBar.focusBox(maxIndexBox);
-                } else {
-                  this.setMaximized(!maximized$.value);
-                }
-              } else {
-                this.setMaximized(!maximized$.value);
+            if ((_a = this.titleBar.focusedBox) == null ? void 0 : _a.id) {
+              const oldFocusId = (_b = this.titleBar.focusedBox) == null ? void 0 : _b.id;
+              const isInMaximizedBoxes = this._maximizedBoxes$.value.includes(oldFocusId);
+              const newMaximizedBoxes = isInMaximizedBoxes ? removeByVal([...this._maximizedBoxes$.value], oldFocusId) : uniqueByVal([
+                ...this._maximizedBoxes$.value,
+                (_c = this.titleBar.focusedBox) == null ? void 0 : _c.id
+              ]);
+              this.setMaximizedBoxes(newMaximizedBoxes);
+              const hasTopBox = this.makeBoxTopFromMaximized();
+              const oldFocusBox = this.boxes$.value.find((box) => box.id == oldFocusId);
+              if (oldFocusBox) {
+                this.makeBoxTop(oldFocusBox);
+              }
+              if (!hasTopBox) {
+                this.setMaximizedBoxes([]);
               }
             } else {
-              this.setMaximized(!maximized$.value);
-              this.setNormalboxes([]);
+              this.setMaximizedBoxes([]);
             }
             break;
           }
           case TELE_BOX_DELEGATE_EVENT.Minimize: {
-            this.setMinimized(true);
+            if ((_d = this.titleBar.focusedBox) == null ? void 0 : _d.id) {
+              const newMinimizedBoxes = uniqueByVal([
+                ...this._minimizedBoxes$.value,
+                (_e = this.titleBar.focusedBox) == null ? void 0 : _e.id
+              ]);
+              this.makeBoxTopFromMaximized();
+              this.setMinimizedBoxes(newMinimizedBoxes);
+            }
             break;
           }
           case TELE_BOX_EVENT.Close: {
-            this.removeTopBox();
+            const focusedId = (_f = this.titleBar.focusedBox) == null ? void 0 : _f.id;
+            if (focusedId) {
+              this.remove(focusedId);
+              this.makeBoxTopFromMaximized();
+              this.setMaximizedBoxes(removeByVal(maximizedBoxes$.value, focusedId));
+            }
             this.focusTopBox();
             break;
           }
@@ -1400,14 +1593,14 @@ class TeleBoxManager {
           this.events.emit(TELE_BOX_MANAGER_EVENT.State, state);
         }
       }),
-      maximized$.reaction((maximized2, skipUpdate) => {
+      maximizedBoxes$.reaction((maximizedBoxes2, skipUpdate) => {
         if (!skipUpdate) {
-          this.events.emit(TELE_BOX_MANAGER_EVENT.Maximized, maximized2);
+          this.events.emit(TELE_BOX_MANAGER_EVENT.Maximized, maximizedBoxes2);
         }
       }),
-      minimized$.reaction((minimized2, skipUpdate) => {
+      minimizedBoxes$.reaction((minimizedBoxes2, skipUpdate) => {
         if (!skipUpdate) {
-          this.events.emit(TELE_BOX_MANAGER_EVENT.Minimized, minimized2);
+          this.events.emit(TELE_BOX_MANAGER_EVENT.Minimized, minimizedBoxes2);
         }
       }),
       darkMode$.reaction((darkMode, skipUpdate) => {
@@ -1426,18 +1619,18 @@ class TeleBoxManager {
   setState(state, skipUpdate = false) {
     switch (state) {
       case TELE_BOX_STATE.Maximized: {
-        this.setMinimized(false, skipUpdate);
-        this.setMaximized(true, skipUpdate);
+        this.setMaximizedBoxes(this.boxes$.value.map((item) => item.id), skipUpdate);
+        this.setMinimizedBoxes([], skipUpdate);
         break;
       }
       case TELE_BOX_STATE.Minimized: {
-        this.setMinimized(true, skipUpdate);
-        this.setMaximized(false, skipUpdate);
+        this.setMaximizedBoxes([], skipUpdate);
+        this.setMinimizedBoxes(this.boxes$.value.map((item) => item.id), skipUpdate);
         break;
       }
       default: {
-        this.setMinimized(false, skipUpdate);
-        this.setMaximized(false, skipUpdate);
+        this.setMaximizedBoxes([], skipUpdate);
+        this.setMinimizedBoxes([], skipUpdate);
         break;
       }
     }
@@ -1445,10 +1638,10 @@ class TeleBoxManager {
   }
   create(config = {}, smartPosition = true) {
     const id = config.id || genUID();
-    const managerMaximized$ = combine([this._maximized$, this.normalBoxes], ([maximized, normalBoxes]) => {
-      return maximized && !normalBoxes.includes(id);
-    });
-    const managerMinimized$ = combine([this._minimized$, this.normalBoxes], ([minimized, normalBoxes]) => minimized && !normalBoxes.includes(id));
+    const managerMaximized$ = new Val(this._maximizedBoxes$.value.includes(id));
+    const managerMinimized$ = new Val(this._minimizedBoxes$.value.includes(id));
+    this._maximizedBoxes$.subscribe((maximizedBoxes) => managerMaximized$.setValue(maximizedBoxes.includes(id)));
+    this._minimizedBoxes$.subscribe((minimizedBoxes) => managerMinimized$.setValue(minimizedBoxes.includes(id)));
     const box = new TeleBox({
       zIndex: this.topBox ? this.topBox.zIndex + 1 : 100,
       ...config,
@@ -1477,21 +1670,15 @@ class TeleBoxManager {
     this.boxes$.setValue([...this.boxes, box]);
     this._sideEffect.addDisposer([
       box._delegateEvents.on(TELE_BOX_DELEGATE_EVENT.Maximize, () => {
-        var _a;
-        if ((_a = this.normalBoxes.value) == null ? void 0 : _a.length) {
-          this.setMaximized(true);
-          this.makeBoxTop(box);
-          this.titleBar.focusBox(box);
-          this.setNormalboxes([]);
-        } else {
-          this.setMaximized(!this.maximized);
-        }
+        this.setMaximizedBoxes(this.boxes$.value.map((item) => item.id));
+        this.titleBar.focusBox(box);
       }),
       box._delegateEvents.on(TELE_BOX_DELEGATE_EVENT.Minimize, () => {
-        this.setMinimized(true);
+        this.setMinimizedBoxes([...this._minimizedBoxes$.value, id]);
       }),
       box._delegateEvents.on(TELE_BOX_DELEGATE_EVENT.Close, () => {
         this.remove(box);
+        this.makeBoxTopFromMaximized(box.id);
         this.focusTopBox();
       }),
       box._intrinsicCoord$.reaction((_, skipUpdate) => {
@@ -1535,16 +1722,22 @@ class TeleBoxManager {
     });
   }
   remove(boxOrID, skipUpdate = false) {
+    var _a;
     const index = this.getBoxIndex(boxOrID);
     if (index >= 0) {
       const boxes = this.boxes.slice();
       const deletedBoxes = boxes.splice(index, 1);
       this.boxes$.setValue(boxes);
       deletedBoxes.forEach((box) => box.destroy());
+      const boxId = (_a = this.getBox(boxOrID)) == null ? void 0 : _a.id;
+      if (boxId) {
+        this.setMaximizedBoxes(removeByVal(this._maximizedBoxes$.value, boxId));
+        this.setMinimizedBoxes(removeByVal(this._minimizedBoxes$.value, boxId));
+      }
       if (!skipUpdate) {
         if (this.boxes.length <= 0) {
-          this.setMaximized(false);
-          this.setMinimized(false);
+          this.setMaximizedBoxes([]);
+          this.setMinimizedBoxes([]);
         }
         this.events.emit(TELE_BOX_MANAGER_EVENT.Removed, deletedBoxes);
       }
@@ -1564,8 +1757,8 @@ class TeleBoxManager {
     deletedBoxes.forEach((box) => box.destroy());
     if (!skipUpdate) {
       if (this.boxes.length <= 0) {
-        this.setMaximized(false);
-        this.setMinimized(false);
+        this.setMaximizedBoxes([]);
+        this.setMinimizedBoxes([]);
       }
       this.events.emit(TELE_BOX_MANAGER_EVENT.Removed, deletedBoxes);
     }
@@ -1601,10 +1794,16 @@ class TeleBoxManager {
             this.events.emit(TELE_BOX_MANAGER_EVENT.Focused, targetBox);
           }
         } else if (box.focus) {
-          this.blurBox(box, skipUpdate);
+          if (!this._maximizedBoxes$.value.includes(box.id)) {
+            this.blurBox(box, skipUpdate);
+          }
         }
       });
-      if (!this.normalBoxes.value.includes(targetBox.id)) {
+      if (this._maximizedBoxes$.value.length > 0) {
+        if (this._maximizedBoxes$.value.includes(targetBox.id)) {
+          this.titleBar.focusBox(targetBox);
+        }
+      } else {
         this.titleBar.focusBox(targetBox);
       }
     }
@@ -1725,9 +1924,10 @@ class TeleBoxManager {
   makeBoxTop(box, skipUpdate = false) {
     if (this.topBox) {
       if (box !== this.topBox) {
-        if (this._maximized$.value && this.normalBoxes.value.length && !this.normalBoxes.value.includes(box.id)) {
+        if (this._maximizedBoxes$.value.includes(box.id)) {
           const newIndex = this.topBox.zIndex + 1;
-          const normalBoxes = this.boxes$.value.filter((box2) => this.normalBoxes.value.includes(box2.id));
+          const normalBoxesIds = excludeFromBoth(this.boxes$.value.map((item) => item.id), this._maximizedBoxes$.value, this._minimizedBoxes$.value);
+          const normalBoxes = this.boxes$.value.filter((box2) => normalBoxesIds.includes(box2.id));
           box._zIndex$.setValue(newIndex, skipUpdate);
           normalBoxes.sort((a, b) => a._zIndex$.value - b._zIndex$.value).forEach((box2, index) => {
             box2._zIndex$.setValue(newIndex + 1 + index, skipUpdate);
@@ -1737,6 +1937,26 @@ class TeleBoxManager {
         }
       }
     }
+  }
+  makeBoxTopFromMaximized(boxId) {
+    let maxIndexBox = void 0;
+    if (boxId) {
+      if (this._maximizedBoxes$.value.includes(boxId) && !this._minimizedBoxes$.value.includes(boxId)) {
+        maxIndexBox = this.boxes$.value.find((box) => box.id === boxId);
+      }
+    } else {
+      const nextFocusBoxes = this.boxes$.value.filter((box) => {
+        var _a;
+        return box.id != ((_a = this.titleBar.focusedBox) == null ? void 0 : _a.id) && this._maximizedBoxes$.value.includes(box.id) && !this._minimizedBoxes$.value.includes(box.id);
+      });
+      maxIndexBox = nextFocusBoxes.length ? nextFocusBoxes.reduce((maxItem, current) => {
+        return current._zIndex$.value > maxItem._zIndex$.value ? current : maxItem;
+      }) : void 0;
+      if (maxIndexBox) {
+        this.titleBar.focusBox(maxIndexBox);
+      }
+    }
+    return !!maxIndexBox;
   }
   getBoxIndex(boxOrID) {
     return typeof boxOrID === "string" ? this.boxes.findIndex((box) => box.id === boxOrID) : this.boxes.findIndex((box) => box === boxOrID);

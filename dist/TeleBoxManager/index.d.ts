@@ -16,8 +16,6 @@ declare type ReadonlyValConfig = {
     root: Val<HTMLElement | null>;
     rootRect: Val<TeleBoxRect>;
     stageRect: ReadonlyVal<TeleBoxRect>;
-    minimized: ReadonlyVal<boolean, boolean>;
-    maximized: ReadonlyVal<boolean, boolean>;
 };
 declare type ValConfig = {
     fullscreen: Val<TeleBoxFullscreen>;
@@ -30,12 +28,14 @@ declare type ValConfig = {
     defaultBoxBodyStyle: Val<string | null>;
     defaultBoxStageStyle: Val<string | null>;
     theme: Val<TeleBoxManagerThemeConfig | null>;
+    minimizedBoxes: Val<string[]>;
+    maximizedBoxes: Val<string[]>;
 };
 declare type CombinedValEnhancedResult = ValEnhancedResult<ValConfig> & ReadonlyValEnhancedResult<ReadonlyValConfig>;
 export interface TeleBoxManager extends CombinedValEnhancedResult {
 }
 export declare class TeleBoxManager {
-    constructor({ root, fullscreen, prefersColorScheme, minimized, maximized, normalBoxes, fence, collector, namespace, readonly, stageRatio, containerStyle, stageStyle, defaultBoxBodyStyle, defaultBoxStageStyle, theme, }?: TeleBoxManagerConfig);
+    constructor({ root, fullscreen, prefersColorScheme, minimizedBoxes, maximizedBoxes, fence, collector, namespace, readonly, stageRatio, containerStyle, stageStyle, defaultBoxBodyStyle, defaultBoxStageStyle, theme, }?: TeleBoxManagerConfig);
     readonly $container: HTMLDivElement;
     readonly $stage: HTMLDivElement;
     get boxes(): ReadonlyArray<TeleBox>;
@@ -46,8 +46,8 @@ export declare class TeleBoxManager {
         created: ReadonlyTeleBox;
         removed: ReadonlyTeleBox[];
         state: "normal" | "minimized" | "maximized";
-        maximized: boolean;
-        minimized: boolean;
+        maximized: string[];
+        minimized: string[];
         move: ReadonlyTeleBox;
         resize: ReadonlyTeleBox;
         intrinsic_move: ReadonlyTeleBox;
@@ -62,8 +62,8 @@ export declare class TeleBoxManager {
         created: ReadonlyTeleBox;
         removed: ReadonlyTeleBox[];
         state: "normal" | "minimized" | "maximized";
-        maximized: boolean;
-        minimized: boolean;
+        maximized: string[];
+        minimized: string[];
         move: ReadonlyTeleBox;
         resize: ReadonlyTeleBox;
         intrinsic_move: ReadonlyTeleBox;
@@ -75,9 +75,8 @@ export declare class TeleBoxManager {
     }, never>;
     protected _sideEffect: SideEffectManager;
     readonly namespace: string;
-    setMinimized: (minimized: boolean, skipUpdate?: boolean) => void;
-    setMaximized: (maximized: boolean, skipUpdate?: boolean) => void;
-    setNormalboxes: (normalBoxes: string[]) => void;
+    setMaximizedBoxes: (maximizedBoxes: string[], skipUpdate?: boolean) => void;
+    setMinimizedBoxes: (minimizedBoxes: string[], skipUpdate?: boolean) => void;
     /** @deprecated use setMaximized and setMinimized instead */
     setState(state: TeleBoxState, skipUpdate?: boolean): this;
     create(config?: TeleBoxManagerCreateConfig, smartPosition?: boolean): ReadonlyTeleBox;
@@ -104,7 +103,6 @@ export declare class TeleBoxManager {
     blurAll(skipUpdate?: boolean): void;
     collector: TeleBoxCollector;
     titleBar: MaxTitleBar;
-    protected normalBoxes: Val<string[]>;
     protected boxes$: Val<TeleBox[]>;
     protected topBox$: Val<TeleBox | undefined>;
     protected teleBoxMatcher(config: TeleBoxManagerQueryConfig): (box: TeleBox) => boolean;
@@ -112,6 +110,7 @@ export declare class TeleBoxManager {
     /** Keep new boxes staggered inside stage area */
     protected smartPosition(rect: Partial<TeleBoxRect>): TeleBoxRect;
     protected makeBoxTop(box: TeleBox, skipUpdate?: boolean): void;
+    protected makeBoxTopFromMaximized(boxId?: string): boolean;
     protected getBoxIndex(boxOrID: TeleBox | string): number;
     protected getBox(boxOrID: TeleBox | string): TeleBox | undefined;
 }

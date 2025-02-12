@@ -1,7 +1,7 @@
 import "./style.scss";
 import contentStyle from "./content.scss?inline";
 
-import faker from "faker";
+// import faker from "faker";
 import type { TeleBoxColorScheme } from "../src";
 import { TeleBoxManager } from "../src";
 import type { ReadonlyVal } from "value-enhancer";

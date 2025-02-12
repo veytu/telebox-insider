@@ -8,7 +8,8 @@ export declare type MaxTitleBarTitle = Pick<TeleBox, "id" | "title">;
 export interface MaxTitleBarConfig extends DefaultTitleBarConfig {
     darkMode$: ReadonlyVal<boolean>;
     boxes$: ReadonlyVal<TeleBox[]>;
-    normalBoxes$: ReadonlyVal<string[]>;
+    maximizedBoxes$: ReadonlyVal<string[]>;
+    minimizedBoxes$: ReadonlyVal<string[]>;
     rootRect$: ReadonlyVal<TeleBoxRect>;
     stageRect$: ReadonlyVal<TeleBoxRect>;
     root: HTMLElement;
@@ -24,6 +25,7 @@ export declare class MaxTitleBar extends DefaultTitleBar {
     protected boxes$: MaxTitleBarConfig["boxes$"];
     protected rootRect$: MaxTitleBarConfig["rootRect$"];
     protected stageRect$: MaxTitleBarConfig["stageRect$"];
-    protected normalBoxes$: MaxTitleBarConfig["normalBoxes$"];
+    protected maximizedBoxes$: MaxTitleBarConfig["maximizedBoxes$"];
+    protected minimizedBoxes$: MaxTitleBarConfig["minimizedBoxes$"];
     protected $titles: HTMLElement | undefined;
 }

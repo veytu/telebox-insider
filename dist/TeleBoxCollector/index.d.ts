@@ -4,16 +4,16 @@ import type { ReadonlyVal, ReadonlyValEnhancedResult, ValEnhancedResult } from "
 import { Val } from "value-enhancer";
 import { SideEffectManager } from "side-effect-manager";
 import type { TeleBoxRect } from "../TeleBox/typings";
-import { TeleBox } from "../TeleBox";
+import type { TeleBox } from "../TeleBox";
 export interface TeleBoxCollectorConfig {
     namespace?: string;
     styles?: TeleStyles;
     root: HTMLElement;
-    minimized$: ReadonlyVal<boolean>;
+    minimizedBoxes$: ReadonlyVal<string[]>;
     readonly$: ReadonlyVal<boolean>;
     darkMode$: ReadonlyVal<boolean>;
     boxes$: ReadonlyVal<TeleBox[]>;
-    onClick?: () => void;
+    onClick?: (boxId?: string) => void;
 }
 declare type ValConfig = {
     styles: Val<TeleStyles>;
@@ -22,15 +22,23 @@ declare type ValConfig = {
 declare type MyReadonlyValConfig = {
     rect: ReadonlyVal<TeleBoxRect | undefined>;
     visible: ReadonlyVal<boolean>;
+    wrp: ReadonlyVal<HTMLElement>;
+    popupVisible: ReadonlyVal<boolean>;
 };
 declare type CombinedValEnhancedResult = ValEnhancedResult<ValConfig> & ReadonlyValEnhancedResult<MyReadonlyValConfig>;
 export interface TeleBoxCollector extends CombinedValEnhancedResult {
 }
 export declare class TeleBoxCollector {
-    constructor({ minimized$, readonly$, darkMode$, boxes$, namespace, styles, root, onClick, }: TeleBoxCollectorConfig);
+    constructor({ minimizedBoxes$, readonly$, darkMode$, boxes$, namespace, styles, root, onClick, }: TeleBoxCollectorConfig);
+    protected renderTitles(): HTMLElement;
     readonly namespace: string;
     protected readonly _sideEffect: SideEffectManager;
     destroy(): void;
     wrapClassName(className: string): string;
+    protected $titles: HTMLElement | undefined;
+    protected boxes$: TeleBoxCollectorConfig["boxes$"];
+    protected minimizedBoxes$: TeleBoxCollectorConfig["minimizedBoxes$"];
+    protected root$: TeleBoxCollectorConfig["root"];
+    protected onClick$: TeleBoxCollectorConfig["onClick"];
 }
 export {};
