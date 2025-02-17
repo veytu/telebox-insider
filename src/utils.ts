@@ -104,3 +104,14 @@ export const isAndroid = (): boolean => {
     return typeof navigator !== "undefined" && /Android/.test(window.navigator.userAgent);
 };
 
+export function flattenEvent(ev: MouseEvent | TouchEvent): MouseEvent | Touch {
+    return (ev as TouchEvent).touches
+        ? (ev as TouchEvent).touches[0]
+        : (ev as MouseEvent);
+}
+
+export function genUniqueKey(): string {
+    return (
+        Date.now().toString().slice(6) + Math.random().toString().slice(2, 8)
+    );
+}

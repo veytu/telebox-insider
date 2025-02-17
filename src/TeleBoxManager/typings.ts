@@ -1,38 +1,36 @@
-import type { TeleBoxColorScheme } from "..";
+import type EventEmitter from "eventemitter3";
+import { TeleBoxColorScheme } from "..";
 import type { ReadonlyTeleBox, TeleBoxState } from "../TeleBox";
 import type { TeleBoxConfig } from "../TeleBox/typings";
 import type { TeleBoxCollector } from "../TeleBoxCollector";
 import type { TELE_BOX_MANAGER_EVENT } from "./constants";
 
-export interface TeleBoxManagerConfig extends Pick<TeleBoxConfig, "namespace"> {
+type StringStyleKeys<T = keyof CSSStyleDeclaration> =
+    T extends keyof CSSStyleDeclaration
+        ? CSSStyleDeclaration[T] extends string
+            ? T
+            : never
+        : never;
+
+export type TeleStyles = Partial<Pick<CSSStyleDeclaration, StringStyleKeys>>;
+
+export interface TeleBoxManagerConfig
+    extends Pick<
+        TeleBoxConfig,
+        | "prefersColorScheme"
+        | "fence"
+        | "containerRect"
+        | "maximized"
+        | "minimized"
+        | "namespace"
+        | "readonly"
+    > {
     /** Element to mount boxes. */
-    readonly root?: HTMLElement | null;
-    /** Fullscreen mode. Default false. */
-    readonly fullscreen?: TeleBoxFullscreen;
-    /** Stage area height/with ratio. No ratio if <= 0. Default -1. */
-    readonly stageRatio?: number;
+    root?: HTMLElement;
     /** Where the minimized boxes go. */
-    readonly collector?: TeleBoxCollector;
-    /** Restrict box to always be within the stage area. Default false. */
-    readonly fence?: boolean;
-    /** Prefers Box color scheme. Default light. */
-    readonly prefersColorScheme?: TeleBoxColorScheme;
-    /** Minimize box list. Default []. */
-    readonly minimizedBoxes?: string[];
-    /** Maximize box list. Default []. */
-    readonly maximizedBoxes?: string[];
-    /** Is box readonly */
-    readonly readonly?: boolean;
-    /** Custom styles for telebox manager container */
-    readonly containerStyle?: string;
-    /** Custom styles for telebox manager stage */
-    readonly stageStyle?: string;
-    /** Custom `style` attribute value for content area of all boxes. Can be overwritten by box. */
-    readonly defaultBoxBodyStyle?: string | null;
-    /** Custom `style` attribute value for stage area of all boxes. Can be overwritten by box. */
-    readonly defaultBoxStageStyle?: string | null;
-    /** Theme variable */
-    readonly theme?: TeleBoxManagerThemeConfig | null;
+    collector?: TeleBoxCollector;
+    minimizedBoxes?: string[]
+    maximizedBoxes?: string[]
 }
 
 type TeleBoxManagerBoxConfigBaseProps =
@@ -46,40 +44,22 @@ type TeleBoxManagerBoxConfigBaseProps =
     | "y"
     | "resizable"
     | "draggable"
-    | "boxRatio"
-    | "zIndex"
-    | "stageRatio";
+    | "fixRatio"
+    | "zIndex";
 
 export type TeleBoxManagerCreateConfig = Pick<
     TeleBoxConfig,
-    | TeleBoxManagerBoxConfigBaseProps
-    | "content"
-    | "stage"
-    | "footer"
-    | "styles"
-    | "bodyStyle"
-    | "stageStyle"
-    | "id"
-    | "focus"
-    | "enableShadowDOM"
+    TeleBoxManagerBoxConfigBaseProps | "content" | "footer" | "id" | "focus"
 >;
 
 export type TeleBoxManagerQueryConfig = Pick<
     TeleBoxConfig,
-    | "title"
-    | "visible"
-    | "resizable"
-    | "draggable"
-    | "boxRatio"
-    | "stageRatio"
-    | "zIndex"
-    | "id"
-    | "focus"
+    TeleBoxManagerBoxConfigBaseProps | "id" | "focus"
 >;
 
 export type TeleBoxManagerUpdateConfig = Pick<
     TeleBoxConfig,
-    TeleBoxManagerBoxConfigBaseProps | "content" | "stage" | "footer"
+    TeleBoxManagerBoxConfigBaseProps | "content" | "footer"
 >;
 
 type CheckTeleBoxManagerConfig<
@@ -87,62 +67,41 @@ type CheckTeleBoxManagerConfig<
 > = T;
 
 export type TeleBoxManagerEventConfig = CheckTeleBoxManagerConfig<{
-    focused: ReadonlyTeleBox | undefined;
-    blurred: ReadonlyTeleBox | undefined;
-    created: ReadonlyTeleBox;
-    removed: ReadonlyTeleBox[];
-    state: TeleBoxState;
-    maximized: string[];
-    minimized: string[];
-    move: ReadonlyTeleBox;
-    resize: ReadonlyTeleBox;
-    intrinsic_move: ReadonlyTeleBox;
-    intrinsic_resize: ReadonlyTeleBox;
-    visual_resize: ReadonlyTeleBox;
-    z_index: ReadonlyTeleBox;
-    prefers_color_scheme: TeleBoxColorScheme;
-    dark_mode: boolean;
+    focused: [ReadonlyTeleBox | undefined];
+    blurred: [ReadonlyTeleBox | undefined];
+    created: [ReadonlyTeleBox];
+    removed: [ReadonlyTeleBox[]];
+    state: [TeleBoxState];
+    maximized: [boolean];
+    minimized: [boolean];
+    move: [ReadonlyTeleBox];
+    resize: [ReadonlyTeleBox];
+    intrinsic_move: [ReadonlyTeleBox];
+    intrinsic_resize: [ReadonlyTeleBox];
+    visual_resize: [ReadonlyTeleBox];
+    z_index: [ReadonlyTeleBox];
+    prefers_color_scheme: [TeleBoxColorScheme];
+    dark_mode: [boolean];
 }>;
 
 export type TeleBoxManagerEvent = keyof TeleBoxManagerEventConfig;
 
-/**
- * Fullscreen mode.
- * - `true`: fullscreen mode. hide titlebar for single tab.
- * - `false`: normal mode.
- * - `"no-titlebar"`: always hide titlebar
- * - `"always-titlebar"`: always show titlebar
- */
-export type TeleBoxFullscreen = boolean | "no-titlebar" | "always-titlebar";
-
-export type TeleBoxManagerThemeConfig = {
-    managerContainerBackground?: string | null;
-    managerStageBackground?: string | null;
-    managerStageShadow?: string | null;
-
-    boxContainerBackground?: string | null;
-    boxStageBackground?: string | null;
-    boxStageShadow?: string | null;
-
-    boxColor?: string | null;
-    boxBorder?: string | null;
-    boxShadow?: string | null;
-    boxFooterColor?: string | null;
-    boxFooterBackground?: string | null;
-
-    titlebarColor?: string | null;
-    titlebarBackground?: string | null;
-    titlebarBorderBottom?: string | null;
-    titlebarTabColor?: string | null;
-    titlebarTabFocusColor?: string | null;
-    titlebarTabBackground?: string | null;
-    titlebarTabDividerColor?: string | null;
-
-    collectorBackground?: string | null;
-    collectorShadow?: string | null;
-
-    titlebarIconMinimize?: string | null;
-    titlebarIconMaximize?: string | null;
-    titlebarIconMaximizeActive?: string | null;
-    titlebarIconClose?: string | null;
-};
+export interface TeleBoxManagerEvents
+    extends EventEmitter<TeleBoxManagerEvent> {
+    on<U extends TeleBoxManagerEvent>(
+        event: U,
+        listener: (...value: TeleBoxManagerEventConfig[U]) => void
+    ): this;
+    once<U extends TeleBoxManagerEvent>(
+        event: U,
+        listener: (...value: TeleBoxManagerEventConfig[U]) => void
+    ): this;
+    addListener<U extends TeleBoxManagerEvent>(
+        event: U,
+        listener: (...value: TeleBoxManagerEventConfig[U]) => void
+    ): this;
+    emit<U extends TeleBoxManagerEvent>(
+        event: U,
+        ...value: TeleBoxManagerEventConfig[U]
+    ): boolean;
+}

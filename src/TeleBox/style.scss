@@ -35,6 +35,14 @@
     z-index: 1;
 }
 
+.#{$namespace}-maximized {
+    .#{$namespace}-box-main {
+      .#{$namespace}-titlebar-wrap {
+        display: none !important;
+      }
+    }
+}
+
 .#{$namespace}-main {
     position: relative;
     flex: 1;

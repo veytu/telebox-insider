@@ -1,25 +1,19 @@
 import "./style.scss";
-import contentStyle from "./content.scss?inline";
 
-// import faker from "faker";
-import type { TeleBoxColorScheme } from "../src";
-import { TeleBoxManager } from "../src";
-import type { ReadonlyVal } from "value-enhancer";
-import { Val } from "value-enhancer";
-import { derive } from "value-enhancer";
+import faker from "faker";
+import {
+    TeleBoxCollector,
+    TeleBoxColorScheme,
+    TeleBoxManager,
+    TeleBoxRect,
+} from "../src";
 
-const btns = document.querySelector(".btns") as HTMLDivElement;
-const board = document.querySelector(".board") as HTMLDivElement;
+const btns = document.querySelector(".btns")!;
+const board = document.querySelector<HTMLDivElement>(".board")!;
 
-const enableShadowDOM$ = new Val(false);
-
-const createBtn = (title: string | ReadonlyVal<string>): HTMLButtonElement => {
+const createBtn = (title: string): HTMLButtonElement => {
     const btn = document.createElement("button");
-    if (typeof title == "string") {
-        btn.textContent = title;
-    } else {
-        title.subscribe((text) => (btn.textContent = text));
-    }
+    btn.textContent = title;
     btns.appendChild(btn);
     return btn;
 };
@@ -40,42 +34,37 @@ const createSelector = (
     return sel;
 };
 
+setBoardRect();
+
 const manager = new TeleBoxManager({
     fence: false,
     root: board,
-    stageRatio: 2/3,
-});
-
-manager.collector.setStyles({
-    position: "absolute",
-    bottom: "10px",
-    left: "50px",
+    containerRect: getBoardRect(),
+    collector: new TeleBoxCollector({
+        styles: {
+            position: "absolute",
+            bottom: "10px",
+            left: "20px",
+        },
+    }).mount(board),
 });
 
 (window as any).manager = manager;
 
-let data = 1
-
 createBtn("Create").addEventListener("click", () => {
-    const title = String(data++)
-    const box = manager.create({
-        minHeight: 0.1,
-        minWidth: 0.1,
-        title,
-        focus: true,
-        enableShadowDOM: enableShadowDOM$.value,
-    });
-
+    const title = faker.datatype.boolean()
+        ? faker.commerce.productName()
+        : faker.random.words(50);
     const content = document.createElement("div");
     content.className = "content";
-    content.textContent = title;
-
-    box.mountStage(content);
-    box.mountStyles(contentStyle);
-
-    // if (manager.minimized) {
-    //     manager.setMinimized(false);
-    // }
+    content.textContent = `Content ${title}`;
+    manager.create({
+        minHeight: 0.1,
+        minWidth: 0.1,
+        title: title.slice(0, 50),
+        focus: true,
+        content,
+    });
 });
 
 createBtn("Remove").addEventListener("click", () => {
@@ -85,11 +74,15 @@ createBtn("Remove").addEventListener("click", () => {
     }
 });
 
-createBtn(
-    derive(manager._readonly$, (readonly) =>
-        readonly ? "Readonly" : "Writable"
-    )
-).addEventListener("click", () => manager.setReadonly(!manager.readonly));
+createBtn(manager.readonly ? "Readonly" : "Writable").addEventListener(
+    "click",
+    (evt) => {
+        manager.setReadonly(!manager.readonly);
+        (evt.currentTarget as HTMLButtonElement).textContent = manager.readonly
+            ? "Readonly"
+            : "Writable";
+    }
+);
 
 createSelector("light", [
     { key: "light", title: "light" },
@@ -101,18 +94,26 @@ createSelector("light", [
     );
 });
 
-createBtn(
-    derive(enableShadowDOM$, (enable) => (enable ? "ShadowDOM" : "DOM"))
-).addEventListener("click", () =>
-    enableShadowDOM$.setValue(!enableShadowDOM$.value)
-);
+manager.events.on("state", (state) => console.log("state", state));
 
-createBtn(
-    derive(manager._fullscreen$, (fullscreen) =>
-        fullscreen ? "Fullscreen" : "Windows"
-    )
-).addEventListener("click", () => {
-    manager.setFullscreen(!manager.fullscreen);
+window.addEventListener("resize", () => {
+    setBoardRect();
+    manager.setContainerRect(getBoardRect());
 });
 
-manager.events.on("state", (state) => console.log("state", state));
+function getBoardRect(): TeleBoxRect {
+    const { width, height } = board.getBoundingClientRect();
+    return { width, height, x: 0, y: 0 };
+}
+
+function setBoardRect(): void {
+    const { innerWidth, innerHeight } = window;
+    let width = innerWidth;
+    let height = (innerWidth * 9) / 16;
+    if (height > innerHeight) {
+        width = (innerHeight * 16) / 9;
+        height = innerHeight;
+    }
+    board.style.width = width + "px";
+    board.style.height = height + "px";
+}

@@ -14,7 +14,6 @@ import type {
     TeleTitleBarEvent,
 } from "../typings";
 import { preventEvent } from "../../utils";
-import type { ReadonlyVal } from "value-enhancer";
 
 export type DefaultTitleBarButton = TeleTitleBarEvent & {
     readonly iconClassName: string;
@@ -27,22 +26,20 @@ export interface DefaultTitleBarConfig extends TeleTitleBarConfig {
 
 export class DefaultTitleBar implements TeleTitleBar {
     public constructor({
-        readonly$,
-        state$,
-        title$,
+        readonly = false,
+        title,
         buttons,
         onEvent,
         onDragStart,
         namespace = "telebox",
-        boxId
-    }: DefaultTitleBarConfig) {
-        this.readonly$ = readonly$;
-        this.state$ = state$;
-        this.title$ = title$;
+        state = TELE_BOX_STATE.Normal,
+    }: DefaultTitleBarConfig = {}) {
+        this.readonly = readonly;
         this.onEvent = onEvent;
         this.onDragStart = onDragStart;
         this.namespace = namespace;
-        this.boxId = boxId || ''
+        this.title = title;
+        this.state = state;
 
         this.buttons = buttons || [
             {
@@ -67,7 +64,38 @@ export class DefaultTitleBar implements TeleTitleBar {
 
     public $titleBar: HTMLElement | undefined;
 
+    public $title: HTMLElement | undefined;
+
     public $dragArea: HTMLElement;
+
+    public setTitle(title: string): void {
+        this.title = title;
+        if (this.$title) {
+            this.$title.textContent = title;
+            this.$title.title = title;
+        }
+    }
+
+    public setState(state: TeleBoxState): void {
+        if (this.state !== state) {
+            this.state = state;
+
+            this.buttons.forEach((btn, i) => {
+                if (btn.isActive) {
+                    this.$btns[i].classList.toggle(
+                        "is-active",
+                        btn.isActive(state)
+                    );
+                }
+            });
+        }
+    }
+
+    public setReadonly(readonly: boolean): void {
+        if (this.readonly !== readonly) {
+            this.readonly = readonly;
+        }
+    }
 
     public render(): HTMLElement {
         if (!this.$titleBar) {
@@ -78,17 +106,21 @@ export class DefaultTitleBar implements TeleTitleBar {
             $titleArea.className = this.wrapClassName("title-area");
             $titleArea.dataset.teleBoxHandle = TeleBoxDragHandleType;
 
-            const $title = document.createElement("h1");
-            $title.className = this.wrapClassName("title");
-            $title.dataset.teleBoxHandle = TeleBoxDragHandleType;
+            this.$title = document.createElement("h1");
+            this.$title.className = this.wrapClassName("title");
+            this.$title.dataset.teleBoxHandle = TeleBoxDragHandleType;
+            if (this.title) {
+                this.$title.textContent = this.title;
+                this.$title.title = this.title;
+            }
 
-            $titleArea.appendChild($title);
+            $titleArea.appendChild(this.$title);
             $titleArea.appendChild(this.$dragArea);
 
             const $buttonsContainer = document.createElement("div");
             $buttonsContainer.className = this.wrapClassName("titlebar-btns");
 
-            this.buttons.forEach(({ iconClassName }, i) => {
+            this.buttons.forEach(({ iconClassName, isActive }, i) => {
                 const teleTitleBarBtnIndex = String(i);
 
                 const $btn = document.createElement("button");
@@ -97,37 +129,21 @@ export class DefaultTitleBar implements TeleTitleBar {
                 )} ${iconClassName}`;
                 $btn.dataset.teleTitleBarBtnIndex = teleTitleBarBtnIndex;
                 $btn.dataset.teleTitleBarNoDblClick = "true";
-                $btn.dataset.teleBoxID = this.boxId;
+
+                if (isActive) {
+                    $btn.classList.toggle("is-active", isActive(this.state));
+                }
+
+                this.$btns.push($btn);
+
                 $buttonsContainer.appendChild($btn);
             });
-
-            this.sideEffect.addDisposer(
-                this.title$.subscribe((title) => {
-                    $title.textContent = title;
-                    $title.title = title;
-                }),
-                "render-title"
-            );
-
-            this.sideEffect.addDisposer(
-                this.state$.subscribe((state) => {
-                    this.buttons.forEach((btn, i) => {
-                        if (btn.isActive) {
-                            $buttonsContainer.children[i]?.classList.toggle(
-                                "is-active",
-                                btn.isActive(state)
-                            );
-                        }
-                    });
-                }),
-                "render-state-btns"
-            );
 
             this.sideEffect.addEventListener(
                 $buttonsContainer,
                 "click",
                 (ev) => {
-                    if (this.readonly$.value) {
+                    if (this.readonly) {
                         return;
                     }
                     const target = ev.target as HTMLElement;
@@ -144,18 +160,14 @@ export class DefaultTitleBar implements TeleTitleBar {
                             this.onEvent({
                                 type: btn.type,
                                 value: btn.value,
-                                index: teleTitleBarBtnIndex,
-                                boxId: this.boxId
                             } as TeleTitleBarEvent);
                         }
                     }
-                },
-                {},
-                "render-btns-container-click"
+                }
             );
 
-            $titleArea.appendChild($buttonsContainer);
             this.$titleBar.appendChild($titleArea);
+            this.$titleBar.appendChild($buttonsContainer);
         }
 
         return this.$titleBar;
@@ -167,8 +179,14 @@ export class DefaultTitleBar implements TeleTitleBar {
         $dragArea.dataset.teleBoxHandle = TeleBoxDragHandleType;
         this.sideEffect.addEventListener(
             $dragArea,
-            "pointerdown",
+            "mousedown",
             this.handleTitleBarClick
+        );
+        this.sideEffect.addEventListener(
+            $dragArea,
+            "touchstart",
+            this.handleTitleBarTouch,
+            { passive: true }
         );
         return $dragArea;
     }
@@ -185,6 +203,8 @@ export class DefaultTitleBar implements TeleTitleBar {
         this.sideEffect.flushAll();
         if (this.$titleBar) {
             this.$titleBar = void 0;
+            this.$title = void 0;
+            this.$btns.length = 0;
             this.onDragStart = void 0;
             this.onEvent = void 0;
         }
@@ -194,17 +214,17 @@ export class DefaultTitleBar implements TeleTitleBar {
 
     public onDragStart?: TeleTitleBarConfig["onDragStart"];
 
-    protected readonly$: TeleTitleBarConfig["readonly$"];
+    protected readonly: boolean;
 
-    protected title$: ReadonlyVal<string>;
+    protected title?: string;
 
     protected buttons: ReadonlyArray<DefaultTitleBarButton>;
 
-    protected state$: TeleTitleBarConfig["state$"];
+    protected state: TeleBoxState;
+
+    protected $btns: HTMLButtonElement[] = [];
 
     protected sideEffect = new SideEffectManager();
-
-    protected boxId: string;
 
     protected lastTitleBarClick = {
         timestamp: 0,
@@ -212,8 +232,8 @@ export class DefaultTitleBar implements TeleTitleBar {
         clientY: -100,
     };
 
-    protected handleTitleBarClick = (ev: PointerEvent): void => {
-        if (!ev.isPrimary || this.readonly$.value) {
+    protected handleTitleBarClick = (ev: MouseEvent): void => {
+        if (this.readonly) {
             return;
         }
 
@@ -235,7 +255,7 @@ export class DefaultTitleBar implements TeleTitleBar {
             ) {
                 // double click
                 if (this.onEvent) {
-                    this.onEvent({ type: TELE_BOX_DELEGATE_EVENT.Maximize, boxId: this.boxId} as TeleTitleBarEvent);
+                    this.onEvent({ type: TELE_BOX_DELEGATE_EVENT.Maximize });
                 }
             }
         } else if (this.onDragStart) {
@@ -246,44 +266,44 @@ export class DefaultTitleBar implements TeleTitleBar {
         this.lastTitleBarClick.clientY = ev.clientY;
     };
 
-    // protected lastTitleBarTouch = {
-    //     timestamp: 0,
-    //     clientX: -100,
-    //     clientY: -100,
-    // };
+    protected lastTitleBarTouch = {
+        timestamp: 0,
+        clientX: -100,
+        clientY: -100,
+    };
 
-    // protected handleTitleBarTouch = (ev: TouchEvent): void => {
-    //     if (this.readonly$.value) {
-    //         return;
-    //     }
+    protected handleTitleBarTouch = (ev: TouchEvent): void => {
+        if (this.readonly) {
+            return;
+        }
 
-    //     if ((ev.target as HTMLElement).dataset?.teleTitleBarNoDblClick) {
-    //         return; // btns
-    //     }
+        if ((ev.target as HTMLElement).dataset?.teleTitleBarNoDblClick) {
+            return; // btns
+        }
 
-    //     preventEvent(ev);
+        preventEvent(ev);
 
-    //     const now = Date.now();
-    //     const {
-    //         clientX = this.lastTitleBarTouch.clientX + 100,
-    //         clientY = this.lastTitleBarTouch.clientY + 100,
-    //     } = ev.touches[0] || {};
+        const now = Date.now();
+        const {
+            clientX = this.lastTitleBarTouch.clientX + 100,
+            clientY = this.lastTitleBarTouch.clientY + 100,
+        } = ev.touches[0] || {};
 
-    //     if (now - this.lastTitleBarTouch.timestamp <= 500) {
-    //         if (
-    //             Math.abs(clientX - this.lastTitleBarTouch.clientX) <= 10 &&
-    //             Math.abs(clientY - this.lastTitleBarTouch.clientY) <= 10
-    //         ) {
-    //             // double click
-    //             if (this.onEvent) {
-    //                 this.onEvent({ type: TELE_BOX_DELEGATE_EVENT.Maximize });
-    //             }
-    //         }
-    //     } else if (this.onDragStart) {
-    //         this.onDragStart(ev);
-    //     }
-    //     this.lastTitleBarTouch.timestamp = now;
-    //     this.lastTitleBarTouch.clientX = clientX;
-    //     this.lastTitleBarTouch.clientY = clientY;
-    // };
+        if (now - this.lastTitleBarTouch.timestamp <= 500) {
+            if (
+                Math.abs(clientX - this.lastTitleBarTouch.clientX) <= 10 &&
+                Math.abs(clientY - this.lastTitleBarTouch.clientY) <= 10
+            ) {
+                // double click
+                if (this.onEvent) {
+                    this.onEvent({ type: TELE_BOX_DELEGATE_EVENT.Maximize });
+                }
+            }
+        } else if (this.onDragStart) {
+            this.onDragStart(ev);
+        }
+        this.lastTitleBarTouch.timestamp = now;
+        this.lastTitleBarTouch.clientX = clientX;
+        this.lastTitleBarTouch.clientY = clientY;
+    };
 }

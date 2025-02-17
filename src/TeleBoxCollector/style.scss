@@ -36,6 +36,7 @@ $scrollbar-color-active: rgba(235, 236, 250, 1);
     position: absolute;
     @include clr(box-shadow, collectorShadow);
     z-index: calc($collector-z-index + 1);
+    width: 100%;
     margin: 0;
     padding: 12px 0;
     border: none;
@@ -119,6 +120,8 @@ $scrollbar-color-active: rgba(235, 236, 250, 1);
             user-select: none;
             outline: none;
             background: none;
+            display: block;
+            overflow: hidden;
             &:hover {
                 background-color: rgba(235, 236, 250, 1);
             }
