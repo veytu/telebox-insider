@@ -48,8 +48,8 @@ export class TeleBoxManager {
     public constructor({
         root = document.body,
         prefersColorScheme = TELE_BOX_COLOR_SCHEME.Light,
-        minimized = false,
-        maximized = false,
+        // minimized = false,
+        // maximized = false,
         fence = true,
         containerRect = {
             x: 0,
@@ -163,7 +163,7 @@ export class TeleBoxManager {
                 ? null
                 : collector ||
                       new TeleBoxCollector({
-                          visible: minimized,
+                          visible: this._minimizedBoxes$.value.length > 0,
                           readonly: readonly,
                           namespace,
                           minimizedBoxes: this._minimizedBoxes$.value,
@@ -430,14 +430,15 @@ export class TeleBoxManager {
     }
 
     public setMinimized(data: any, skipUpdate = false) {
-        console.log('mini', data)
+        console.log('mini', data, skipUpdate)
     }
     public setMaximized(data: any, skipUpdate = false) {
-        console.log('max', data)
+        console.log('max', data, skipUpdate)
     }
 
     /** @deprecated use setMaximized and setMinimized instead */
     public setState(state: TeleBoxState, skipUpdate = false): this {
+        console.log(skipUpdate)
         switch (state) {
             case TELE_BOX_STATE.Maximized: {
                 // this.setMinimized(false, skipUpdate)
