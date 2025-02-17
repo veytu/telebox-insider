@@ -2967,10 +2967,10 @@ class TeleBoxManager {
     });
     const collector$ = createVal(
       collector === null ? null : collector || new TeleBoxCollector({
-        visible: this._minimizedBoxes$.value.length > 0,
+        visible: this.minimizedBoxes$.value.length > 0,
         readonly,
         namespace,
-        minimizedBoxes: this._minimizedBoxes$.value,
+        minimizedBoxes: this.minimizedBoxes$.value,
         boxes: this.boxes$.value
       }).mount(root)
     );
@@ -2984,7 +2984,7 @@ class TeleBoxManager {
             if (!readonly$.value) {
               this.setMinimizedBoxes(
                 removeByVal(
-                  this._minimizedBoxes$.value.filter(Boolean),
+                  this.minimizedBoxes$.value.filter(Boolean),
                   boxId
                 )
               );
@@ -3111,7 +3111,7 @@ class TeleBoxManager {
           case TELE_BOX_DELEGATE_EVENT.Minimize: {
             if ((_d = this.maxTitleBar.focusedBox) == null ? void 0 : _d.id) {
               const newMinimizedBoxes = uniqueByVal([
-                ...this._minimizedBoxes$.value,
+                ...this.minimizedBoxes$.value,
                 (_e = this.maxTitleBar.focusedBox) == null ? void 0 : _e.id
               ]);
               this.makeBoxTopFromMaximized();
@@ -3193,8 +3193,8 @@ class TeleBoxManager {
   }
   create(config = {}, smartPosition = true) {
     const id = config.id || r$1();
-    const managerMaximized$ = this._maximizedBoxes$.value.includes(id);
-    const managerMinimized$ = this._minimizedBoxes$.value.includes(id);
+    const managerMaximized$ = this.maximizedBoxes$.value.includes(id);
+    const managerMinimized$ = this.maximizedBoxes$.value.includes(id);
     const box = new TeleBox({
       zIndex: this.topBox ? this.topBox.zIndex + 1 : 100,
       ...smartPosition ? this.smartPosition(config) : config,
@@ -3504,13 +3504,13 @@ class TeleBoxManager {
   makeBoxTopFromMaximized(boxId) {
     let maxIndexBox = void 0;
     if (boxId) {
-      if (this._maximizedBoxes$.value.includes(boxId) && !this._minimizedBoxes$.value.includes(boxId)) {
+      if (this.maximizedBoxes$.value.includes(boxId) && !this.minimizedBoxes$.value.includes(boxId)) {
         maxIndexBox = this.boxes$.value.find((box) => box.id === boxId);
       }
     } else {
       const nextFocusBoxes = this.boxes$.value.filter((box) => {
         var _a;
-        return box.id != ((_a = this.maxTitleBar.focusedBox) == null ? void 0 : _a.id) && this._maximizedBoxes$.value.includes(box.id) && !this._minimizedBoxes$.value.includes(box.id);
+        return box.id != ((_a = this.maxTitleBar.focusedBox) == null ? void 0 : _a.id) && this.maximizedBoxes$.value.includes(box.id) && !this.minimizedBoxes$.value.includes(box.id);
       });
       maxIndexBox = nextFocusBoxes.length ? nextFocusBoxes.reduce((maxItem, current) => {
         return current._zIndex$.value > maxItem._zIndex$.value ? current : maxItem;

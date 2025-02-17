@@ -163,10 +163,10 @@ export class TeleBoxManager {
                 ? null
                 : collector ||
                       new TeleBoxCollector({
-                          visible: this._minimizedBoxes$.value.length > 0,
+                          visible: this.minimizedBoxes$.value.length > 0,
                           readonly: readonly,
                           namespace,
-                          minimizedBoxes: this._minimizedBoxes$.value,
+                          minimizedBoxes: this.minimizedBoxes$.value,
                           boxes: this.boxes$.value,
                       }).mount(root)
         )
@@ -180,7 +180,7 @@ export class TeleBoxManager {
                         if (!readonly$.value) {
                             this.setMinimizedBoxes(
                                 removeByVal(
-                                    this._minimizedBoxes$.value.filter(Boolean),
+                                    this.minimizedBoxes$.value.filter(Boolean),
                                     boxId
                                 ) as string[]
                             )
@@ -337,7 +337,7 @@ export class TeleBoxManager {
                     case TELE_BOX_DELEGATE_EVENT.Minimize: {
                         if (this.maxTitleBar.focusedBox?.id) {
                             const newMinimizedBoxes: string[] = uniqueByVal([
-                                ...this._minimizedBoxes$.value,
+                                ...this.minimizedBoxes$.value,
                                 this.maxTitleBar.focusedBox?.id,
                             ]);
 
@@ -462,9 +462,9 @@ export class TeleBoxManager {
     public create(config: TeleBoxManagerCreateConfig = {}, smartPosition = true): ReadonlyTeleBox {
         const id = config.id || genUID()
 
-        const managerMaximized$ = this._maximizedBoxes$.value.includes(id)
+        const managerMaximized$ = this.maximizedBoxes$.value.includes(id)
 
-        const managerMinimized$ = this._minimizedBoxes$.value.includes(id)
+        const managerMinimized$ = this.maximizedBoxes$.value.includes(id)
 
         const box = new TeleBox({
             zIndex: this.topBox ? this.topBox.zIndex + 1 : 100,
@@ -820,8 +820,8 @@ export class TeleBoxManager {
         let maxIndexBox = undefined
         if (boxId) {
             if (
-                this._maximizedBoxes$.value.includes(boxId) &&
-                !this._minimizedBoxes$.value.includes(boxId)
+                this.maximizedBoxes$.value.includes(boxId) &&
+                !this.minimizedBoxes$.value.includes(boxId)
             ) {
                 maxIndexBox = this.boxes$.value.find((box) => box.id === boxId)
             }
@@ -829,8 +829,8 @@ export class TeleBoxManager {
             const nextFocusBoxes = this.boxes$.value.filter((box) => {
                 return (
                     box.id != this.maxTitleBar.focusedBox?.id &&
-                    this._maximizedBoxes$.value.includes(box.id) &&
-                    !this._minimizedBoxes$.value.includes(box.id)
+                    this.maximizedBoxes$.value.includes(box.id) &&
+                    !this.minimizedBoxes$.value.includes(box.id)
                 )
             })
 
