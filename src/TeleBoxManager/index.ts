@@ -127,7 +127,7 @@ export class TeleBoxManager {
             this.maxTitleBar.setState(maxBoxes.length > 0 ? TELE_BOX_STATE.Maximized : TELE_BOX_STATE.Normal)
             this.maxTitleBar.setMaximizedBoxes(maximizedBoxes)
             if (!skipUpdate) {
-                this.events.emit(TELE_BOX_MANAGER_EVENT.Maximized, true)
+                this.events.emit(TELE_BOX_MANAGER_EVENT.Maximized, maximizedBoxes)
             }
         })
 
@@ -252,7 +252,7 @@ export class TeleBoxManager {
                 }
             }
             if (!skipUpdate) {
-                this.events.emit(TELE_BOX_MANAGER_EVENT.Minimized, minimized)
+                this.events.emit(TELE_BOX_MANAGER_EVENT.Minimized, minimizedBoxes)
             }
         })
 
