@@ -302,17 +302,17 @@ export class TeleBoxManager {
                         if (this.maxTitleBar.focusedBox?.id) {
                             const oldFocusId = this.maxTitleBar.focusedBox?.id;
                             const isInMaximizedBoxes =
-                                this._maximizedBoxes$.value.includes(
+                                this.maximizedBoxes$.value.includes(
                                     oldFocusId
                                 );
                             const newMaximizedBoxes: string[] =
                                 isInMaximizedBoxes
                                     ? removeByVal(
-                                          [...this._maximizedBoxes$.value],
+                                          [...this.maximizedBoxes$.value],
                                           oldFocusId
                                       )
                                     : uniqueByVal([
-                                          ...this._maximizedBoxes$.value,
+                                          ...this.maximizedBoxes$.value,
                                           this.maxTitleBar.focusedBox?.id,
                                       ]);
 
@@ -497,7 +497,7 @@ export class TeleBoxManager {
             this.maxTitleBar.focusBox(box)
         })
         box._delegateEvents.on(TELE_BOX_DELEGATE_EVENT.Minimize, () => {
-            this.setMinimizedBoxes([...this._minimizedBoxes$.value, id])
+            this.setMinimizedBoxes([...this.minimizedBoxes$.value, id])
         })
         box._delegateEvents.on(TELE_BOX_DELEGATE_EVENT.Close, () => {
             this.remove(box)
@@ -575,8 +575,8 @@ export class TeleBoxManager {
             deletedBoxes.forEach((box) => box.destroy())
             const boxId = this.getBox(boxOrID)?.id
             if (boxId) {
-                this.setMaximizedBoxes(removeByVal(this._maximizedBoxes$.value, boxId))
-                this.setMinimizedBoxes(removeByVal(this._minimizedBoxes$.value, boxId))
+                this.setMaximizedBoxes(removeByVal(this.maximizedBoxes$.value, boxId))
+                this.setMinimizedBoxes(removeByVal(this.minimizedBoxes$.value, boxId))
             }
             if (!skipUpdate) {
                 if (this.boxes.length <= 0) {
@@ -642,13 +642,13 @@ export class TeleBoxManager {
                         this.events.emit(TELE_BOX_MANAGER_EVENT.Focused, targetBox)
                     }
                 } else if (box.focus) {
-                    if (!this._maximizedBoxes$.value.includes(box.id)) {
+                    if (!this.maximizedBoxes$.value.includes(box.id)) {
                         this.blurBox(box, skipUpdate)
                     }
                 }
             })
-            if (this._maximizedBoxes$.value.length > 0) {
-                if (this._maximizedBoxes$.value.includes(targetBox.id)) {
+            if (this.maximizedBoxes$.value.length > 0) {
+                if (this.maximizedBoxes$.value.includes(targetBox.id)) {
                     this.maxTitleBar.focusBox(targetBox)
                 }
             } else {
@@ -790,13 +790,13 @@ export class TeleBoxManager {
     protected makeBoxTop(box: TeleBox, skipUpdate = false): void {
         if (this.topBox) {
             if (box !== this.topBox) {
-                if (this._maximizedBoxes$.value.includes(box.id)) {
+                if (this.maximizedBoxes$.value.includes(box.id)) {
                     const newIndex = this.topBox.zIndex + 1
 
                     const normalBoxesIds = excludeFromBoth(
                         this.boxes$.value.map((item) => item.id),
-                        this._maximizedBoxes$.value,
-                        this._minimizedBoxes$.value
+                        this.maximizedBoxes$.value,
+                        this.minimizedBoxes$.value
                     )
                     const normalBoxes = this.boxes$.value.filter((box) =>
                         normalBoxesIds.includes(box.id)

@@ -3082,14 +3082,14 @@ class TeleBoxManager {
           case TELE_BOX_DELEGATE_EVENT.Maximize: {
             if ((_a = this.maxTitleBar.focusedBox) == null ? void 0 : _a.id) {
               const oldFocusId = (_b = this.maxTitleBar.focusedBox) == null ? void 0 : _b.id;
-              const isInMaximizedBoxes = this._maximizedBoxes$.value.includes(
+              const isInMaximizedBoxes = this.maximizedBoxes$.value.includes(
                 oldFocusId
               );
               const newMaximizedBoxes = isInMaximizedBoxes ? removeByVal(
-                [...this._maximizedBoxes$.value],
+                [...this.maximizedBoxes$.value],
                 oldFocusId
               ) : uniqueByVal([
-                ...this._maximizedBoxes$.value,
+                ...this.maximizedBoxes$.value,
                 (_c = this.maxTitleBar.focusedBox) == null ? void 0 : _c.id
               ]);
               this.setMaximizedBoxes(newMaximizedBoxes);
@@ -3222,7 +3222,7 @@ class TeleBoxManager {
       this.maxTitleBar.focusBox(box);
     });
     box._delegateEvents.on(TELE_BOX_DELEGATE_EVENT.Minimize, () => {
-      this.setMinimizedBoxes([...this._minimizedBoxes$.value, id]);
+      this.setMinimizedBoxes([...this.minimizedBoxes$.value, id]);
     });
     box._delegateEvents.on(TELE_BOX_DELEGATE_EVENT.Close, () => {
       this.remove(box);
@@ -3295,8 +3295,8 @@ class TeleBoxManager {
       deletedBoxes.forEach((box) => box.destroy());
       const boxId = (_a = this.getBox(boxOrID)) == null ? void 0 : _a.id;
       if (boxId) {
-        this.setMaximizedBoxes(removeByVal(this._maximizedBoxes$.value, boxId));
-        this.setMinimizedBoxes(removeByVal(this._minimizedBoxes$.value, boxId));
+        this.setMaximizedBoxes(removeByVal(this.maximizedBoxes$.value, boxId));
+        this.setMinimizedBoxes(removeByVal(this.minimizedBoxes$.value, boxId));
       }
       if (!skipUpdate) {
         if (this.boxes.length <= 0) {
@@ -3356,13 +3356,13 @@ class TeleBoxManager {
             this.events.emit(TELE_BOX_MANAGER_EVENT.Focused, targetBox);
           }
         } else if (box.focus) {
-          if (!this._maximizedBoxes$.value.includes(box.id)) {
+          if (!this.maximizedBoxes$.value.includes(box.id)) {
             this.blurBox(box, skipUpdate);
           }
         }
       });
-      if (this._maximizedBoxes$.value.length > 0) {
-        if (this._maximizedBoxes$.value.includes(targetBox.id)) {
+      if (this.maximizedBoxes$.value.length > 0) {
+        if (this.maximizedBoxes$.value.includes(targetBox.id)) {
           this.maxTitleBar.focusBox(targetBox);
         }
       } else {
@@ -3481,12 +3481,12 @@ class TeleBoxManager {
   makeBoxTop(box, skipUpdate = false) {
     if (this.topBox) {
       if (box !== this.topBox) {
-        if (this._maximizedBoxes$.value.includes(box.id)) {
+        if (this.maximizedBoxes$.value.includes(box.id)) {
           const newIndex = this.topBox.zIndex + 1;
           const normalBoxesIds = excludeFromBoth(
             this.boxes$.value.map((item) => item.id),
-            this._maximizedBoxes$.value,
-            this._minimizedBoxes$.value
+            this.maximizedBoxes$.value,
+            this.minimizedBoxes$.value
           );
           const normalBoxes = this.boxes$.value.filter(
             (box2) => normalBoxesIds.includes(box2.id)
