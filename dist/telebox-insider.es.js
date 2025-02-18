@@ -2464,10 +2464,11 @@ class TeleBoxCollector {
       });
     });
     const blurPopup = (ev) => {
+      var _a, _b;
       if (!this.popupVisible$)
         return;
       const target = ev.target;
-      if (target.className.includes("collector"))
+      if ((_b = (_a = target.className) == null ? void 0 : _a.includes) == null ? void 0 : _b.call(_a, "collector"))
         return;
       this.popupVisible$.setValue(false);
     };

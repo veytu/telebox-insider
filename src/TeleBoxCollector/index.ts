@@ -65,7 +65,7 @@ export class TeleBoxCollector {
 
             const target = ev.target as HTMLElement
 
-            if (target.className.includes('collector')) return
+            if (target.className?.includes?.('collector')) return
 
             this.popupVisible$.setValue(false)
         };
