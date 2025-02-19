@@ -1266,28 +1266,9 @@ export class TeleBox {
 
     public setScaleContent (scale: number): void {
         if (!this.$content) return
-
-        const styles: Record<string, any> = {}
-        for (const property in this.$content.style) {
-            if (typeof this.$content.style[property] === "string") {
-                styles[property] = this.$content.style[property];
-            }
-        }
-
         const contentWrapRect = this.$contentWrap.getBoundingClientRect()
-        Object.assign(styles, {
-            width: `${contentWrapRect.width * scale}px`,
-            height: `${contentWrapRect.height * scale}px`
-        })
-
-
-        Object.keys(styles).forEach((key) => {
-            const value = styles[key]
-            if (value != null) {
-                this.$content.style[(key as any)] = value
-            }
-        })
-
+        this.$content.style.width = `${contentWrapRect.width * scale}px`
+        this.$content.style.height = `${contentWrapRect.height * scale}px`
     }
 
     public destroy(): void {
