@@ -1276,8 +1276,8 @@ export class TeleBox {
 
         const contentWrapRect = this.$contentWrap.getBoundingClientRect()
         Object.assign(styles, {
-            width: contentWrapRect.width * scale,
-            height: contentWrapRect.height * scale
+            width: `${contentWrapRect.width * scale}px`,
+            height: `${contentWrapRect.height * scale}px`
         })
 
 

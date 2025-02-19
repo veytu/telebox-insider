@@ -2381,8 +2381,8 @@ class TeleBox {
     }
     const contentWrapRect = this.$contentWrap.getBoundingClientRect();
     Object.assign(styles, {
-      width: contentWrapRect.width * scale2,
-      height: contentWrapRect.height * scale2
+      width: `${contentWrapRect.width * scale2}px`,
+      height: `${contentWrapRect.height * scale2}px`
     });
     Object.keys(styles).forEach((key) => {
       const value = styles[key];
