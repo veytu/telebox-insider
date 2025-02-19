@@ -2113,7 +2113,7 @@ class TeleBox {
     $titleBar.appendChild(this.titleBar.render());
     this.$titleBar = $titleBar;
     const $contentWrap = document.createElement("div");
-    $contentWrap.className = this.wrapClassName("content-wrap");
+    $contentWrap.className = this.wrapClassName("content-wrap") + " tele-fancy-scrollbar";
     const $content = document.createElement("div");
     $content.className = this.wrapClassName("content") + " tele-fancy-scrollbar";
     this.$content = $content;
@@ -2160,6 +2160,7 @@ class TeleBox {
     $boxMain.appendChild($titleBar);
     $boxMain.appendChild($contentWrap);
     $boxMain.appendChild($footer);
+    this.$contentWrap = $contentWrap;
     this._renderResizeHandlers();
     return this.$box;
   }
@@ -2368,6 +2369,27 @@ class TeleBox {
       { passive: false },
       "box-resizeHandles-touchstart"
     );
+  }
+  setScaleContent(scale2) {
+    if (!this.$content)
+      return;
+    const styles = {};
+    for (const property in this.$content.style) {
+      if (typeof this.$content.style[property] === "string") {
+        styles[property] = this.$content.style[property];
+      }
+    }
+    const contentWrapRect = this.$contentWrap.getBoundingClientRect();
+    Object.assign(styles, {
+      width: contentWrapRect.width * scale2,
+      height: contentWrapRect.height * scale2
+    });
+    Object.keys(styles).forEach((key) => {
+      const value = styles[key];
+      if (value != null) {
+        this.$content.style[key] = value;
+      }
+    });
   }
   destroy() {
     this.$box.remove();
@@ -3402,6 +3424,11 @@ class TeleBoxManager {
     if (this.maxTitleBar.focusedBox) {
       this.maxTitleBar.focusBox();
     }
+  }
+  setScaleContent(scale2) {
+    this.boxes.forEach((box) => {
+      box.setScaleContent(scale2);
+    });
   }
   teleBoxMatcher(config) {
     const keys = Object.keys(config);

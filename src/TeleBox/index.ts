@@ -771,6 +771,8 @@ export class TeleBox {
     /** DOM of the box */
     public $box: HTMLElement;
 
+    private $contentWrap!: HTMLElement;
+
     /** DOM of the box content */
     public $content!: HTMLElement;
 
@@ -934,7 +936,7 @@ export class TeleBox {
         this.$titleBar = $titleBar;
 
         const $contentWrap = document.createElement("div");
-        $contentWrap.className = this.wrapClassName("content-wrap");
+        $contentWrap.className = this.wrapClassName("content-wrap") + " tele-fancy-scrollbar";
 
         const $content = document.createElement("div");
         $content.className =
@@ -990,6 +992,7 @@ export class TeleBox {
         $boxMain.appendChild($contentWrap);
         $boxMain.appendChild($footer);
 
+        this.$contentWrap = $contentWrap
         this._renderResizeHandlers();
 
         return this.$box;
@@ -1259,6 +1262,32 @@ export class TeleBox {
             { passive: false },
             "box-resizeHandles-touchstart"
         );
+    }
+
+    public setScaleContent (scale: number): void {
+        if (!this.$content) return
+
+        const styles: Record<string, any> = {}
+        for (const property in this.$content.style) {
+            if (typeof this.$content.style[property] === "string") {
+                styles[property] = this.$content.style[property];
+            }
+        }
+
+        const contentWrapRect = this.$contentWrap.getBoundingClientRect()
+        Object.assign(styles, {
+            width: contentWrapRect.width * scale,
+            height: contentWrapRect.height * scale
+        })
+
+
+        Object.keys(styles).forEach((key) => {
+            const value = styles[key]
+            if (value != null) {
+                this.$content.style[(key as any)] = value
+            }
+        })
+
     }
 
     public destroy(): void {

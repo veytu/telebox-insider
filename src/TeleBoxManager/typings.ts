@@ -82,6 +82,7 @@ export type TeleBoxManagerEventConfig = CheckTeleBoxManagerConfig<{
     z_index: [ReadonlyTeleBox];
     prefers_color_scheme: [TeleBoxColorScheme];
     dark_mode: [boolean];
+    onScaleChange: [number];
 }>;
 
 export type TeleBoxManagerEvent = keyof TeleBoxManagerEventConfig;

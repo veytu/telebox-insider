@@ -2,7 +2,8 @@ import EventEmitter from 'eventemitter3'
 import shallowequal from 'shallowequal'
 import type { TeleBoxConfig, TeleBoxRect, TeleBoxState } from '../TeleBox/typings'
 import { TeleBoxCollector } from '../TeleBoxCollector'
-import { ReadonlyTeleBox, TeleBox } from '../TeleBox'
+import { TeleBox } from '../TeleBox'
+import type {ReadonlyTeleBox} from '../TeleBox'
 import { TELE_BOX_EVENT, TELE_BOX_STATE } from '../TeleBox/constants'
 import { TELE_BOX_MANAGER_EVENT } from './constants'
 import type {
@@ -13,18 +14,18 @@ import type {
     TeleBoxManagerUpdateConfig
 } from './typings'
 import { MaxTitleBar } from './MaxTitleBar'
+import type {
+    TeleBoxColorScheme
+} from '..'
 import {
-    TeleBoxColorScheme,
     TELE_BOX_COLOR_SCHEME,
     TELE_BOX_DELEGATE_EVENT
 } from '..'
 import { genUID, SideEffectManager } from 'side-effect-manager'
-import {
-    createSideEffectBinder,
-    Val,
+import type {
     ValEnhancedResult,
-    withValueEnhancer
 } from 'value-enhancer'
+import {createSideEffectBinder, withValueEnhancer, Val} from 'value-enhancer'
 import { excludeFromBoth, removeByVal, uniqueByVal } from '../utils'
 
 export * from './typings'
@@ -690,6 +691,12 @@ export class TeleBoxManager {
         if (this.maxTitleBar.focusedBox) {
             this.maxTitleBar.focusBox()
         }
+    }
+
+    public setScaleContent (scale: number): void {
+        this.boxes.forEach((box) => {
+            box.setScaleContent(scale)
+        })
     }
 
     protected maxTitleBar: MaxTitleBar

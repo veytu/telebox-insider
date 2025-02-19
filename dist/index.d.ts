@@ -644,6 +644,7 @@ declare class TeleBox {
     unmountStyles(): this;
     /** DOM of the box */
     $box: HTMLElement;
+    private $contentWrap;
     /** DOM of the box content */
     $content: HTMLElement;
     /** DOM of the box title bar */
@@ -655,6 +656,7 @@ declare class TeleBox {
     protected _handleTrackStart?: (ev: MouseEvent | TouchEvent) => void;
     handleTrackStart: (ev: MouseEvent | TouchEvent) => void;
     protected _renderResizeHandlers(): void;
+    setScaleContent(scale: number): void;
     destroy(): void;
     /**
      * Wrap a className with namespace
@@ -767,6 +769,7 @@ type TeleBoxManagerEventConfig = CheckTeleBoxManagerConfig<{
     z_index: [ReadonlyTeleBox];
     prefers_color_scheme: [TeleBoxColorScheme];
     dark_mode: [boolean];
+    onScaleChange: [number];
 }>;
 type TeleBoxManagerEvent = keyof TeleBoxManagerEventConfig;
 interface TeleBoxManagerEvents extends EventEmitter<TeleBoxManagerEvent> {
@@ -852,6 +855,7 @@ declare class TeleBoxManager {
     focusTopBox(): void;
     blurBox(boxOrID: string | TeleBox, skipUpdate?: boolean): void;
     blurAll(skipUpdate?: boolean): void;
+    setScaleContent(scale: number): void;
     protected maxTitleBar: MaxTitleBar;
     protected boxes$: Val<TeleBox[]>;
     protected topBox$: Val<TeleBox | undefined>;
