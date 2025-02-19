@@ -11,6 +11,8 @@ $scrollbar-color-active: rgba(68, 78, 96, 0.2);
     overflow: auto;
     overflow-y: scroll;
     overflow-y: overlay; // for webkit
+    overflow-x: scroll;
+    overflow-x: overlay;
     -webkit-overflow-scrolling: touch;
     -ms-overflow-style: -ms-autohiding-scrollbar;
     scrollbar-width: $scrollbar-ff-width;
