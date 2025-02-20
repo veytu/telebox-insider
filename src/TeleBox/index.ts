@@ -122,6 +122,7 @@ export class TeleBox {
         this.namespace = namespace;
         this.events = new EventEmitter();
         this._delegateEvents = new EventEmitter();
+        this.scale = 1
 
         const prefersColorScheme$ = createVal<TeleBoxColorScheme, boolean>(
             prefersColorScheme
@@ -235,6 +236,12 @@ export class TeleBox {
         maximized$.reaction((maximized, _, skipUpdate) => {
             if (!skipUpdate) {
                 this.events.emit(TELE_BOX_EVENT.Maximized, maximized);
+            }
+
+            if (maximized) {
+                this.resetScaleContent()
+            } else {
+                this.setScaleContent(this.scale)
             }
         });
 
@@ -772,6 +779,7 @@ export class TeleBox {
     public $box: HTMLElement;
 
     private $contentWrap!: HTMLElement;
+    private scale: number;
 
     /** DOM of the box content */
     public $content!: HTMLElement;
@@ -1269,6 +1277,12 @@ export class TeleBox {
         const contentWrapRect = this.$contentWrap.getBoundingClientRect()
         this.$content.style.width = `${contentWrapRect.width * scale}px`
         this.$content.style.height = `${contentWrapRect.height * scale}px`
+        this.scale = scale
+    }
+
+    private resetScaleContent (): void {
+        this.$content.style.width = ""
+        this.$content.style.height = ""
     }
 
     public destroy(): void {

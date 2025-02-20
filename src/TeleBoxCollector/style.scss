@@ -13,7 +13,7 @@ $scrollbar-color-active: rgba(235, 236, 250, 1);
     @include no-user-select;
 
     visibility: hidden;
-    position: absolute;
+    position: sticky;
     z-index: $collector-z-index;
     border-radius: 50%;
     cursor: pointer;
