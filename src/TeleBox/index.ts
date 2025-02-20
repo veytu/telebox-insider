@@ -638,6 +638,7 @@ export class TeleBox {
      * @returns this
      */
     public move(x: number, y: number, skipUpdate = false): this {
+        if (this.fixed) return this;
         this._intrinsicCoord$.setValue({ x, y }, skipUpdate);
         return this;
     }
@@ -684,7 +685,6 @@ export class TeleBox {
             }
         }
 
-        console.log(this.fixed)
         if (!this.fixed) {
             this._intrinsicCoord$.setValue(
                 {
