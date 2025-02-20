@@ -328,29 +328,6 @@ export class TeleBox {
             }
         });
 
-        const contentSize$ = combine([this.scale, containerRect$, maximized$, minimized$], ([scale, containerRect, maximized, minimized]) => {
-            return {
-                width: containerRect.width * scale,
-                height: containerRect.height * scale,
-                minimized,
-                maximized
-            }
-        })
-
-        contentSize$.reaction((size) => {
-            if (size.maximized) {
-                this.$content.style.width = ''
-                this.$content.style.height = ''
-                this.$box.style.width = `${size.width}px`
-                this.$box.style.height = `${size.height}px`
-            } else {
-                this.$content.style.width = `${size.width}px`
-                this.$content.style.height = `${size.height}px`
-                this.$box.style.width = this.absoluteWidth + "px";
-                this.$box.style.height = this.absoluteHeight + "px";
-            }
-        })
-
         const intrinsicCoord$ = createVal(
             { x: clamp(x, 0, 1), y: clamp(y, 0, 1) },
             shallowequal
@@ -923,10 +900,24 @@ export class TeleBox {
                     this._minimized$,
                     this._containerRect$,
                     this._collectorRect$,
+                    this._maximized$,
+                    this.scale
                 ],
-                ([coord, size, minimized, containerRect, collectorRect]) => {
+                ([coord, size, minimized, containerRect, collectorRect, maximized, scale]) => {
                     const absoluteWidth = size.width * containerRect.width;
                     const absoluteHeight = size.height * containerRect.height;
+                    if (maximized) {
+                        return {
+                            width:
+                                absoluteWidth * scale,
+                            height:
+                                absoluteHeight * scale,
+                            x: coord.x * containerRect.width,
+                            y: coord.y * containerRect.height,
+                            scaleX: 1,
+                            scaleY: 1,
+                        };
+                    }
                     return {
                         width:
                             absoluteWidth +
@@ -970,6 +961,26 @@ export class TeleBox {
         $content.className =
             this.wrapClassName("content") + " tele-fancy-scrollbar";
         this.$content = $content;
+
+        this._valSideEffectBinder.combine([
+            this._size$,
+            this._containerRect$,
+            this.scale], ([size, containerRect, scale]) => {
+                const absoluteWidth = size.width * containerRect.width;
+                const absoluteHeight = size.height * containerRect.height;
+                return {
+                    width:
+                        absoluteWidth * scale,
+                    height:
+                        absoluteHeight * scale,
+                }
+            },
+            shallowequal
+        )
+        .subscribe((size) => {
+            $content.style.width = size.width + "px";
+            $content.style.height = size.height + "px";
+        })
 
         this._renderSideEffect.add(() => {
             let last$userStyles: HTMLStyleElement | undefined;
