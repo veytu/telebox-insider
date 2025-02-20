@@ -1945,7 +1945,8 @@ class TeleBox {
         height = this.intrinsicHeight;
       }
     }
-    if (this.fixed) {
+    console.log(this.fixed);
+    if (!this.fixed) {
       this._intrinsicCoord$.setValue(
         {
           x: width >= this.minWidth ? x : this.intrinsicX,

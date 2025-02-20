@@ -684,7 +684,8 @@ export class TeleBox {
             }
         }
 
-        if (this.fixed) {
+        console.log(this.fixed)
+        if (!this.fixed) {
             this._intrinsicCoord$.setValue(
                 {
                     x: width >= this.minWidth ? x : this.intrinsicX,
@@ -1339,4 +1340,5 @@ export type ReadonlyTeleBox = Pick<
     | "mountFooter"
     | "mountStyles"
     | "handleTrackStart"
+    | "setFixed"
 >;

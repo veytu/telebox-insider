@@ -668,7 +668,7 @@ declare class TeleBox {
     private fixed;
 }
 type PropKeys<K = keyof TeleBox> = K extends keyof TeleBox ? TeleBox[K] extends AnyToVoidFunction ? never : K : never;
-type ReadonlyTeleBox = Pick<TeleBox, PropKeys | "wrapClassName" | "mountContent" | "mountFooter" | "mountStyles" | "handleTrackStart">;
+type ReadonlyTeleBox = Pick<TeleBox, PropKeys | "wrapClassName" | "mountContent" | "mountFooter" | "mountStyles" | "handleTrackStart" | "setFixed">;
 
 type StringStyleKeys$1<T = keyof CSSStyleDeclaration> = T extends keyof CSSStyleDeclaration ? CSSStyleDeclaration[T] extends string ? T : never : never;
 type TeleStyles$1 = Partial<Pick<CSSStyleDeclaration, StringStyleKeys$1>>;
