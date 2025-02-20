@@ -25,6 +25,7 @@
 .#{$namespace}-content-wrap {
     width: 100%;
     height: 100%;
+    @include clr(background-color, boxContainerBackground);
 }
 .#{$namespace}-content {
     width: 100%;

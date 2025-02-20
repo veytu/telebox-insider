@@ -1526,7 +1526,8 @@ class TeleBox {
       width: window.innerWidth,
       height: window.innerHeight
     },
-    collectorRect
+    collectorRect,
+    fixed = false
   } = {}) {
     this._renderSideEffect = new o();
     this.handleTrackStart = (ev) => {
@@ -1541,6 +1542,7 @@ class TeleBox {
     this.events = new EventEmitter();
     this._delegateEvents = new EventEmitter();
     this.scale = createVal(1);
+    this.fixed = fixed;
     const prefersColorScheme$ = createVal(
       prefersColorScheme
     );
@@ -1945,13 +1947,15 @@ class TeleBox {
         height = this.intrinsicHeight;
       }
     }
-    this._intrinsicCoord$.setValue(
-      {
-        x: width >= this.minWidth ? x : this.intrinsicX,
-        y: height >= this.minHeight ? y : this.intrinsicY
-      },
-      skipUpdate
-    );
+    if (this.fixed) {
+      this._intrinsicCoord$.setValue(
+        {
+          x: width >= this.minWidth ? x : this.intrinsicX,
+          y: height >= this.minHeight ? y : this.intrinsicY
+        },
+        skipUpdate
+      );
+    }
     this._intrinsicSize$.setValue(
       {
         width: clamp(width, this.minWidth, 1),
@@ -2004,6 +2008,9 @@ class TeleBox {
   unmountStyles() {
     this.set$userStyles(void 0);
     return this;
+  }
+  setFixed(fixed) {
+    this.fixed = fixed;
   }
   render(root) {
     if (root) {

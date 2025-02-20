@@ -81,6 +81,7 @@ export interface TeleBoxConfig {
     readonly containerRect?: TeleBoxRect;
     /** Position and dimension of collector */
     readonly collectorRect?: TeleBoxRect;
+    readonly fixed?: boolean
 }
 
 type CheckTeleBoxConfig<T extends Record<`${TELE_BOX_EVENT}`, any>> = T;

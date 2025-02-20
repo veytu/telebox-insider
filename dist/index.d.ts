@@ -374,6 +374,7 @@ interface TeleBoxConfig {
     readonly containerRect?: TeleBoxRect;
     /** Position and dimension of collector */
     readonly collectorRect?: TeleBoxRect;
+    readonly fixed?: boolean;
 }
 type CheckTeleBoxConfig<T extends Record<`${TELE_BOX_EVENT}`, any>> = T;
 type TeleBoxEventConfig = CheckTeleBoxConfig<{
@@ -531,7 +532,7 @@ type ValConfig$1 = {
 interface TeleBox extends ValEnhancedResult<ValConfig$1> {
 }
 declare class TeleBox {
-    constructor({ id, title, prefersColorScheme, darkMode, visible, width, height, minWidth, minHeight, x, y, minimized, maximized, readonly, resizable, draggable, fence, fixRatio, focus, zIndex, namespace, titleBar, content, footer, styles, containerRect, collectorRect, }?: TeleBoxConfig);
+    constructor({ id, title, prefersColorScheme, darkMode, visible, width, height, minWidth, minHeight, x, y, minimized, maximized, readonly, resizable, draggable, fence, fixRatio, focus, zIndex, namespace, titleBar, content, footer, styles, containerRect, collectorRect, fixed }?: TeleBoxConfig);
     readonly id: string;
     /** ClassName Prefix. For CSS styling. Default "telebox" */
     readonly namespace: string;
@@ -642,6 +643,7 @@ declare class TeleBox {
     getUserStyles(): HTMLStyleElement | undefined;
     mountStyles(styles: string | HTMLStyleElement): this;
     unmountStyles(): this;
+    setFixed(fixed: boolean): void;
     /** DOM of the box */
     $box: HTMLElement;
     private $contentWrap;
@@ -663,6 +665,7 @@ declare class TeleBox {
      * Wrap a className with namespace
      */
     wrapClassName(className: string): string;
+    private fixed;
 }
 type PropKeys<K = keyof TeleBox> = K extends keyof TeleBox ? TeleBox[K] extends AnyToVoidFunction ? never : K : never;
 type ReadonlyTeleBox = Pick<TeleBox, PropKeys | "wrapClassName" | "mountContent" | "mountFooter" | "mountStyles" | "handleTrackStart">;

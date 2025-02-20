@@ -95,6 +95,8 @@
 .telebox-content-wrap {
   width: 100%;
   height: 100%;
+  background-color: #fff;
+  background-color: var(--tele-boxContainerBackground, #fff);
 }
 .telebox-content {
   width: 100%;

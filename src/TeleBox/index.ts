@@ -43,7 +43,7 @@ import type {
     TeleBoxSize,
     TeleBoxColorScheme,
 } from "./typings";
-import { AnyToVoidFunction } from "../schedulers";
+import type { AnyToVoidFunction } from "../schedulers";
 
 export * from "./constants";
 export * from "./typings";
@@ -113,6 +113,7 @@ export class TeleBox {
             height: window.innerHeight,
         },
         collectorRect,
+        fixed = false
     }: TeleBoxConfig = {}) {
         this._sideEffect = new SideEffectManager();
         this._valSideEffectBinder = createSideEffectBinder((this._sideEffect as any));
@@ -124,7 +125,7 @@ export class TeleBox {
         this._delegateEvents = new EventEmitter();
         this.scale = createVal(1)
 
-
+        this.fixed = fixed
 
         const prefersColorScheme$ = createVal<TeleBoxColorScheme, boolean>(
             prefersColorScheme
@@ -683,13 +684,16 @@ export class TeleBox {
             }
         }
 
-        this._intrinsicCoord$.setValue(
-            {
-                x: width >= this.minWidth ? x : this.intrinsicX,
-                y: height >= this.minHeight ? y : this.intrinsicY,
-            },
-            skipUpdate
-        );
+        if (this.fixed) {
+            this._intrinsicCoord$.setValue(
+                {
+                    x: width >= this.minWidth ? x : this.intrinsicX,
+                    y: height >= this.minHeight ? y : this.intrinsicY,
+                },
+                skipUpdate
+            );
+        }
+
         this._intrinsicSize$.setValue(
             {
                 width: clamp(width, this.minWidth, 1),
@@ -770,6 +774,10 @@ export class TeleBox {
     public unmountStyles(): this {
         this.set$userStyles(undefined);
         return this;
+    }
+
+    public setFixed(fixed: boolean): void {
+        this.fixed = fixed
     }
 
     /** DOM of the box */
@@ -1309,6 +1317,8 @@ export class TeleBox {
     public wrapClassName(className: string): string {
         return `${this.namespace}-${className}`;
     }
+
+    private fixed: boolean
 }
 
 function noop(): void {
