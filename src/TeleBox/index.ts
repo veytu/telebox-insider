@@ -122,7 +122,9 @@ export class TeleBox {
         this.namespace = namespace;
         this.events = new EventEmitter();
         this._delegateEvents = new EventEmitter();
-        this.scale = 1
+        this.scale = createVal(1)
+
+
 
         const prefersColorScheme$ = createVal<TeleBoxColorScheme, boolean>(
             prefersColorScheme
@@ -181,10 +183,6 @@ export class TeleBox {
         });
 
         const containerRect$ = createVal(containerRect, shallowequal);
-
-        containerRect$.reaction(() => {
-            this.setScaleContent(this.scale)
-        })
 
         const collectorRect$ = createVal(collectorRect, shallowequal);
 
@@ -328,9 +326,30 @@ export class TeleBox {
             if (!skipUpdate) {
                 this.events.emit(TELE_BOX_EVENT.VisualResize, size);
             }
-
-
         });
+
+        const contentSize$ = combine([this.scale, containerRect$, maximized$, minimized$], ([scale, containerRect, maximized, minimized]) => {
+            return {
+                width: containerRect.width * scale,
+                height: containerRect.height * scale,
+                minimized,
+                maximized
+            }
+        })
+
+        contentSize$.reaction((size) => {
+            if (size.maximized) {
+                this.$content.style.width = ''
+                this.$content.style.height = ''
+                this.$box.style.width = `${size.width}px`
+                this.$box.style.height = `${size.height}px`
+            } else {
+                this.$content.style.width = `${size.width}px`
+                this.$content.style.height = `${size.height}px`
+                this.$box.style.width = this.absoluteWidth + "px";
+                this.$box.style.height = this.absoluteHeight + "px";
+            }
+        })
 
         const intrinsicCoord$ = createVal(
             { x: clamp(x, 0, 1), y: clamp(y, 0, 1) },
@@ -780,7 +799,7 @@ export class TeleBox {
     public $box: HTMLElement;
 
     private $contentWrap!: HTMLElement;
-    private scale: number;
+    private scale: Val<number>;
 
     /** DOM of the box content */
     public $content!: HTMLElement;
@@ -1274,11 +1293,7 @@ export class TeleBox {
     }
 
     public setScaleContent (scale: number): void {
-        if (!this.$content) return
-        const contentWrapRect = this.$contentWrap.getBoundingClientRect()
-        this.$content.style.width = `${contentWrapRect.width * scale}px`
-        this.$content.style.height = `${contentWrapRect.height * scale}px`
-        this.scale = scale
+        this.scale.setValue(scale)
     }
 
     public destroy(): void {

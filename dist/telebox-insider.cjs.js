@@ -1540,7 +1540,7 @@ class TeleBox {
     this.namespace = namespace;
     this.events = new EventEmitter();
     this._delegateEvents = new EventEmitter();
-    this.scale = 1;
+    this.scale = createVal(1);
     const prefersColorScheme$ = createVal(
       prefersColorScheme
     );
@@ -1591,9 +1591,6 @@ class TeleBox {
       }
     });
     const containerRect$ = createVal(containerRect, shallowequal);
-    containerRect$.reaction(() => {
-      this.setScaleContent(this.scale);
-    });
     const collectorRect$ = createVal(collectorRect, shallowequal);
     const title$ = createVal(title);
     title$.reaction((title2, _, skipUpdate) => {
@@ -1711,6 +1708,27 @@ class TeleBox {
     visualSize$.reaction((size, _, skipUpdate) => {
       if (!skipUpdate) {
         this.events.emit(TELE_BOX_EVENT.VisualResize, size);
+      }
+    });
+    const contentSize$ = combine([this.scale, containerRect$, maximized$, minimized$], ([scale2, containerRect2, maximized2, minimized2]) => {
+      return {
+        width: containerRect2.width * scale2,
+        height: containerRect2.height * scale2,
+        minimized: minimized2,
+        maximized: maximized2
+      };
+    });
+    contentSize$.reaction((size) => {
+      if (size.maximized) {
+        this.$content.style.width = "";
+        this.$content.style.height = "";
+        this.$box.style.width = `${size.width}px`;
+        this.$box.style.height = `${size.height}px`;
+      } else {
+        this.$content.style.width = `${size.width}px`;
+        this.$content.style.height = `${size.height}px`;
+        this.$box.style.width = this.absoluteWidth + "px";
+        this.$box.style.height = this.absoluteHeight + "px";
       }
     });
     const intrinsicCoord$ = createVal(
@@ -2377,12 +2395,7 @@ class TeleBox {
     );
   }
   setScaleContent(scale2) {
-    if (!this.$content)
-      return;
-    const contentWrapRect = this.$contentWrap.getBoundingClientRect();
-    this.$content.style.width = `${contentWrapRect.width * scale2}px`;
-    this.$content.style.height = `${contentWrapRect.height * scale2}px`;
-    this.scale = scale2;
+    this.scale.setValue(scale2);
   }
   destroy() {
     this.$box.remove();
