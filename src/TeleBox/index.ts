@@ -181,6 +181,11 @@ export class TeleBox {
         });
 
         const containerRect$ = createVal(containerRect, shallowequal);
+
+        containerRect$.reaction(() => {
+            this.setScaleContent(this.scale)
+        })
+
         const collectorRect$ = createVal(collectorRect, shallowequal);
 
         const title$ = createVal(title);
@@ -236,12 +241,6 @@ export class TeleBox {
         maximized$.reaction((maximized, _, skipUpdate) => {
             if (!skipUpdate) {
                 this.events.emit(TELE_BOX_EVENT.Maximized, maximized);
-            }
-
-            if (maximized) {
-                this.resetScaleContent()
-            } else {
-                this.setScaleContent(this.scale)
             }
         });
 
@@ -329,6 +328,8 @@ export class TeleBox {
             if (!skipUpdate) {
                 this.events.emit(TELE_BOX_EVENT.VisualResize, size);
             }
+
+
         });
 
         const intrinsicCoord$ = createVal(
@@ -1278,11 +1279,6 @@ export class TeleBox {
         this.$content.style.width = `${contentWrapRect.width * scale}px`
         this.$content.style.height = `${contentWrapRect.height * scale}px`
         this.scale = scale
-    }
-
-    private resetScaleContent (): void {
-        this.$content.style.width = ""
-        this.$content.style.height = ""
     }
 
     public destroy(): void {

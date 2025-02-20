@@ -658,7 +658,6 @@ declare class TeleBox {
     handleTrackStart: (ev: MouseEvent | TouchEvent) => void;
     protected _renderResizeHandlers(): void;
     setScaleContent(scale: number): void;
-    private resetScaleContent;
     destroy(): void;
     /**
      * Wrap a className with namespace

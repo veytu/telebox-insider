@@ -1591,6 +1591,9 @@ class TeleBox {
       }
     });
     const containerRect$ = createVal(containerRect, shallowequal);
+    containerRect$.reaction(() => {
+      this.setScaleContent(this.scale);
+    });
     const collectorRect$ = createVal(collectorRect, shallowequal);
     const title$ = createVal(title);
     title$.reaction((title2, _, skipUpdate) => {
@@ -1638,11 +1641,6 @@ class TeleBox {
     maximized$.reaction((maximized2, _, skipUpdate) => {
       if (!skipUpdate) {
         this.events.emit(TELE_BOX_EVENT.Maximized, maximized2);
-      }
-      if (maximized2) {
-        this.resetScaleContent();
-      } else {
-        this.setScaleContent(this.scale);
       }
     });
     const state$ = combine(
@@ -2385,10 +2383,6 @@ class TeleBox {
     this.$content.style.width = `${contentWrapRect.width * scale2}px`;
     this.$content.style.height = `${contentWrapRect.height * scale2}px`;
     this.scale = scale2;
-  }
-  resetScaleContent() {
-    this.$content.style.width = "";
-    this.$content.style.height = "";
   }
   destroy() {
     this.$box.remove();
