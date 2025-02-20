@@ -85,7 +85,7 @@ $scrollbar-color-active: rgba(238, 238, 247, 1);
     }
 
     &::-webkit-scrollbar-track {
-        background-color: $scrollbar-track-color;
+        background-color: none;
     }
 
     &::-webkit-scrollbar-thumb {

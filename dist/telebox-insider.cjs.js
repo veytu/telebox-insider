@@ -2089,23 +2089,11 @@ class TeleBox {
         this._size$,
         this._minimized$,
         this._containerRect$,
-        this._collectorRect$,
-        this._maximized$,
-        this.scale
+        this._collectorRect$
       ],
-      ([coord, size, minimized, containerRect, collectorRect, maximized, scale2]) => {
+      ([coord, size, minimized, containerRect, collectorRect]) => {
         const absoluteWidth = size.width * containerRect.width;
         const absoluteHeight = size.height * containerRect.height;
-        if (maximized) {
-          return {
-            width: absoluteWidth * scale2,
-            height: absoluteHeight * scale2,
-            x: coord.x * containerRect.width,
-            y: coord.y * containerRect.height,
-            scaleX: 1,
-            scaleY: 1
-          };
-        }
         return {
           width: absoluteWidth + (minimized && collectorRect ? 1 : 0),
           height: absoluteHeight + (minimized && collectorRect ? 1 : 0),
