@@ -643,9 +643,10 @@ export class TeleBoxManager {
                         this.events.emit(TELE_BOX_MANAGER_EVENT.Focused, targetBox)
                     }
                 } else if (box.focus) {
-                    if (!this.maximizedBoxes$.value.includes(box.id)) {
-                        this.blurBox(box, skipUpdate)
-                    }
+                    // if (!this.maximizedBoxes$.value.includes(box.id)) {
+
+                    // }
+                    this.blurBox(box, skipUpdate)
                 }
             })
             if (this.maximizedBoxes$.value.length > 0) {
@@ -673,9 +674,10 @@ export class TeleBoxManager {
                     this.events.emit(TELE_BOX_MANAGER_EVENT.Blurred, targetBox)
                 }
             }
-            if (this.maxTitleBar.focusedBox === targetBox) {
-                this.maxTitleBar.focusBox()
-            }
+            // test
+            // if (this.maxTitleBar.focusedBox === targetBox) {
+            //     this.maxTitleBar.focusBox()
+            // }
         }
     }
 

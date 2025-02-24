@@ -3392,9 +3392,7 @@ class TeleBoxManager {
             this.events.emit(TELE_BOX_MANAGER_EVENT.Focused, targetBox);
           }
         } else if (box.focus) {
-          if (!this.maximizedBoxes$.value.includes(box.id)) {
-            this.blurBox(box, skipUpdate);
-          }
+          this.blurBox(box, skipUpdate);
         }
       });
       if (this.maximizedBoxes$.value.length > 0) {
@@ -3419,9 +3417,6 @@ class TeleBoxManager {
         if (!skipUpdate) {
           this.events.emit(TELE_BOX_MANAGER_EVENT.Blurred, targetBox);
         }
-      }
-      if (this.maxTitleBar.focusedBox === targetBox) {
-        this.maxTitleBar.focusBox();
       }
     }
   }
