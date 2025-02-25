@@ -138,6 +138,7 @@ export class TeleBoxCollector {
 
     public setReadonly(readonly: boolean): this {
         console.log('collector', readonly)
+        debugger
         if (this._readonly !== readonly) {
             this._readonly = readonly
             if (this.$collector) {

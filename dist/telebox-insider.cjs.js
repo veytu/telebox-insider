@@ -2495,6 +2495,7 @@ class TeleBoxCollector {
   }
   setReadonly(readonly) {
     console.log("collector", readonly);
+    debugger;
     if (this._readonly !== readonly) {
       this._readonly = readonly;
       if (this.$collector) {
