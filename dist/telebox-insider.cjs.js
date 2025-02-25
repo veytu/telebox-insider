@@ -2407,7 +2407,6 @@ class TeleBoxCollector {
     boxes = []
   } = {}) {
     this.handleCollectorClick = () => {
-      console.log(this.readonly);
       if (!this._readonly && this.onClick) {
         this.popupVisible$.setValue(!this.popupVisible$.value);
       }
@@ -2494,8 +2493,6 @@ class TeleBoxCollector {
     return this;
   }
   setReadonly(readonly) {
-    console.log("collector", readonly);
-    debugger;
     if (this._readonly !== readonly) {
       this._readonly = readonly;
       if (this.$collector) {

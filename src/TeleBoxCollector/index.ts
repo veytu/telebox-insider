@@ -137,8 +137,6 @@ export class TeleBoxCollector {
     }
 
     public setReadonly(readonly: boolean): this {
-        console.log('collector', readonly)
-        debugger
         if (this._readonly !== readonly) {
             this._readonly = readonly
             if (this.$collector) {
@@ -358,7 +356,6 @@ export class TeleBoxCollector {
     protected boxes: TeleBoxCollectorConfig['boxes']
 
     protected handleCollectorClick = (): void => {
-        console.log(this.readonly)
         if (!this._readonly && this.onClick) {
             this.popupVisible$.setValue(!this.popupVisible$.value)
         }
