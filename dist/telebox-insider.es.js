@@ -1541,49 +1541,34 @@ class TeleBox {
     this._delegateEvents = new EventEmitter();
     this.scale = createVal(1);
     this.fixed = fixed;
-    const prefersColorScheme$ = createVal(
-      prefersColorScheme
-    );
+    const prefersColorScheme$ = createVal(prefersColorScheme);
     prefersColorScheme$.reaction((prefersColorScheme2, _, skipUpdate) => {
       if (!skipUpdate) {
-        this.events.emit(
-          TELE_BOX_EVENT.PrefersColorScheme,
-          prefersColorScheme2
-        );
+        this.events.emit(TELE_BOX_EVENT.PrefersColorScheme, prefersColorScheme2);
       }
     });
     const darkMode$ = createVal(Boolean(darkMode));
     if (darkMode == null) {
-      prefersColorScheme$.subscribe(
-        (prefersColorScheme2, _, skipUpdate) => {
-          this._sideEffect.add(() => {
-            if (prefersColorScheme2 === "auto") {
-              const prefersDark = window.matchMedia(
-                "(prefers-color-scheme: dark)"
-              );
-              if (prefersDark) {
-                darkMode$.setValue(
-                  prefersDark.matches,
-                  skipUpdate
-                );
-                const handler = (evt) => {
-                  darkMode$.setValue(evt.matches, skipUpdate);
-                };
-                prefersDark.addListener(handler);
-                return () => prefersDark.removeListener(handler);
-              } else {
-                return noop;
-              }
+      prefersColorScheme$.subscribe((prefersColorScheme2, _, skipUpdate) => {
+        this._sideEffect.add(() => {
+          if (prefersColorScheme2 === "auto") {
+            const prefersDark = window.matchMedia("(prefers-color-scheme: dark)");
+            if (prefersDark) {
+              darkMode$.setValue(prefersDark.matches, skipUpdate);
+              const handler = (evt) => {
+                darkMode$.setValue(evt.matches, skipUpdate);
+              };
+              prefersDark.addListener(handler);
+              return () => prefersDark.removeListener(handler);
             } else {
-              darkMode$.setValue(
-                prefersColorScheme2 === "dark",
-                skipUpdate
-              );
               return noop;
             }
-          }, "prefers-color-scheme");
-        }
-      );
+          } else {
+            darkMode$.setValue(prefersColorScheme2 === "dark", skipUpdate);
+            return noop;
+          }
+        }, "prefers-color-scheme");
+      });
     }
     darkMode$.reaction((darkMode2, _, skipUpdate) => {
       if (!skipUpdate) {
@@ -1623,9 +1608,7 @@ class TeleBox {
     const focus$ = createVal(focus);
     focus$.reaction((focus2, _, skipUpdate) => {
       if (!skipUpdate) {
-        this.events.emit(
-          focus2 ? TELE_BOX_EVENT.Focus : TELE_BOX_EVENT.Blur
-        );
+        this.events.emit(focus2 ? TELE_BOX_EVENT.Focus : TELE_BOX_EVENT.Blur);
       }
     });
     const minimized$ = createVal(minimized);
@@ -1710,10 +1693,7 @@ class TeleBox {
         this.events.emit(TELE_BOX_EVENT.VisualResize, size);
       }
     });
-    const intrinsicCoord$ = createVal(
-      { x: clamp(x, 0, 1), y: clamp(y, 0, 1) },
-      shallowequal
-    );
+    const intrinsicCoord$ = createVal({ x: clamp(x, 0, 1), y: clamp(y, 0, 1) }, shallowequal);
     intrinsicCoord$.reaction((coord, _, skipUpdate) => {
       if (!skipUpdate) {
         this.events.emit(TELE_BOX_EVENT.IntrinsicMove, coord);
@@ -1786,10 +1766,7 @@ class TeleBox {
               break;
             }
             default: {
-              console.error(
-                "Unsupported titleBar event:",
-                event
-              );
+              console.error("Unsupported titleBar event:", event);
               break;
             }
           }
@@ -1874,17 +1851,11 @@ class TeleBox {
     return this._minSize$.value.height;
   }
   setMinWidth(minWidth, skipUpdate = false) {
-    this._minSize$.setValue(
-      { width: minWidth, height: this.minHeight },
-      skipUpdate
-    );
+    this._minSize$.setValue({ width: minWidth, height: this.minHeight }, skipUpdate);
     return this;
   }
   setMinHeight(minHeight, skipUpdate = false) {
-    this._minSize$.setValue(
-      { width: this.minWidth, height: minHeight },
-      skipUpdate
-    );
+    this._minSize$.setValue({ width: this.minWidth, height: minHeight }, skipUpdate);
     return this;
   }
   get intrinsicWidth() {
@@ -2041,31 +2012,20 @@ class TeleBox {
     bindClassName(this.$box, this._resizable$, "no-resize", isFalsy);
     bindClassName(this.$box, this._focus$, "blur", isFalsy);
     bindClassName(this.$box, this._darkMode$, "color-scheme-dark");
-    bindClassName(
-      this.$box,
-      this._darkMode$,
-      "color-scheme-light",
-      isFalsy
-    );
+    bindClassName(this.$box, this._darkMode$, "color-scheme-light", isFalsy);
     this._renderSideEffect.add(() => {
       const minimizedClassName = this.wrapClassName("minimized");
       const maximizedClassName = this.wrapClassName("maximized");
       const MAXIMIZED_TIMER_ID = "box-maximized-timer";
       return this._state$.subscribe((state) => {
-        this.$box.classList.toggle(
-          minimizedClassName,
-          state === TELE_BOX_STATE.Minimized
-        );
+        this.$box.classList.toggle(minimizedClassName, state === TELE_BOX_STATE.Minimized);
         if (state === TELE_BOX_STATE.Maximized) {
           this._renderSideEffect.flush(MAXIMIZED_TIMER_ID);
           this.$box.classList.toggle(maximizedClassName, true);
         } else {
           this._renderSideEffect.setTimeout(
             () => {
-              this.$box.classList.toggle(
-                maximizedClassName,
-                false
-              );
+              this.$box.classList.toggle(maximizedClassName, false);
             },
             0,
             MAXIMIZED_TIMER_ID
@@ -2127,25 +2087,6 @@ class TeleBox {
     const $content = document.createElement("div");
     $content.className = this.wrapClassName("content") + " tele-fancy-scrollbar";
     this.$content = $content;
-    this._valSideEffectBinder.combine(
-      [
-        this._size$,
-        this._containerRect$,
-        this.scale
-      ],
-      ([size, containerRect, scale2]) => {
-        const absoluteWidth = size.width * containerRect.width;
-        const absoluteHeight = size.height * containerRect.height;
-        return {
-          width: absoluteWidth * scale2,
-          height: absoluteHeight * scale2
-        };
-      },
-      shallowequal
-    ).subscribe((size) => {
-      $content.style.width = size.width + "px";
-      $content.style.height = size.height + "px";
-    });
     this._renderSideEffect.add(() => {
       let last$userStyles;
       return this._$userStyles$.subscribe(($userStyles) => {
@@ -2186,10 +2127,40 @@ class TeleBox {
         }
       });
     });
+    this._maximized$.reaction((maximized) => {
+      $footer.classList.toggle(this.wrapClassName("footer-hide"), maximized);
+    });
     $boxMain.appendChild($titleBar);
     $boxMain.appendChild($contentWrap);
     $boxMain.appendChild($footer);
     this.$contentWrap = $contentWrap;
+    const contenntRect = $contentWrap.getBoundingClientRect();
+    const { createVal } = this._valSideEffectBinder;
+    const contenntRect$ = createVal(contenntRect, shallowequal);
+    this._valSideEffectBinder.combine(
+      [this._containerRect$, this._maximized$],
+      () => {
+        return $contentWrap.getBoundingClientRect();
+      },
+      shallowequal
+    ).subscribe((rect) => {
+      contenntRect$.setValue(rect);
+    });
+    this._valSideEffectBinder.combine(
+      [this._size$, contenntRect$, this.scale],
+      ([size, containerRect, scale2]) => {
+        const absoluteWidth = size.width * containerRect.width;
+        const absoluteHeight = size.height * containerRect.height;
+        return {
+          width: absoluteWidth * scale2,
+          height: absoluteHeight * scale2
+        };
+      },
+      shallowequal
+    ).subscribe((size) => {
+      $content.style.width = size.width + "px";
+      $content.style.height = size.height + "px";
+    });
     this._renderResizeHandlers();
     return this.$box;
   }
@@ -2235,12 +2206,7 @@ class TeleBox {
           break;
         }
         case TELE_BOX_RESIZE_HANDLE.South: {
-          this.transform(
-            this.x,
-            this.y,
-            this.width,
-            trackStartHeight + offsetY
-          );
+          this.transform(this.x, this.y, this.width, trackStartHeight + offsetY);
           break;
         }
         case TELE_BOX_RESIZE_HANDLE.West: {
@@ -2253,12 +2219,7 @@ class TeleBox {
           break;
         }
         case TELE_BOX_RESIZE_HANDLE.East: {
-          this.transform(
-            this.x,
-            this.y,
-            trackStartWidth + offsetX,
-            this.height
-          );
+          this.transform(this.x, this.y, trackStartWidth + offsetX, this.height);
           break;
         }
         case TELE_BOX_RESIZE_HANDLE.NorthWest: {
@@ -2353,9 +2314,7 @@ class TeleBox {
           $trackMask = document.createElement("div");
         }
         const cursor = trackingHandle ? this.wrapClassName(`cursor-${trackingHandle}`) : "";
-        $trackMask.className = this.wrapClassName(
-          `track-mask${cursor ? ` ${cursor}` : ""}`
-        );
+        $trackMask.className = this.wrapClassName(`track-mask${cursor ? ` ${cursor}` : ""}`);
         this.$box.appendChild($trackMask);
         this.$box.classList.add(transformingClassName);
         this._sideEffect.add(() => {
@@ -2375,10 +2334,7 @@ class TeleBox {
             window.removeEventListener("touchmove", handleTracking);
             window.removeEventListener("mouseup", handleTrackEnd);
             window.removeEventListener("touchend", handleTrackEnd);
-            window.removeEventListener(
-              "touchcancel",
-              handleTrackEnd
-            );
+            window.removeEventListener("touchcancel", handleTrackEnd);
           };
         }, TRACKING_DISPOSER_ID);
       }

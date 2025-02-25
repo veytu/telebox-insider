@@ -192,6 +192,9 @@
   z-index: 2147483647;
   touch-action: none;
 }
+.telebox-footer-hide {
+  display: none;
+}
 .telebox-n {
   width: 100%;
   height: 5px;
