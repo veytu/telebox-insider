@@ -375,6 +375,7 @@ interface TeleBoxConfig {
     /** Position and dimension of collector */
     readonly collectorRect?: TeleBoxRect;
     readonly fixed?: boolean;
+    readonly addObserver?: (el: HTMLElement, cb: ResizeObserverCallback) => void;
 }
 type CheckTeleBoxConfig<T extends Record<`${TELE_BOX_EVENT}`, any>> = T;
 type TeleBoxEventConfig = CheckTeleBoxConfig<{
@@ -532,13 +533,14 @@ type ValConfig$1 = {
 interface TeleBox extends ValEnhancedResult<ValConfig$1> {
 }
 declare class TeleBox {
-    constructor({ id, title, prefersColorScheme, darkMode, visible, width, height, minWidth, minHeight, x, y, minimized, maximized, readonly, resizable, draggable, fence, fixRatio, focus, zIndex, namespace, titleBar, content, footer, styles, containerRect, collectorRect, fixed }?: TeleBoxConfig);
+    constructor({ id, title, prefersColorScheme, darkMode, visible, width, height, minWidth, minHeight, x, y, minimized, maximized, readonly, resizable, draggable, fence, fixRatio, focus, zIndex, namespace, titleBar, content, footer, styles, containerRect, collectorRect, fixed, addObserver }?: TeleBoxConfig);
     readonly id: string;
     /** ClassName Prefix. For CSS styling. Default "telebox" */
     readonly namespace: string;
     readonly events: TeleBoxEvents;
     readonly _delegateEvents: TeleBoxDelegateEvents;
     protected _sideEffect: SideEffectManager;
+    protected readonly addObserver: (el: HTMLElement, cb: ResizeObserverCallback) => void;
     protected _valSideEffectBinder: ValSideEffectBinder;
     titleBar: TeleTitleBar;
     _minSize$: Val<TeleBoxSize, boolean>;
@@ -815,6 +817,15 @@ declare class MaxTitleBar extends DefaultTitleBar {
     protected minimizedBoxes$: MaxTitleBarConfig['minimizedBoxes$'];
 }
 
+declare function createCallbackManager<T extends AnyToVoidFunction = AnyToVoidFunction>(): {
+    runCallbacks: (...args: any[]) => void;
+    addCallback: (cb: T) => void;
+    removeCallback: (cb: T) => void;
+    hasCallbacks: () => boolean;
+    removeAll: () => void;
+};
+type CallbackManager<T extends AnyToVoidFunction = AnyToVoidFunction> = ReturnType<typeof createCallbackManager<T>>;
+
 type ValConfig = {
     prefersColorScheme: Val<TeleBoxColorScheme, boolean>;
     containerRect: Val<TeleBoxRect, boolean>;
@@ -833,6 +844,12 @@ declare class TeleBoxManager {
     get topBox(): TeleBox | undefined;
     readonly events: TeleBoxManagerEvents;
     protected _sideEffect: SideEffectManager;
+    protected sizeObserver: ResizeObserver;
+    protected callbackManager: CallbackManager;
+    protected elementObserverMap: Map<string, {
+        el: HTMLElement;
+        cb: AnyToVoidFunction;
+    }[]>;
     protected root: HTMLElement;
     protected maximizedBoxes$: Val<string[]>;
     protected minimizedBoxes$: Val<string[]>;
@@ -841,8 +858,8 @@ declare class TeleBoxManager {
     get darkMode(): boolean;
     _state$: Val<TeleBoxState, boolean>;
     get state(): TeleBoxState;
-    setMinimized(data: any, skipUpdate?: boolean): void;
-    setMaximized(data: any, skipUpdate?: boolean): void;
+    setMinimized(data: boolean | string[], skipUpdate?: boolean): void;
+    setMaximized(data: boolean | string[], skipUpdate?: boolean): void;
     /** @deprecated use setMaximized and setMinimized instead */
     setState(state: TeleBoxState, skipUpdate?: boolean): this;
     create(config?: TeleBoxManagerCreateConfig, smartPosition?: boolean): ReadonlyTeleBox;

@@ -27,6 +27,9 @@ import type {
 } from 'value-enhancer'
 import {createSideEffectBinder, withValueEnhancer, Val} from 'value-enhancer'
 import { excludeFromBoth, removeByVal, uniqueByVal } from '../utils'
+import { createCallbackManager } from './utils/callbacks'
+import type {CallbackManager} from './utils/callbacks'
+import type { AnyToVoidFunction } from '../schedulers'
 
 export * from './typings'
 export * from './constants'
@@ -66,7 +69,9 @@ export class TeleBoxManager {
     }: TeleBoxManagerConfig = {}) {
         this._sideEffect = new SideEffectManager()
         const { combine, createVal } = createSideEffectBinder(this._sideEffect as any)
-
+        this.callbackManager = createCallbackManager()
+        this.sizeObserver = new ResizeObserver(this.callbackManager.runCallbacks)
+        this.elementObserverMap = new Map()
         this.root = root
         this.namespace = namespace
 
@@ -410,6 +415,9 @@ export class TeleBoxManager {
     public readonly events = new EventEmitter() as TeleBoxManagerEvents
 
     protected _sideEffect: SideEffectManager
+    protected sizeObserver: ResizeObserver
+    protected callbackManager: CallbackManager
+    protected elementObserverMap: Map<string, {el: HTMLElement, cb: AnyToVoidFunction}[]>
 
     protected root: HTMLElement
 
@@ -430,10 +438,10 @@ export class TeleBoxManager {
         return this._state$.value
     }
 
-    public setMinimized(data: any, skipUpdate = false) {
+    public setMinimized(data: boolean | string[], skipUpdate = false): void {
         console.log('mini', data, skipUpdate)
     }
-    public setMaximized(data: any, skipUpdate = false) {
+    public setMaximized(data: boolean | string[], skipUpdate = false): void {
         console.log('max', data, skipUpdate)
     }
 
@@ -479,7 +487,19 @@ export class TeleBoxManager {
             containerRect: this.containerRect,
             readonly: this.readonly,
             collectorRect: this.collectorRect,
-            id
+            id,
+            addObserver: (el: HTMLElement, cb: ResizeObserverCallback) => {
+                const observer = this.elementObserverMap.get(id)
+
+                if (!observer) {
+                    this.elementObserverMap.set(id, [{el, cb}])
+                } else {
+                    observer.push({el, cb})
+                }
+
+                this.callbackManager.addCallback(cb)
+                this.sizeObserver.observe(el)
+            }
         })
 
         box.mount(this.root)
@@ -578,6 +598,15 @@ export class TeleBoxManager {
             if (boxId) {
                 this.setMaximizedBoxes(removeByVal(this.maximizedBoxes$.value, boxId))
                 this.setMinimizedBoxes(removeByVal(this.minimizedBoxes$.value, boxId))
+                const observeData = this.elementObserverMap.get(boxId)
+                if (observeData) {
+                    observeData.forEach(({el, cb}) => {
+                        this.callbackManager.removeCallback(cb)
+                        this.sizeObserver.unobserve(el)
+                        this.elementObserverMap.delete(boxId)
+                    })
+
+                }
             }
             if (!skipUpdate) {
                 if (this.boxes.length <= 0) {
@@ -602,6 +631,9 @@ export class TeleBoxManager {
         const deletedBoxes = this.boxes$.value
         this.boxes$.setValue([])
         deletedBoxes.forEach((box) => box.destroy())
+        this.sizeObserver.disconnect()
+        this.elementObserverMap = new Map()
+        this.callbackManager.removeAll()
         if (!skipUpdate) {
             if (this.boxes.length <= 0) {
                 this.setMaximizedBoxes([])
@@ -616,7 +648,8 @@ export class TeleBoxManager {
         this.events.removeAllListeners()
         this._sideEffect.flushAll()
         this.removeAll(skipUpdate)
-
+        this.sizeObserver.disconnect()
+        this.callbackManager.removeAll()
         Object.keys(this).forEach((key) => {
             const value = this[key as keyof this]
             if (value instanceof Val) {

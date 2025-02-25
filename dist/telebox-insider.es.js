@@ -1525,7 +1525,8 @@ class TeleBox {
       height: window.innerHeight
     },
     collectorRect,
-    fixed = false
+    fixed = false,
+    addObserver
   } = {}) {
     this._renderSideEffect = new o();
     this.handleTrackStart = (ev) => {
@@ -1535,6 +1536,7 @@ class TeleBox {
     this._sideEffect = new o();
     this._valSideEffectBinder = c(this._sideEffect);
     const { combine, createVal } = this._valSideEffectBinder;
+    this.addObserver = addObserver || noop;
     this.id = id;
     this.namespace = namespace;
     this.events = new EventEmitter();
@@ -2066,8 +2068,8 @@ class TeleBox {
           height: absoluteHeight + (minimized && collectorRect ? 1 : 0),
           x: coord.x * containerRect.width,
           y: coord.y * containerRect.height,
-          scaleX: minimized && collectorRect ? collectorRect.width / absoluteWidth : 1,
-          scaleY: minimized && collectorRect ? collectorRect.height / absoluteHeight : 1
+          scaleX: 1,
+          scaleY: 1
         };
       },
       shallowequal
@@ -2134,32 +2136,16 @@ class TeleBox {
     $boxMain.appendChild($contentWrap);
     $boxMain.appendChild($footer);
     this.$contentWrap = $contentWrap;
-    const contenntRect = $contentWrap.getBoundingClientRect();
-    const { createVal } = this._valSideEffectBinder;
-    const contenntRect$ = createVal(contenntRect, shallowequal);
-    this._valSideEffectBinder.combine(
-      [this._containerRect$, this._maximized$],
-      () => {
-        return $contentWrap.getBoundingClientRect();
-      },
-      shallowequal
-    ).subscribe((rect) => {
-      contenntRect$.setValue(rect);
+    this.addObserver($contentWrap, (data) => {
+      const entry = data.find((entry2) => entry2.target == $contentWrap);
+      if ((entry == null ? void 0 : entry.target) == $contentWrap) {
+        $content.style.width = entry.contentRect.width * this.scale.value + "px";
+        $content.style.height = entry.contentRect.height * this.scale.value + "px";
+      }
     });
-    this._valSideEffectBinder.combine(
-      [this._size$, contenntRect$, this.scale],
-      ([size, containerRect, scale2]) => {
-        const absoluteWidth = size.width * containerRect.width;
-        const absoluteHeight = size.height * containerRect.height;
-        return {
-          width: absoluteWidth * scale2,
-          height: absoluteHeight * scale2
-        };
-      },
-      shallowequal
-    ).subscribe((size) => {
-      $content.style.width = size.width + "px";
-      $content.style.height = size.height + "px";
+    this.scale.reaction((scale2) => {
+      $content.style.width = $contentWrap.getBoundingClientRect().width * scale2 + "px";
+      $content.style.height = $contentWrap.getBoundingClientRect().height * scale2 + "px";
     });
     this._renderResizeHandlers();
     return this.$box;
@@ -2860,6 +2846,36 @@ class MaxTitleBar extends DefaultTitleBar {
     return this.$titles;
   }
 }
+function createCallbackManager() {
+  let callbacks = /* @__PURE__ */ new Set();
+  function addCallback(cb) {
+    callbacks.add(cb);
+    return () => {
+      removeCallback(cb);
+    };
+  }
+  function removeCallback(cb) {
+    callbacks.delete(cb);
+  }
+  function runCallbacks(...args) {
+    callbacks.forEach((callback) => {
+      callback(...args);
+    });
+  }
+  function hasCallbacks() {
+    return Boolean(callbacks.size);
+  }
+  function removeAll() {
+    callbacks = /* @__PURE__ */ new Set();
+  }
+  return {
+    runCallbacks,
+    addCallback,
+    removeCallback,
+    hasCallbacks,
+    removeAll
+  };
+}
 class TeleBoxManager {
   constructor({
     root = document.body,
@@ -2880,6 +2896,9 @@ class TeleBoxManager {
     this.events = new EventEmitter();
     this._sideEffect = new o();
     const { combine, createVal } = c(this._sideEffect);
+    this.callbackManager = createCallbackManager();
+    this.sizeObserver = new ResizeObserver(this.callbackManager.runCallbacks);
+    this.elementObserverMap = /* @__PURE__ */ new Map();
     this.root = root;
     this.namespace = namespace;
     this.boxes$ = createVal([]);
@@ -3197,7 +3216,17 @@ class TeleBoxManager {
       containerRect: this.containerRect,
       readonly: this.readonly,
       collectorRect: this.collectorRect,
-      id
+      id,
+      addObserver: (el, cb) => {
+        const observer = this.elementObserverMap.get(id);
+        if (!observer) {
+          this.elementObserverMap.set(id, [{ el, cb }]);
+        } else {
+          observer.push({ el, cb });
+        }
+        this.callbackManager.addCallback(cb);
+        this.sizeObserver.observe(el);
+      }
     });
     box.mount(this.root);
     if (box.focus) {
@@ -3287,6 +3316,14 @@ class TeleBoxManager {
       if (boxId) {
         this.setMaximizedBoxes(removeByVal(this.maximizedBoxes$.value, boxId));
         this.setMinimizedBoxes(removeByVal(this.minimizedBoxes$.value, boxId));
+        const observeData = this.elementObserverMap.get(boxId);
+        if (observeData) {
+          observeData.forEach(({ el, cb }) => {
+            this.callbackManager.removeCallback(cb);
+            this.sizeObserver.unobserve(el);
+            this.elementObserverMap.delete(boxId);
+          });
+        }
       }
       if (!skipUpdate) {
         if (this.boxes.length <= 0) {
@@ -3309,6 +3346,9 @@ class TeleBoxManager {
     const deletedBoxes = this.boxes$.value;
     this.boxes$.setValue([]);
     deletedBoxes.forEach((box) => box.destroy());
+    this.sizeObserver.disconnect();
+    this.elementObserverMap = /* @__PURE__ */ new Map();
+    this.callbackManager.removeAll();
     if (!skipUpdate) {
       if (this.boxes.length <= 0) {
         this.setMaximizedBoxes([]);
@@ -3322,6 +3362,8 @@ class TeleBoxManager {
     this.events.removeAllListeners();
     this._sideEffect.flushAll();
     this.removeAll(skipUpdate);
+    this.sizeObserver.disconnect();
+    this.callbackManager.removeAll();
     Object.keys(this).forEach((key) => {
       const value = this[key];
       if (value instanceof r) {

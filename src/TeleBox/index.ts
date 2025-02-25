@@ -105,11 +105,13 @@ export class TeleBox {
             height: window.innerHeight
         },
         collectorRect,
-        fixed = false
+        fixed = false,
+        addObserver
     }: TeleBoxConfig = {}) {
         this._sideEffect = new SideEffectManager()
         this._valSideEffectBinder = createSideEffectBinder(this._sideEffect as any)
         const { combine, createVal } = this._valSideEffectBinder
+        this.addObserver = addObserver || noop
 
         this.id = id
         this.namespace = namespace
@@ -447,6 +449,7 @@ export class TeleBox {
     public readonly _delegateEvents: TeleBoxDelegateEvents
 
     protected _sideEffect: SideEffectManager
+    protected readonly addObserver: (el: HTMLElement, cb: ResizeObserverCallback) => void
 
     protected _valSideEffectBinder: ValSideEffectBinder
 
@@ -853,10 +856,8 @@ export class TeleBox {
                         height: absoluteHeight + (minimized && collectorRect ? 1 : 0),
                         x: coord.x * containerRect.width,
                         y: coord.y * containerRect.height,
-                        scaleX:
-                            minimized && collectorRect ? collectorRect.width / absoluteWidth : 1,
-                        scaleY:
-                            minimized && collectorRect ? collectorRect.height / absoluteHeight : 1
+                        scaleX: 1,
+                        scaleY: 1
                     }
                 },
                 shallowequal
@@ -937,39 +938,21 @@ export class TeleBox {
         $boxMain.appendChild($footer)
 
         this.$contentWrap = $contentWrap
-        const contenntRect = $contentWrap.getBoundingClientRect()
-        const { createVal } = this._valSideEffectBinder
-        const contenntRect$ = createVal(contenntRect, shallowequal)
 
-        this._valSideEffectBinder
-            .combine(
-                [this._containerRect$, this._maximized$],
-                () => {
-                    return $contentWrap.getBoundingClientRect()
-                },
-                shallowequal
-            )
-            .subscribe((rect) => {
-                contenntRect$.setValue(rect)
-            })
+        this.addObserver($contentWrap, (data) => {
+            const entry = data.find(entry => entry.target == $contentWrap)
 
-        this._valSideEffectBinder
-            .combine(
-                [this._size$, contenntRect$, this.scale],
-                ([size, containerRect, scale]) => {
-                    const absoluteWidth = size.width * containerRect.width
-                    const absoluteHeight = size.height * containerRect.height
-                    return {
-                        width: absoluteWidth * scale,
-                        height: absoluteHeight * scale
-                    }
-                },
-                shallowequal
-            )
-            .subscribe((size) => {
-                $content.style.width = size.width + 'px'
-                $content.style.height = size.height + 'px'
-            })
+            if (entry?.target == $contentWrap) {
+                $content.style.width = entry.contentRect.width * this.scale.value + 'px'
+                $content.style.height = entry.contentRect.height * this.scale.value + 'px'
+            }
+        })
+
+        this.scale.reaction((scale) => {
+            $content.style.width = $contentWrap.getBoundingClientRect().width * scale + 'px'
+            $content.style.height = $contentWrap.getBoundingClientRect().height * scale + 'px'
+        })
+
         this._renderResizeHandlers()
 
         return this.$box
