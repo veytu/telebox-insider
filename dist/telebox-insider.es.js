@@ -2977,7 +2977,7 @@ class TeleBoxManager {
     const collector$ = createVal(
       collector === null ? null : collector || new TeleBoxCollector({
         visible: this.minimizedBoxes$.value.length > 0,
-        readonly,
+        readonly: readonly$.value,
         namespace,
         minimizedBoxes: this.minimizedBoxes$.value,
         boxes: this.boxes$.value
