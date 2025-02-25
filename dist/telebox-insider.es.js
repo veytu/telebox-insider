@@ -2129,8 +2129,8 @@ class TeleBox {
         }
       });
     });
-    this._maximized$.reaction((maximized) => {
-      $footer.classList.toggle(this.wrapClassName("footer-hide"), maximized);
+    this._state$.reaction((state) => {
+      $footer.classList.toggle(this.wrapClassName("footer-hide"), state == TELE_BOX_STATE.Maximized);
     });
     $boxMain.appendChild($titleBar);
     $boxMain.appendChild($contentWrap);
