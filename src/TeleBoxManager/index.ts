@@ -49,6 +49,7 @@ type ValConfig = {
 export interface TeleBoxManager extends ValEnhancedResult<ValConfig> {}
 
 export class TeleBoxManager {
+    public externalEvents = new EventEmitter() as TeleBoxManagerEvents
     public constructor({
         root = document.body,
         prefersColorScheme = TELE_BOX_COLOR_SCHEME.Light,
@@ -174,6 +175,7 @@ export class TeleBoxManager {
                           namespace,
                           minimizedBoxes: this.minimizedBoxes$.value,
                           boxes: this.boxes$.value,
+                          externalEvents: this.externalEvents
                       }).mount(root)
         )
         collector$.subscribe((collector) => {
@@ -338,6 +340,7 @@ export class TeleBoxManager {
                         } else {
                             this.setMaximizedBoxes([]);
                         }
+                        this.externalEvents.emit(TELE_BOX_MANAGER_EVENT.Maximized, [])
                         break;
                     }
                     case TELE_BOX_DELEGATE_EVENT.Minimize: {
@@ -351,6 +354,7 @@ export class TeleBoxManager {
 
                             this.setMinimizedBoxes(newMinimizedBoxes);
                         }
+                        this.externalEvents.emit(TELE_BOX_MANAGER_EVENT.Minimized, this.minimizedBoxes$.value)
                         break
                     }
                     case TELE_BOX_EVENT.Close: {
@@ -360,6 +364,7 @@ export class TeleBoxManager {
                             this.makeBoxTopFromMaximized();
                             this.setMaximizedBoxes(removeByVal(this.maximizedBoxes$.value, focusedId))
                         }
+                        this.externalEvents.emit(TELE_BOX_MANAGER_EVENT.Removed, [])
                         this.focusTopBox();
                         break
                     }
@@ -516,14 +521,17 @@ export class TeleBoxManager {
         box._delegateEvents.on(TELE_BOX_DELEGATE_EVENT.Maximize, () => {
             this.setMaximizedBoxes(this.boxes$.value.map((item) => item.id))
             this.maxTitleBar.focusBox(box)
+            this.externalEvents.emit(TELE_BOX_MANAGER_EVENT.Maximized, [box.id])
         })
         box._delegateEvents.on(TELE_BOX_DELEGATE_EVENT.Minimize, () => {
             this.setMinimizedBoxes([...this.minimizedBoxes$.value, id])
+            this.externalEvents.emit(TELE_BOX_MANAGER_EVENT.Minimized, [box.id])
         })
         box._delegateEvents.on(TELE_BOX_DELEGATE_EVENT.Close, () => {
             this.remove(box)
             this.makeBoxTopFromMaximized(box.id)
             this.focusTopBox()
+            this.externalEvents.emit(TELE_BOX_MANAGER_EVENT.Removed, [box])
         })
         box._coord$.reaction((_, __, skipUpdate) => {
             if (!skipUpdate) {

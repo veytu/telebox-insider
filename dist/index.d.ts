@@ -684,14 +684,16 @@ interface TeleBoxCollectorConfig {
     onClick?: () => void;
     minimizedBoxes?: string[];
     boxes?: TeleBox[];
+    externalEvents?: any;
 }
 declare class TeleBoxCollector {
-    constructor({ visible, readonly, darkMode, namespace, styles, onClick, minimizedBoxes, boxes, }?: TeleBoxCollectorConfig);
+    constructor({ visible, readonly, darkMode, namespace, styles, onClick, minimizedBoxes, boxes, externalEvents }?: TeleBoxCollectorConfig);
     readonly styles: TeleStyles$1;
     readonly namespace: string;
     get visible(): boolean;
     get readonly(): boolean;
     get darkMode(): boolean;
+    private externalEvents;
     onClick: ((boxId: string) => void) | undefined;
     $collector: HTMLElement | undefined;
     private wrp$;
@@ -839,6 +841,7 @@ type ValConfig = {
 interface TeleBoxManager extends ValEnhancedResult<ValConfig> {
 }
 declare class TeleBoxManager {
+    externalEvents: TeleBoxManagerEvents;
     constructor({ root, prefersColorScheme, fence, containerRect, collector, namespace, readonly, minimizedBoxes, maximizedBoxes }?: TeleBoxManagerConfig);
     get boxes(): ReadonlyArray<TeleBox>;
     get topBox(): TeleBox | undefined;

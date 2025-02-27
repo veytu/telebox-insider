@@ -17,6 +17,7 @@ export interface TeleBoxCollectorConfig {
     onClick?: () => void
     minimizedBoxes?: string[]
     boxes?: TeleBox[]
+    externalEvents?: any
 }
 
 export class TeleBoxCollector {
@@ -29,7 +30,9 @@ export class TeleBoxCollector {
         onClick,
         minimizedBoxes = [],
         boxes = [],
+        externalEvents
     }: TeleBoxCollectorConfig = {}) {
+        this.externalEvents = externalEvents
         this._sideEffect = new SideEffectManager()
         const { createVal } = createSideEffectBinder(this._sideEffect as any)
         this._visible = visible
@@ -92,6 +95,8 @@ export class TeleBoxCollector {
     public get darkMode(): boolean {
         return this._darkMode
     }
+
+    private externalEvents: any
 
     public onClick: ((boxId: string) => void) | undefined
 
@@ -267,6 +272,7 @@ export class TeleBoxCollector {
                     const target = ev.target as HTMLElement
                     if (target.dataset?.teleBoxID?.length) {
                         this.onClick?.(target.dataset?.teleBoxID)
+                        this.externalEvents.emit('OpenMiniBox', [])
                     }
                 },
                 {},

@@ -2404,13 +2404,15 @@ class TeleBoxCollector {
     styles = {},
     onClick,
     minimizedBoxes = [],
-    boxes = []
+    boxes = [],
+    externalEvents
   } = {}) {
     this.handleCollectorClick = () => {
       if (!this._readonly && this.onClick) {
         this.popupVisible$.setValue(!this.popupVisible$.value);
       }
     };
+    this.externalEvents = externalEvents;
     this._sideEffect = new o();
     const { createVal } = c(this._sideEffect);
     this._visible = visible;
@@ -2606,6 +2608,7 @@ class TeleBoxCollector {
           const target = ev.target;
           if ((_b2 = (_a2 = target.dataset) == null ? void 0 : _a2.teleBoxID) == null ? void 0 : _b2.length) {
             (_d2 = this.onClick) == null ? void 0 : _d2.call(this, (_c2 = target.dataset) == null ? void 0 : _c2.teleBoxID);
+            this.externalEvents.emit("OpenMiniBox", []);
           }
         },
         {},
@@ -2895,6 +2898,7 @@ class TeleBoxManager {
     minimizedBoxes = [],
     maximizedBoxes = []
   } = {}) {
+    this.externalEvents = new EventEmitter();
     this.events = new EventEmitter();
     this._sideEffect = new o();
     const { combine, createVal } = c(this._sideEffect);
@@ -2982,7 +2986,8 @@ class TeleBoxManager {
         readonly: readonly$.value,
         namespace,
         minimizedBoxes: this.minimizedBoxes$.value,
-        boxes: this.boxes$.value
+        boxes: this.boxes$.value,
+        externalEvents: this.externalEvents
       }).mount(root)
     );
     collector$.subscribe((collector2) => {
@@ -3117,6 +3122,7 @@ class TeleBoxManager {
             } else {
               this.setMaximizedBoxes([]);
             }
+            this.externalEvents.emit(TELE_BOX_MANAGER_EVENT.Maximized, []);
             break;
           }
           case TELE_BOX_DELEGATE_EVENT.Minimize: {
@@ -3128,6 +3134,7 @@ class TeleBoxManager {
               this.makeBoxTopFromMaximized();
               this.setMinimizedBoxes(newMinimizedBoxes);
             }
+            this.externalEvents.emit(TELE_BOX_MANAGER_EVENT.Minimized, this.minimizedBoxes$.value);
             break;
           }
           case TELE_BOX_EVENT.Close: {
@@ -3137,6 +3144,7 @@ class TeleBoxManager {
               this.makeBoxTopFromMaximized();
               this.setMaximizedBoxes(removeByVal(this.maximizedBoxes$.value, focusedId));
             }
+            this.externalEvents.emit(TELE_BOX_MANAGER_EVENT.Removed, []);
             this.focusTopBox();
             break;
           }
@@ -3241,14 +3249,17 @@ class TeleBoxManager {
     box._delegateEvents.on(TELE_BOX_DELEGATE_EVENT.Maximize, () => {
       this.setMaximizedBoxes(this.boxes$.value.map((item) => item.id));
       this.maxTitleBar.focusBox(box);
+      this.externalEvents.emit(TELE_BOX_MANAGER_EVENT.Maximized, [box.id]);
     });
     box._delegateEvents.on(TELE_BOX_DELEGATE_EVENT.Minimize, () => {
       this.setMinimizedBoxes([...this.minimizedBoxes$.value, id]);
+      this.externalEvents.emit(TELE_BOX_MANAGER_EVENT.Minimized, [box.id]);
     });
     box._delegateEvents.on(TELE_BOX_DELEGATE_EVENT.Close, () => {
       this.remove(box);
       this.makeBoxTopFromMaximized(box.id);
       this.focusTopBox();
+      this.externalEvents.emit(TELE_BOX_MANAGER_EVENT.Removed, [box]);
     });
     box._coord$.reaction((_, __, skipUpdate) => {
       if (!skipUpdate) {
