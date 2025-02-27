@@ -605,7 +605,6 @@ export class TeleBoxManager {
                         this.sizeObserver.unobserve(el)
                         this.elementObserverMap.delete(boxId)
                     })
-
                 }
             }
             if (!skipUpdate) {
