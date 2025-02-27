@@ -363,7 +363,6 @@ export class TeleBox {
                 namespace: this.namespace,
                 onDragStart: (event) => this._handleTrackStart?.(event),
                 onEvent: (event): void => {
-                    console.log(this._delegateEvents.listeners)
                     if (this._delegateEvents.listeners.length > 0) {
                         this._delegateEvents.emit(event.type)
                     } else {

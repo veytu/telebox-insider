@@ -1751,7 +1751,6 @@ class TeleBox {
         return (_a = this._handleTrackStart) == null ? void 0 : _a.call(this, event);
       },
       onEvent: (event) => {
-        console.log(this._delegateEvents.listeners);
         if (this._delegateEvents.listeners.length > 0) {
           this._delegateEvents.emit(event.type);
         } else {
@@ -3308,6 +3307,7 @@ class TeleBoxManager {
   remove(boxOrID, skipUpdate = false) {
     var _a;
     const index2 = this.getBoxIndex(boxOrID);
+    debugger;
     if (index2 >= 0) {
       const boxes = this.boxes.slice();
       const deletedBoxes = boxes.splice(index2, 1);
