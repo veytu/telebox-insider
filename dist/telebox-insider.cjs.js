@@ -3309,7 +3309,6 @@ class TeleBoxManager {
   remove(boxOrID, skipUpdate = false) {
     var _a;
     const index2 = this.getBoxIndex(boxOrID);
-    debugger;
     if (index2 >= 0) {
       const boxes = this.boxes.slice();
       const deletedBoxes = boxes.splice(index2, 1);

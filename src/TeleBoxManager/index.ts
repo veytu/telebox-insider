@@ -589,7 +589,6 @@ export class TeleBoxManager {
 
     public remove(boxOrID: string | TeleBox, skipUpdate = false): ReadonlyTeleBox | undefined {
         const index = this.getBoxIndex(boxOrID)
-        debugger
         if (index >= 0) {
             const boxes = this.boxes.slice()
             const deletedBoxes = boxes.splice(index, 1)
