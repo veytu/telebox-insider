@@ -486,7 +486,6 @@
   border: none;
   outline: none;
   overflow-y: auto;
-  overflow-y: overlay;
   top: 0;
   left: -90px;
   width: 180px;

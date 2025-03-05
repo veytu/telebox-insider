@@ -325,8 +325,8 @@ export class TeleBoxCollector {
             const topPosition = -popupSize.height - 10
             let leftPosition = -(popupSize.width / 2 - parentRect.width / 2)
             if (!isAvailableSpaceTop) {
-                const availableHeight = parentRect.top > 60 ? parentRect.top : 60
-                this.$titles.style.height = `${availableHeight}px`
+                // const availableHeight = parentRect.top > 60 ? parentRect.top : 60
+                // this.$titles.style.height = `${availableHeight}px`
             }
 
             if (!isAvailableSpaceLeft) {
