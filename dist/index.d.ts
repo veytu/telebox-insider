@@ -778,6 +778,7 @@ type TeleBoxManagerEventConfig = CheckTeleBoxManagerConfig<{
     prefers_color_scheme: [TeleBoxColorScheme];
     dark_mode: [boolean];
     onScaleChange: [number];
+    OpenMiniBox: [any];
 }>;
 type TeleBoxManagerEvent = keyof TeleBoxManagerEventConfig;
 interface TeleBoxManagerEvents extends EventEmitter<TeleBoxManagerEvent> {

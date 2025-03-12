@@ -192,6 +192,7 @@ export class TeleBoxManager {
                                     boxId
                                 ) as string[]
                             )
+                            this.externalEvents?.emit('OpenMiniBox', [])
                         }
                     }
                     return () => collector.destroy()

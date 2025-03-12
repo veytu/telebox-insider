@@ -2608,7 +2608,6 @@ class TeleBoxCollector {
           const target = ev.target;
           if ((_b2 = (_a2 = target.dataset) == null ? void 0 : _a2.teleBoxID) == null ? void 0 : _b2.length) {
             (_d2 = this.onClick) == null ? void 0 : _d2.call(this, (_c2 = target.dataset) == null ? void 0 : _c2.teleBoxID);
-            this.externalEvents.emit("OpenMiniBox", []);
           }
         },
         {},
@@ -2993,6 +2992,7 @@ class TeleBoxManager {
         collector2.setDarkMode(this._darkMode$.value);
         this._sideEffect.add(() => {
           collector2.onClick = (boxId) => {
+            var _a;
             if (!readonly$.value) {
               this.setMinimizedBoxes(
                 removeByVal(
@@ -3000,6 +3000,7 @@ class TeleBoxManager {
                   boxId
                 )
               );
+              (_a = this.externalEvents) == null ? void 0 : _a.emit("OpenMiniBox", []);
             }
           };
           return () => collector2.destroy();

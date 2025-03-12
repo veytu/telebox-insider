@@ -272,7 +272,6 @@ export class TeleBoxCollector {
                     const target = ev.target as HTMLElement
                     if (target.dataset?.teleBoxID?.length) {
                         this.onClick?.(target.dataset?.teleBoxID)
-                        this.externalEvents.emit('OpenMiniBox', [])
                     }
                 },
                 {},

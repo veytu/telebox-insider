@@ -83,6 +83,7 @@ export type TeleBoxManagerEventConfig = CheckTeleBoxManagerConfig<{
     prefers_color_scheme: [TeleBoxColorScheme];
     dark_mode: [boolean];
     onScaleChange: [number];
+    OpenMiniBox: [any]
 }>;
 
 export type TeleBoxManagerEvent = keyof TeleBoxManagerEventConfig;
