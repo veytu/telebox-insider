@@ -3566,6 +3566,9 @@ class TeleBoxManager {
   getBoxIndex(boxOrID) {
     return typeof boxOrID === "string" ? this.boxes.findIndex((box) => box.id === boxOrID) : this.boxes.findIndex((box) => box === boxOrID);
   }
+  setMaxTitleFocus(boxOrID) {
+    !!this.getBox(boxOrID) && this.maxTitleBar.focusBox(this.getBox(boxOrID));
+  }
   getBox(boxOrID) {
     return typeof boxOrID === "string" ? this.boxes.find((box) => box.id === boxOrID) : boxOrID;
   }

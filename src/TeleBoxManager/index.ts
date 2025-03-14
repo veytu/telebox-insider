@@ -866,7 +866,7 @@ export class TeleBoxManager {
         }
     }
 
-    protected makeBoxTopFromMaximized(boxId?: string): boolean {
+    public makeBoxTopFromMaximized(boxId?: string): boolean {
         let maxIndexBox = undefined
         if (boxId) {
             if (
@@ -902,6 +902,10 @@ export class TeleBoxManager {
         return typeof boxOrID === 'string'
             ? this.boxes.findIndex((box) => box.id === boxOrID)
             : this.boxes.findIndex((box) => box === boxOrID)
+    }
+
+    public setMaxTitleFocus (boxOrID: TeleBox | string): void {
+        !!this.getBox(boxOrID) && this.maxTitleBar.focusBox(this.getBox(boxOrID))
     }
 
     protected getBox(boxOrID: TeleBox | string): TeleBox | undefined {

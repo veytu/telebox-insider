@@ -888,8 +888,9 @@ declare class TeleBoxManager {
     protected updateBox(box: TeleBox, config: TeleBoxManagerUpdateConfig, skipUpdate?: boolean): void;
     protected smartPosition(config?: TeleBoxConfig): TeleBoxConfig;
     protected makeBoxTop(box: TeleBox, skipUpdate?: boolean): void;
-    protected makeBoxTopFromMaximized(boxId?: string): boolean;
+    makeBoxTopFromMaximized(boxId?: string): boolean;
     protected getBoxIndex(boxOrID: TeleBox | string): number;
+    setMaxTitleFocus(boxOrID: TeleBox | string): void;
     protected getBox(boxOrID: TeleBox | string): TeleBox | undefined;
 }
 
