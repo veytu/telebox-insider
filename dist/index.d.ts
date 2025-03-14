@@ -756,7 +756,7 @@ interface TeleBoxManagerConfig extends Pick<TeleBoxConfig, "prefersColorScheme" 
     minimizedBoxes?: string[];
     maximizedBoxes?: string[];
 }
-type TeleBoxManagerBoxConfigBaseProps = "title" | "visible" | "width" | "height" | "minWidth" | "minHeight" | "x" | "y" | "resizable" | "draggable" | "fixRatio" | "zIndex";
+type TeleBoxManagerBoxConfigBaseProps = "title" | "visible" | "width" | "height" | "minWidth" | "minHeight" | "x" | "y" | "resizable" | "draggable" | "fixRatio" | "zIndex" | 'maximized' | 'minimized';
 type TeleBoxManagerCreateConfig = Pick<TeleBoxConfig, TeleBoxManagerBoxConfigBaseProps | "content" | "footer" | "id" | "focus">;
 type TeleBoxManagerQueryConfig = Pick<TeleBoxConfig, TeleBoxManagerBoxConfigBaseProps | "id" | "focus">;
 type TeleBoxManagerUpdateConfig = Pick<TeleBoxConfig, TeleBoxManagerBoxConfigBaseProps | "content" | "footer">;
