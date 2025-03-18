@@ -737,7 +737,7 @@ export class TeleBox {
     /** DOM of the box */
     public $box: HTMLElement
 
-    private $contentWrap!: HTMLElement
+    public $contentWrap!: HTMLElement
     private scale: Val<number>
 
     /** DOM of the box content */

@@ -648,7 +648,7 @@ declare class TeleBox {
     setFixed(fixed: boolean): void;
     /** DOM of the box */
     $box: HTMLElement;
-    private $contentWrap;
+    $contentWrap: HTMLElement;
     private scale;
     /** DOM of the box content */
     $content: HTMLElement;
