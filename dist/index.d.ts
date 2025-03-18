@@ -880,7 +880,7 @@ declare class TeleBoxManager {
     focusTopBox(): void;
     blurBox(boxOrID: string | TeleBox, skipUpdate?: boolean): void;
     blurAll(skipUpdate?: boolean): void;
-    setScaleContent(scale: number): void;
+    setScaleContent(appId: string, scale: number): void;
     protected maxTitleBar: MaxTitleBar;
     protected boxes$: Val<TeleBox[]>;
     protected topBox$: Val<TeleBox | undefined>;

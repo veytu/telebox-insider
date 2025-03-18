@@ -3439,10 +3439,11 @@ class TeleBoxManager {
       this.maxTitleBar.focusBox();
     }
   }
-  setScaleContent(scale2) {
-    this.boxes.forEach((box) => {
+  setScaleContent(appId, scale2) {
+    const box = this.boxes.find((item) => item.id == appId);
+    if (box) {
       box.setScaleContent(scale2);
-    });
+    }
   }
   teleBoxMatcher(config) {
     const keys = Object.keys(config);

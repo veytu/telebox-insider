@@ -30,7 +30,7 @@ $scrollbar-color-active: rgba(68, 78, 96, 0.2);
 
     &::-webkit-scrollbar-thumb {
         background: rgba(27, 31, 77, .3);
-        border-radius: .03rem;
+        border-radius: 3px;
         height: 6px;
         width: 6px;
     }

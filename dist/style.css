@@ -17,7 +17,7 @@
 }
 .tele-fancy-scrollbar::-webkit-scrollbar-thumb {
   background: rgba(27, 31, 77, 0.3);
-  border-radius: 0.03rem;
+  border-radius: 3px;
   height: 6px;
   width: 6px;
 }
@@ -45,7 +45,7 @@
 }
 .tele-fancy-scrollbar::-webkit-scrollbar-thumb {
   background: rgba(27, 31, 77, 0.3);
-  border-radius: 0.03rem;
+  border-radius: 3px;
   height: 6px;
   width: 6px;
 }

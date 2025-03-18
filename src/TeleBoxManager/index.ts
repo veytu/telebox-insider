@@ -736,10 +736,12 @@ export class TeleBoxManager {
         }
     }
 
-    public setScaleContent (scale: number): void {
-        this.boxes.forEach((box) => {
+    public setScaleContent (appId: string, scale: number): void {
+        const box = this.boxes.find(item => item.id == appId)
+
+        if (box) {
             box.setScaleContent(scale)
-        })
+        }
     }
 
     protected maxTitleBar: MaxTitleBar
