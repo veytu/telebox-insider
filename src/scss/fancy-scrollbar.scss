@@ -1,4 +1,4 @@
-$scrollbar-size: 8px;
+$scrollbar-size: 6px;
 $scrollbar-ff-width: auto; // FF-only accepts auto, thin, none
 $scrollbar-minlength: 50px; // Minimum length of scrollbar thumb
 $scrollbar-track-color: transparent;
@@ -20,27 +20,19 @@ $scrollbar-color-active: rgba(68, 78, 96, 0.2);
         width: $scrollbar-size;
     }
 
+    &::-webkit-scrollbar-corner {
+       background: none;
+    }
+
     &::-webkit-scrollbar-track {
         background-color: transparent;
     }
 
     &::-webkit-scrollbar-thumb {
-        background-color: $scrollbar-color;
-        background-color: $scrollbar-track-color;
-        border-radius: $scrollbar-size * 0.5;
-        transition: background-color 0.4s;
-    }
-
-    &:hover::-webkit-scrollbar-thumb {
-        background-color: $scrollbar-color;
-    }
-
-    &::-webkit-scrollbar-thumb:hover {
-        background-color: $scrollbar-color-hover;
-    }
-
-    &::-webkit-scrollbar-thumb:active {
-        background-color: $scrollbar-color-active;
+        background: rgba(27, 31, 77, .3);
+        border-radius: .03rem;
+        height: 6px;
+        width: 6px;
     }
 
     &::-webkit-scrollbar-thumb:vertical {
