@@ -2563,7 +2563,7 @@ class TeleBoxCollector {
       this.count$.className = this.wrapClassName("collector-count");
       this.wrp$.appendChild(this.count$);
       this.wrp$.appendChild(this.$collector);
-      this.$collector.addEventListener("click", this.handleCollectorClick);
+      this.wrp$.addEventListener("click", this.handleCollectorClick);
       if (this._visible) {
         this.wrp$.classList.toggle(this.wrapClassName("collector-visible"));
         this.renderTitles();

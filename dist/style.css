@@ -452,11 +452,9 @@
   border-radius: 50%;
   cursor: pointer;
   user-select: none;
-  pointer-events: none;
   background-color: #fff;
   height: 56px;
   width: 56px;
-  display: flex;
   align-items: center;
   justify-content: center;
   margin: 0;

@@ -214,7 +214,7 @@ export class TeleBoxCollector {
             this.wrp$.appendChild(this.count$)
             this.wrp$.appendChild(this.$collector)
 
-            this.$collector.addEventListener('click', this.handleCollectorClick)
+            this.wrp$.addEventListener('click', this.handleCollectorClick)
 
             if (this._visible) {
                 // this.$collector.classList.add(this.wrapClassName('collector-visible'))
