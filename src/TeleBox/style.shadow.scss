@@ -26,6 +26,7 @@
     width: 100%;
     flex: 1;
     @include clr(background-color, boxContainerBackground);
+    position: relative;
 }
 .#{$namespace}-content {
     width: 100%;

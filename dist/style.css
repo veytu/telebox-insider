@@ -79,6 +79,7 @@
   flex: 1;
   background-color: #fff;
   background-color: var(--tele-boxContainerBackground, #fff);
+  position: relative;
 }
 .telebox-content {
   width: 100%;
