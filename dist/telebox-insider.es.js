@@ -2487,7 +2487,6 @@ class TeleBoxCollector {
     if (this._visible !== visible) {
       this._visible = visible;
       if (this.$collector) {
-        this.$collector.classList.toggle(this.wrapClassName("collector-visible"), visible);
         (_a = this.wrp$) == null ? void 0 : _a.classList.toggle(this.wrapClassName("collector-visible"), visible);
         if (!visible) {
           this.popupVisible$.setValue(false);
@@ -2564,7 +2563,6 @@ class TeleBoxCollector {
       this.wrp$.appendChild(this.$collector);
       this.$collector.addEventListener("click", this.handleCollectorClick);
       if (this._visible) {
-        this.$collector.classList.add(this.wrapClassName("collector-visible"));
         this.wrp$.classList.toggle(this.wrapClassName("collector-visible"));
         this.renderTitles();
       }

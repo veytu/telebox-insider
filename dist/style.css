@@ -446,7 +446,7 @@
   user-select: none;
   -webkit-touch-callout: none;
   -webkit-user-select: none;
-  visibility: hidden;
+  display: none;
   position: fixed;
   z-index: 5120;
   border-radius: 50%;
@@ -559,7 +559,6 @@
   user-select: none;
   -webkit-touch-callout: none;
   -webkit-user-select: none;
-  visibility: hidden;
   display: block;
   width: 48px;
   height: 48px;
@@ -608,6 +607,7 @@
 .telebox-collector-visible {
   visibility: visible;
   pointer-events: initial;
+  display: flex;
 }
 .telebox-collector-readonly {
   cursor: not-allowed;

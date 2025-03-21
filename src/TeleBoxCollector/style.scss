@@ -12,7 +12,7 @@ $scrollbar-color-active: rgba(235, 236, 250, 1);
 .#{$namespace}-collector-wrp {
     @include no-user-select;
 
-    visibility: hidden;
+    display: none;
     position: fixed;
     z-index: $collector-z-index;
     border-radius: 50%;
@@ -134,7 +134,6 @@ $scrollbar-color-active: rgba(235, 236, 250, 1);
 .#{$namespace}-collector {
     @include no-user-select;
 
-    visibility: hidden;
     display: block;
     width: 48px;
     height: 48px;
@@ -184,6 +183,7 @@ $scrollbar-color-active: rgba(235, 236, 250, 1);
 .#{$namespace}-collector-visible {
     visibility: visible;
     pointer-events: initial;
+    display: flex;
 }
 
 .#{$namespace}-collector-readonly {
