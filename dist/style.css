@@ -447,7 +447,7 @@
   -webkit-touch-callout: none;
   -webkit-user-select: none;
   visibility: hidden;
-  position: absolute;
+  position: fixed;
   z-index: 5120;
   border-radius: 50%;
   cursor: pointer;
