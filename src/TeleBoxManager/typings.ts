@@ -31,6 +31,7 @@ export interface TeleBoxManagerConfig
     collector?: TeleBoxCollector;
     minimizedBoxes?: string[]
     maximizedBoxes?: string[]
+    appReadonly?: boolean
 }
 
 type TeleBoxManagerBoxConfigBaseProps =

@@ -1532,7 +1532,8 @@ class TeleBox {
     },
     collectorRect,
     fixed = false,
-    addObserver
+    addObserver,
+    appReadonly
   } = {}) {
     this._renderSideEffect = new o();
     this.handleTrackStart = (ev) => {
@@ -1543,6 +1544,7 @@ class TeleBox {
     this._valSideEffectBinder = c(this._sideEffect);
     const { combine, createVal } = this._valSideEffectBinder;
     this.addObserver = addObserver || noop;
+    this.appReadonly = appReadonly;
     this.id = id;
     this.namespace = namespace;
     this.events = new EventEmitter();
@@ -2092,6 +2094,7 @@ class TeleBox {
     this.$titleBar = $titleBar;
     const $contentWrap = document.createElement("div");
     $contentWrap.className = this.wrapClassName("content-wrap") + " tele-fancy-scrollbar";
+    $contentWrap.classList.toggle("hide-scroll", this.appReadonly);
     const $content = document.createElement("div");
     $content.className = this.wrapClassName("content") + " tele-fancy-scrollbar";
     this.$content = $content;
@@ -2409,7 +2412,8 @@ class TeleBoxCollector {
     onClick,
     minimizedBoxes = [],
     boxes = [],
-    externalEvents
+    externalEvents,
+    appReadonly
   } = {}) {
     this.handleCollectorClick = () => {
       if (!this._readonly && this.onClick) {
@@ -2427,6 +2431,7 @@ class TeleBoxCollector {
     this.minimizedBoxes = minimizedBoxes;
     this.boxes = boxes;
     this.onClick = onClick;
+    this.appReadonly = appReadonly;
     this.popupVisible$ = createVal(false);
     this.popupVisible$.reaction((popupVisible) => {
       var _a;
@@ -2546,7 +2551,7 @@ class TeleBoxCollector {
     this.renderTitles();
   }
   render(root) {
-    if (isAndroid() || isIOS()) {
+    if (isAndroid() || isIOS() || this.appReadonly) {
       const nonElement = document.createElement("div");
       nonElement.className = this.wrapClassName("collector-hide");
       return nonElement;
@@ -2894,10 +2899,12 @@ class TeleBoxManager {
     namespace = "telebox",
     readonly = false,
     minimizedBoxes = [],
-    maximizedBoxes = []
+    maximizedBoxes = [],
+    appReadonly = false
   } = {}) {
     this.externalEvents = new EventEmitter();
     this.events = new EventEmitter();
+    this.appReadonly = false;
     this._sideEffect = new o();
     const { combine, createVal } = c(this._sideEffect);
     this.callbackManager = createCallbackManager();
@@ -2905,6 +2912,7 @@ class TeleBoxManager {
     this.elementObserverMap = /* @__PURE__ */ new Map();
     this.root = root;
     this.namespace = namespace;
+    this.appReadonly = appReadonly;
     this.boxes$ = createVal([]);
     this.topBox$ = this.boxes$.derive((boxes) => {
       if (boxes.length > 0) {
@@ -2985,7 +2993,8 @@ class TeleBoxManager {
         namespace,
         minimizedBoxes: this.minimizedBoxes$.value,
         boxes: this.boxes$.value,
-        externalEvents: this.externalEvents
+        externalEvents: this.externalEvents,
+        appReadonly: this.appReadonly
       }).mount(root)
     );
     collector$.subscribe((collector2) => {
@@ -3227,6 +3236,7 @@ class TeleBoxManager {
       readonly: this.readonly,
       collectorRect: this.collectorRect,
       id,
+      appReadonly: this.appReadonly,
       addObserver: (el, cb) => {
         const observer = this.elementObserverMap.get(id);
         if (!observer) {

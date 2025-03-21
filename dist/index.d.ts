@@ -376,6 +376,7 @@ interface TeleBoxConfig {
     readonly collectorRect?: TeleBoxRect;
     readonly fixed?: boolean;
     readonly addObserver?: (el: HTMLElement, cb: ResizeObserverCallback) => void;
+    appReadonly?: boolean;
 }
 type CheckTeleBoxConfig<T extends Record<`${TELE_BOX_EVENT}`, any>> = T;
 type TeleBoxEventConfig = CheckTeleBoxConfig<{
@@ -533,7 +534,7 @@ type ValConfig$1 = {
 interface TeleBox extends ValEnhancedResult<ValConfig$1> {
 }
 declare class TeleBox {
-    constructor({ id, title, prefersColorScheme, darkMode, visible, width, height, minWidth, minHeight, x, y, minimized, maximized, readonly, resizable, draggable, fence, fixRatio, focus, zIndex, namespace, titleBar, content, footer, styles, containerRect, collectorRect, fixed, addObserver }?: TeleBoxConfig);
+    constructor({ id, title, prefersColorScheme, darkMode, visible, width, height, minWidth, minHeight, x, y, minimized, maximized, readonly, resizable, draggable, fence, fixRatio, focus, zIndex, namespace, titleBar, content, footer, styles, containerRect, collectorRect, fixed, addObserver, appReadonly }?: TeleBoxConfig);
     readonly id: string;
     /** ClassName Prefix. For CSS styling. Default "telebox" */
     readonly namespace: string;
@@ -549,6 +550,7 @@ declare class TeleBox {
     _visualSize$: Val<TeleBoxSize, boolean>;
     _coord$: Val<TeleBoxCoord, boolean>;
     _intrinsicCoord$: Val<TeleBoxCoord, boolean>;
+    private appReadonly;
     get darkMode(): boolean;
     _state$: Val<TeleBoxState, boolean>;
     get state(): TeleBoxState;
@@ -685,11 +687,13 @@ interface TeleBoxCollectorConfig {
     minimizedBoxes?: string[];
     boxes?: TeleBox[];
     externalEvents?: any;
+    appReadonly?: boolean;
 }
 declare class TeleBoxCollector {
-    constructor({ visible, readonly, darkMode, namespace, styles, onClick, minimizedBoxes, boxes, externalEvents }?: TeleBoxCollectorConfig);
+    constructor({ visible, readonly, darkMode, namespace, styles, onClick, minimizedBoxes, boxes, externalEvents, appReadonly }?: TeleBoxCollectorConfig);
     readonly styles: TeleStyles$1;
     readonly namespace: string;
+    private appReadonly;
     get visible(): boolean;
     get readonly(): boolean;
     get darkMode(): boolean;
@@ -755,6 +759,7 @@ interface TeleBoxManagerConfig extends Pick<TeleBoxConfig, "prefersColorScheme" 
     collector?: TeleBoxCollector;
     minimizedBoxes?: string[];
     maximizedBoxes?: string[];
+    appReadonly?: boolean;
 }
 type TeleBoxManagerBoxConfigBaseProps = "title" | "visible" | "width" | "height" | "minWidth" | "minHeight" | "x" | "y" | "resizable" | "draggable" | "fixRatio" | "zIndex" | 'maximized' | 'minimized';
 type TeleBoxManagerCreateConfig = Pick<TeleBoxConfig, TeleBoxManagerBoxConfigBaseProps | "content" | "footer" | "id" | "focus">;
@@ -843,7 +848,7 @@ interface TeleBoxManager extends ValEnhancedResult<ValConfig> {
 }
 declare class TeleBoxManager {
     externalEvents: TeleBoxManagerEvents;
-    constructor({ root, prefersColorScheme, fence, containerRect, collector, namespace, readonly, minimizedBoxes, maximizedBoxes }?: TeleBoxManagerConfig);
+    constructor({ root, prefersColorScheme, fence, containerRect, collector, namespace, readonly, minimizedBoxes, maximizedBoxes, appReadonly }?: TeleBoxManagerConfig);
     get boxes(): ReadonlyArray<TeleBox>;
     get topBox(): TeleBox | undefined;
     readonly events: TeleBoxManagerEvents;
@@ -889,6 +894,7 @@ declare class TeleBoxManager {
     protected smartPosition(config?: TeleBoxConfig): TeleBoxConfig;
     protected makeBoxTop(box: TeleBox, skipUpdate?: boolean): void;
     makeBoxTopFromMaximized(boxId?: string): boolean;
+    private appReadonly;
     protected getBoxIndex(boxOrID: TeleBox | string): number;
     setMaxTitleFocus(boxOrID: TeleBox | string): void;
     protected getBox(boxOrID: TeleBox | string): TeleBox | undefined;

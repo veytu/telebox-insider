@@ -217,3 +217,9 @@
         @include clr-dark(box-shadow, boxShadow);
     }
 }
+
+.hide-scroll {
+    &::-webkit-scrollbar {
+        display: none;
+    }
+}

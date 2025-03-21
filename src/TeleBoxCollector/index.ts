@@ -19,6 +19,7 @@ export interface TeleBoxCollectorConfig {
     minimizedBoxes?: string[]
     boxes?: TeleBox[]
     externalEvents?: any
+    appReadonly?: boolean
 }
 
 export class TeleBoxCollector {
@@ -31,7 +32,8 @@ export class TeleBoxCollector {
         onClick,
         minimizedBoxes = [],
         boxes = [],
-        externalEvents
+        externalEvents,
+        appReadonly
     }: TeleBoxCollectorConfig = {}) {
         this.externalEvents = externalEvents
         this._sideEffect = new SideEffectManager()
@@ -44,6 +46,7 @@ export class TeleBoxCollector {
         this.minimizedBoxes = minimizedBoxes
         this.boxes = boxes
         this.onClick = onClick
+        this.appReadonly = appReadonly
 
         this.popupVisible$ = createVal(false)
 
@@ -84,6 +87,7 @@ export class TeleBoxCollector {
     public readonly styles: TeleStyles
 
     public readonly namespace: string
+    private appReadonly: boolean | undefined
 
     public get visible(): boolean {
         return this._visible
@@ -196,7 +200,7 @@ export class TeleBoxCollector {
     }
 
     public render(root: HTMLElement): HTMLElement {
-        if (isAndroid() || isIOS()) {
+        if (isAndroid() || isIOS() || this.appReadonly) {
             const nonElement = document.createElement('div')
             nonElement.className = this.wrapClassName('collector-hide')
             return nonElement

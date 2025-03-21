@@ -106,13 +106,14 @@ export class TeleBox {
         },
         collectorRect,
         fixed = false,
-        addObserver
+        addObserver,
+        appReadonly
     }: TeleBoxConfig = {}) {
         this._sideEffect = new SideEffectManager()
         this._valSideEffectBinder = createSideEffectBinder(this._sideEffect as any)
         const { combine, createVal } = this._valSideEffectBinder
         this.addObserver = addObserver || noop
-
+        this.appReadonly = appReadonly
         this.id = id
         this.namespace = namespace
         this.events = new EventEmitter()
@@ -461,6 +462,7 @@ export class TeleBox {
     public _visualSize$: Val<TeleBoxSize, boolean>
     public _coord$: Val<TeleBoxCoord, boolean>
     public _intrinsicCoord$: Val<TeleBoxCoord, boolean>
+    private appReadonly: boolean | undefined
 
     public get darkMode(): boolean {
         return this._darkMode$.value
@@ -879,7 +881,7 @@ export class TeleBox {
 
         const $contentWrap = document.createElement('div')
         $contentWrap.className = this.wrapClassName('content-wrap') + ' tele-fancy-scrollbar'
-
+        $contentWrap.classList.toggle('hide-scroll', this.appReadonly)
         const $content = document.createElement('div')
         $content.className = this.wrapClassName('content') + ' tele-fancy-scrollbar'
         this.$content = $content

@@ -66,7 +66,8 @@ export class TeleBoxManager {
         namespace = 'telebox',
         readonly = false,
         minimizedBoxes = [],
-        maximizedBoxes = []
+        maximizedBoxes = [],
+        appReadonly = false
     }: TeleBoxManagerConfig = {}) {
         this._sideEffect = new SideEffectManager()
         const { combine, createVal } = createSideEffectBinder(this._sideEffect as any)
@@ -75,7 +76,7 @@ export class TeleBoxManager {
         this.elementObserverMap = new Map()
         this.root = root
         this.namespace = namespace
-
+        this.appReadonly = appReadonly
         this.boxes$ = createVal<TeleBox[]>([])
         this.topBox$ = this.boxes$.derive((boxes) => {
             if (boxes.length > 0) {
@@ -175,7 +176,8 @@ export class TeleBoxManager {
                           namespace,
                           minimizedBoxes: this.minimizedBoxes$.value,
                           boxes: this.boxes$.value,
-                          externalEvents: this.externalEvents
+                          externalEvents: this.externalEvents,
+                          appReadonly: this.appReadonly
                       }).mount(root)
         )
         collector$.subscribe((collector) => {
@@ -494,6 +496,7 @@ export class TeleBoxManager {
             readonly: this.readonly,
             collectorRect: this.collectorRect,
             id,
+            appReadonly: this.appReadonly,
             addObserver: (el: HTMLElement, cb: ResizeObserverCallback) => {
                 const observer = this.elementObserverMap.get(id)
 
@@ -907,7 +910,7 @@ export class TeleBoxManager {
 
         return !!maxIndexBox
     }
-
+    private appReadonly = false
     protected getBoxIndex(boxOrID: TeleBox | string): number {
         return typeof boxOrID === 'string'
             ? this.boxes.findIndex((box) => box.id === boxOrID)

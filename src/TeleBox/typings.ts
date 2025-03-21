@@ -83,6 +83,7 @@ export interface TeleBoxConfig {
     readonly collectorRect?: TeleBoxRect;
     readonly fixed?: boolean
     readonly addObserver?: (el: HTMLElement, cb: ResizeObserverCallback) => void
+    appReadonly?: boolean
 }
 
 type CheckTeleBoxConfig<T extends Record<`${TELE_BOX_EVENT}`, any>> = T;
