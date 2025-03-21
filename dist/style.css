@@ -466,7 +466,9 @@
   box-shadow: 6px 4px 25px 0px rgba(32, 35, 56, 0.2);
   box-shadow: var(--tele-collectorShadow, 6px 4px 25px 0px rgba(32, 35, 56, 0.2));
 }
-
+.telebox-collector-wrp.telebox-collector-hide {
+  display: none;
+}
 .telebox-collector-titles {
   position: absolute;
   box-shadow: 6px 4px 25px 0px rgba(32, 35, 56, 0.2);
@@ -491,56 +493,44 @@
   border-radius: 10px;
   background-color: rgb(245, 245, 252);
 }
-
 .telebox-collector-titles.telebox-collector-hide {
   display: none;
 }
-
 .telebox-collector-titles::-webkit-scrollbar {
   height: 8px;
   width: 8px;
 }
-
 .telebox-collector-titles::-webkit-scrollbar-track {
   background-color: none;
 }
-
 .telebox-collector-titles::-webkit-scrollbar-thumb {
   background-color: rgb(235, 236, 250);
   background-color: transparent;
   border-radius: 4px;
   transition: background-color 0.4s;
 }
-
 .telebox-collector-titles:hover::-webkit-scrollbar-thumb {
   background-color: rgb(235, 236, 250);
 }
-
 .telebox-collector-titles::-webkit-scrollbar-thumb:hover {
   background-color: rgb(235, 236, 250);
 }
-
 .telebox-collector-titles::-webkit-scrollbar-thumb:active {
   background-color: rgb(235, 236, 250);
 }
-
 .telebox-collector-titles::-webkit-scrollbar-thumb:vertical {
   min-height: 50px;
 }
-
 .telebox-collector-titles::-webkit-scrollbar-thumb:horizontal {
   min-width: 50px;
 }
-
 .telebox-collector-titles.telebox-collector-titles-visible {
   opacity: 1;
 }
-
 .telebox-collector-titles .telebox-collector-titles-content {
   width: 100%;
   background: none;
 }
-
 .telebox-collector-titles .telebox-collector-titles-content .telebox-collector-titles-tab {
   width: 100%;
   text-align: left;
@@ -562,11 +552,9 @@
   display: block;
   overflow: hidden;
 }
-
 .telebox-collector-titles .telebox-collector-titles-content .telebox-collector-titles-tab:hover {
   background-color: rgb(235, 236, 250);
 }
-
 .telebox-collector {
   user-select: none;
   -webkit-touch-callout: none;
@@ -591,7 +579,6 @@
   background-color: rgb(141, 143, 166);
   background-color: var(--tele-collectorBackground, rgb(141, 143, 166));
 }
-
 .telebox-collector-count {
   user-select: none;
   -webkit-touch-callout: none;
@@ -618,20 +605,16 @@
   font-weight: 400;
   font-size: 11px;
 }
-
 .telebox-collector-visible {
   visibility: visible;
   pointer-events: initial;
 }
-
 .telebox-collector-readonly {
   cursor: not-allowed;
 }
-
 .telebox-color-scheme-dark {
   color-scheme: dark;
 }
-
 .telebox-color-scheme-dark.telebox-collector {
   background-color: #383b42;
   background-color: var(--tele-collectorBackground, #383b42);

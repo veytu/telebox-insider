@@ -30,6 +30,9 @@ $scrollbar-color-active: rgba(235, 236, 250, 1);
     border: none;
     outline: none;
     @include clr(box-shadow, collectorShadow);
+    &.#{$namespace}-collector-hide {
+        display: none;
+    }
 }
 
 .#{$namespace}-collector-titles {

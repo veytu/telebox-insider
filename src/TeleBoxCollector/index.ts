@@ -7,6 +7,7 @@ import type { Val } from 'value-enhancer'
 import { SideEffectManager } from 'side-effect-manager'
 import { onTickEnd } from '../schedulers'
 import { getHiddenElementSize } from './utils'
+import { isAndroid, isIOS } from '../utils'
 
 export interface TeleBoxCollectorConfig {
     visible?: boolean
@@ -146,6 +147,7 @@ export class TeleBoxCollector {
             this._readonly = readonly
             if (this.$collector) {
                 this.$collector.classList.toggle(this.wrapClassName('collector-readonly'), readonly)
+                this.$collector.classList.toggle(this.wrapClassName('collector-hide'), readonly)
             }
         }
         return this
@@ -194,6 +196,11 @@ export class TeleBoxCollector {
     }
 
     public render(root: HTMLElement): HTMLElement {
+        if (isAndroid() || isIOS()) {
+            const nonElement = document.createElement('div')
+            nonElement.className = this.wrapClassName('collector-hide')
+            return nonElement
+        }
         if (!this.$collector) {
             this.$collector = document.createElement('button')
             this.$collector.className = this.wrapClassName('collector')

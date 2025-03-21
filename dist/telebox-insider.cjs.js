@@ -1269,6 +1269,12 @@ function excludeFromBoth(c2, a, b) {
   const bSet = new Set(b);
   return c2.filter((item) => !aSet.has(item) && !bSet.has(item));
 }
+const isIOS = () => {
+  return typeof navigator !== "undefined" && typeof window !== "undefined" && /iPad|iPhone|iPod/.test(window.navigator.userAgent);
+};
+const isAndroid = () => {
+  return typeof navigator !== "undefined" && /Android/.test(window.navigator.userAgent);
+};
 function flattenEvent(ev) {
   return ev.touches ? ev.touches[0] : ev;
 }
@@ -2499,6 +2505,7 @@ class TeleBoxCollector {
       this._readonly = readonly;
       if (this.$collector) {
         this.$collector.classList.toggle(this.wrapClassName("collector-readonly"), readonly);
+        this.$collector.classList.toggle(this.wrapClassName("collector-hide"), readonly);
       }
     }
     return this;
@@ -2542,6 +2549,11 @@ class TeleBoxCollector {
     this.renderTitles();
   }
   render(root) {
+    if (isAndroid() || isIOS()) {
+      const nonElement = document.createElement("div");
+      nonElement.className = this.wrapClassName("collector-hide");
+      return nonElement;
+    }
     if (!this.$collector) {
       this.$collector = document.createElement("button");
       this.$collector.className = this.wrapClassName("collector");
