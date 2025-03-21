@@ -2661,14 +2661,9 @@ class TeleBoxCollector {
       const rootRect = (_b2 = this.root) == null ? void 0 : _b2.getBoundingClientRect();
       const popupSize = getHiddenElementSize(this.$titles);
       parentRect.top - rootRect.top > popupSize.height;
-      const isAvailableSpaceLeft = parentRect.x - rootRect.x > popupSize.width / 2 - parentRect.width / 2;
       const topPosition = -popupSize.height - 10;
-      let leftPosition = -(popupSize.width / 2 - parentRect.width / 2);
-      if (!isAvailableSpaceLeft) {
-        leftPosition = -(parentRect.x - rootRect.x - 4);
-      }
       this.$titles.style.top = `${topPosition}px`;
-      this.$titles.style.left = `${leftPosition}px`;
+      this.$titles.style.left = `0px`;
     });
     return this.$titles;
   }
