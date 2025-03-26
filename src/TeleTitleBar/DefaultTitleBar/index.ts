@@ -33,6 +33,7 @@ export class DefaultTitleBar implements TeleTitleBar {
         onDragStart,
         namespace = "telebox",
         state = TELE_BOX_STATE.Normal,
+        appReadonly = false,
     }: DefaultTitleBarConfig = {}) {
         this.readonly = readonly;
         this.onEvent = onEvent;
@@ -40,6 +41,7 @@ export class DefaultTitleBar implements TeleTitleBar {
         this.namespace = namespace;
         this.title = title;
         this.state = state;
+        this.appReadonly = appReadonly;
 
         this.buttons = buttons || [
             {
@@ -119,6 +121,8 @@ export class DefaultTitleBar implements TeleTitleBar {
 
             const $buttonsContainer = document.createElement("div");
             $buttonsContainer.className = this.wrapClassName("titlebar-btns");
+            console.log(this.appReadonly || this.readonly)
+            $buttonsContainer.classList.toggle(this.wrapClassName('titlebar-btns-disable'), this.appReadonly || this.readonly)
 
             this.buttons.forEach(({ iconClassName, isActive }, i) => {
                 const teleTitleBarBtnIndex = String(i);
@@ -215,6 +219,7 @@ export class DefaultTitleBar implements TeleTitleBar {
     public onDragStart?: TeleTitleBarConfig["onDragStart"];
 
     protected readonly: boolean;
+    protected appReadonly: boolean;
 
     protected title?: string;
 

@@ -360,6 +360,7 @@ export class TeleBox {
             titleBar ||
             new DefaultTitleBar({
                 readonly: readonly$.value,
+                appReadonly: this.appReadonly,
                 title: title$.value,
                 namespace: this.namespace,
                 onDragStart: (event) => this._handleTrackStart?.(event),

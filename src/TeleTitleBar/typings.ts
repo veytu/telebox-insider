@@ -14,6 +14,7 @@ export interface TeleTitleBarConfig {
     namespace?: string;
     onEvent?: (event: TeleTitleBarEvent) => void;
     onDragStart?: (event: MouseEvent | TouchEvent) => void;
+    appReadonly?: boolean
 }
 
 export interface TeleTitleBar {

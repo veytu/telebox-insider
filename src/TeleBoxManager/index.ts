@@ -171,7 +171,7 @@ export class TeleBoxManager {
                 ? null
                 : collector ||
                       new TeleBoxCollector({
-                          visible: this.minimizedBoxes$.value.length > 0,
+                          visible: this.minimizedBoxes$.value.length > 0 && (!this.appReadonly && !this.readonly),
                           readonly: readonly$.value,
                           namespace,
                           minimizedBoxes: this.minimizedBoxes$.value,
@@ -182,7 +182,7 @@ export class TeleBoxManager {
         )
         collector$.subscribe((collector) => {
             if (collector) {
-                collector.setVisible(this.minimizedBoxes$.value.length > 0)
+                collector.setVisible(this.minimizedBoxes$.value.length > 0 && !this.appReadonly && !readonly$.value)
                 collector.setReadonly(readonly$.value)
                 collector.setDarkMode(this._darkMode$.value)
                 this._sideEffect.add(() => {
@@ -201,7 +201,10 @@ export class TeleBoxManager {
                 }, 'collect-onClick')
             }
         })
-        readonly$.subscribe((readonly) => collector$.value?.setReadonly(readonly))
+        readonly$.subscribe((readonly) => {
+            collector$.value?.setReadonly(readonly)
+            collector$.value?.setVisible(this.minimizedBoxes$.value.length > 0 && !this.appReadonly && !readonly$.value)
+        })
         this._darkMode$.subscribe((darkMode) => {
             collector$.value?.setDarkMode(darkMode)
         })

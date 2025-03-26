@@ -64,6 +64,11 @@
     z-index: 11;
 }
 
+.#{$namespace}-titlebar-btns-disable {
+    opacity: 0;
+    pointer-events: none;
+}
+
 .#{$namespace}-titlebar-btn {
     @include no-user-select;
 
@@ -88,6 +93,10 @@
 .#{$namespace}-readonly {
     .#{$namespace}-titlebar-btn {
         cursor: not-allowed;
+    }
+    .#{$namespace}-titlebar-btns {
+        opacity: 0;
+        pointer-events: none;
     }
 }
 
