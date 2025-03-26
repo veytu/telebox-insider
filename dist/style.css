@@ -382,8 +382,8 @@
 }
 
 .telebox-titlebar-btns-disable {
-    opacity: 0;
-    pointer-events: none;
+  visibility: hidden;
+  pointer-events: none;
 }
 
 .telebox-titlebar-btn {
@@ -410,6 +410,11 @@
 
 .telebox-readonly .telebox-titlebar-btn {
   cursor: not-allowed;
+}
+
+.telebox-readonly .telebox-titlebar-btns {
+  visibility: hidden;
+  pointer-events: none;
 }
 
 .telebox-titlebar-icon-minimize {

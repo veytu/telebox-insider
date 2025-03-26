@@ -1289,7 +1289,8 @@ class DefaultTitleBar {
     onEvent,
     onDragStart,
     namespace = "telebox",
-    state = TELE_BOX_STATE.Normal
+    state = TELE_BOX_STATE.Normal,
+    appReadonly = false
   } = {}) {
     this.$btns = [];
     this.sideEffect = new o();
@@ -1362,6 +1363,7 @@ class DefaultTitleBar {
     this.namespace = namespace;
     this.title = title;
     this.state = state;
+    this.appReadonly = appReadonly;
     this.buttons = buttons || [
       {
         type: TELE_BOX_DELEGATE_EVENT.Minimize,
@@ -1422,6 +1424,8 @@ class DefaultTitleBar {
       $titleArea.appendChild(this.$dragArea);
       const $buttonsContainer = document.createElement("div");
       $buttonsContainer.className = this.wrapClassName("titlebar-btns");
+      console.log(this.appReadonly || this.readonly);
+      $buttonsContainer.classList.toggle(this.wrapClassName("titlebar-btns-disable"), isAndroid() || isIOS() || this.appReadonly || this.readonly);
       this.buttons.forEach(({ iconClassName, isActive }, i2) => {
         const teleTitleBarBtnIndex = String(i2);
         const $btn = document.createElement("button");
@@ -1754,6 +1758,7 @@ class TeleBox {
     });
     this.titleBar = titleBar || new DefaultTitleBar({
       readonly: readonly$.value,
+      appReadonly: this.appReadonly,
       title: title$.value,
       namespace: this.namespace,
       onDragStart: (event) => {
@@ -2990,7 +2995,7 @@ class TeleBoxManager {
     });
     const collector$ = createVal(
       collector === null ? null : collector || new TeleBoxCollector({
-        visible: this.minimizedBoxes$.value.length > 0,
+        visible: this.minimizedBoxes$.value.length > 0 && (!this.appReadonly && !this.readonly),
         readonly: readonly$.value,
         namespace,
         minimizedBoxes: this.minimizedBoxes$.value,
@@ -3001,7 +3006,7 @@ class TeleBoxManager {
     );
     collector$.subscribe((collector2) => {
       if (collector2) {
-        collector2.setVisible(this.minimizedBoxes$.value.length > 0);
+        collector2.setVisible(this.minimizedBoxes$.value.length > 0 && !this.appReadonly && !readonly$.value);
         collector2.setReadonly(readonly$.value);
         collector2.setDarkMode(this._darkMode$.value);
         this._sideEffect.add(() => {
@@ -3022,8 +3027,9 @@ class TeleBoxManager {
       }
     });
     readonly$.subscribe((readonly2) => {
-      var _a;
-      return (_a = collector$.value) == null ? void 0 : _a.setReadonly(readonly2);
+      var _a, _b;
+      (_a = collector$.value) == null ? void 0 : _a.setReadonly(readonly2);
+      (_b = collector$.value) == null ? void 0 : _b.setVisible(this.minimizedBoxes$.value.length > 0 && !this.appReadonly && !readonly$.value);
     });
     this._darkMode$.subscribe((darkMode) => {
       var _a;
@@ -3160,7 +3166,8 @@ class TeleBoxManager {
             break;
           }
         }
-      }
+      },
+      appReadonly: this.appReadonly
     });
     readonly$.subscribe((readonly2) => this.maxTitleBar.setReadonly(readonly2));
     this._darkMode$.subscribe((darkMode) => {

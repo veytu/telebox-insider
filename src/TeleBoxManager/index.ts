@@ -378,7 +378,8 @@ export class TeleBoxManager {
                         break
                     }
                 }
-            }
+            },
+            appReadonly: this.appReadonly
         })
         readonly$.subscribe((readonly) => this.maxTitleBar.setReadonly(readonly))
         this._darkMode$.subscribe((darkMode) => {

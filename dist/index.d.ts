@@ -448,6 +448,7 @@ interface TeleTitleBarConfig {
     namespace?: string;
     onEvent?: (event: TeleTitleBarEvent) => void;
     onDragStart?: (event: MouseEvent | TouchEvent) => void;
+    appReadonly?: boolean;
 }
 interface TeleTitleBar {
     setTitle(title: string): void;
@@ -465,7 +466,7 @@ interface DefaultTitleBarConfig extends TeleTitleBarConfig {
     buttons?: ReadonlyArray<DefaultTitleBarButton>;
 }
 declare class DefaultTitleBar implements TeleTitleBar {
-    constructor({ readonly, title, buttons, onEvent, onDragStart, namespace, state, }?: DefaultTitleBarConfig);
+    constructor({ readonly, title, buttons, onEvent, onDragStart, namespace, state, appReadonly, }?: DefaultTitleBarConfig);
     readonly namespace: string;
     $titleBar: HTMLElement | undefined;
     $title: HTMLElement | undefined;
@@ -481,6 +482,7 @@ declare class DefaultTitleBar implements TeleTitleBar {
     onEvent?: TeleTitleBarConfig["onEvent"];
     onDragStart?: TeleTitleBarConfig["onDragStart"];
     protected readonly: boolean;
+    protected appReadonly: boolean;
     protected title?: string;
     protected buttons: ReadonlyArray<DefaultTitleBarButton>;
     protected state: TeleBoxState;

@@ -65,7 +65,7 @@
 }
 
 .#{$namespace}-titlebar-btns-disable {
-    opacity: 0;
+    visibility: hidden;
     pointer-events: none;
 }
 
@@ -95,7 +95,7 @@
         cursor: not-allowed;
     }
     .#{$namespace}-titlebar-btns {
-        opacity: 0;
+        visibility: hidden;
         pointer-events: none;
     }
 }

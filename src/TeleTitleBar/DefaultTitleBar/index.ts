@@ -13,7 +13,7 @@ import type {
     TeleTitleBarConfig,
     TeleTitleBarEvent,
 } from "../typings";
-import { preventEvent } from "../../utils";
+import { isAndroid, isIOS, preventEvent } from "../../utils";
 
 export type DefaultTitleBarButton = TeleTitleBarEvent & {
     readonly iconClassName: string;
@@ -122,7 +122,7 @@ export class DefaultTitleBar implements TeleTitleBar {
             const $buttonsContainer = document.createElement("div");
             $buttonsContainer.className = this.wrapClassName("titlebar-btns");
             console.log(this.appReadonly || this.readonly)
-            $buttonsContainer.classList.toggle(this.wrapClassName('titlebar-btns-disable'), this.appReadonly || this.readonly)
+            $buttonsContainer.classList.toggle(this.wrapClassName('titlebar-btns-disable'), isAndroid() || isIOS() || this.appReadonly || this.readonly)
 
             this.buttons.forEach(({ iconClassName, isActive }, i) => {
                 const teleTitleBarBtnIndex = String(i);
