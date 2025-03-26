@@ -807,13 +807,15 @@ export class TeleBox {
                     this.$box.classList.toggle(maximizedClassName, true)
                 } else {
                     // delay so that transition won't be triggered
-                    this._renderSideEffect.setTimeout(
-                        () => {
-                            this.$box.classList.toggle(maximizedClassName, false)
-                        },
-                        0,
-                        MAXIMIZED_TIMER_ID
-                    )
+                    // this._renderSideEffect.setTimeout(
+                    //     () => {
+                    //          this.$box.classList.toggle(maximizedClassName, false)
+                    //     },
+                    //     0,
+                    //     MAXIMIZED_TIMER_ID
+                    // )
+
+                    this.$box.classList.toggle(maximizedClassName, false)
                 }
             })
         })

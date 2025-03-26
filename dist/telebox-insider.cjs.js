@@ -2040,13 +2040,7 @@ class TeleBox {
           this._renderSideEffect.flush(MAXIMIZED_TIMER_ID);
           this.$box.classList.toggle(maximizedClassName, true);
         } else {
-          this._renderSideEffect.setTimeout(
-            () => {
-              this.$box.classList.toggle(maximizedClassName, false);
-            },
-            0,
-            MAXIMIZED_TIMER_ID
-          );
+          this.$box.classList.toggle(maximizedClassName, false);
         }
       });
     });
