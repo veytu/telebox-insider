@@ -151,7 +151,7 @@ export class TeleBoxCollector {
             this._readonly = readonly
             if (this.$collector) {
                 this.$collector.classList.toggle(this.wrapClassName('collector-readonly'), readonly)
-                this.$collector.classList.toggle(this.wrapClassName('collector-hide'), readonly)
+                this.wrp$?.classList.toggle(this.wrapClassName('collector-visible'), !readonly)
             }
         }
         return this
@@ -200,7 +200,7 @@ export class TeleBoxCollector {
     }
 
     public render(root: HTMLElement): HTMLElement {
-        if (isAndroid() || isIOS() || this.appReadonly) {
+        if (isAndroid() || isIOS()) {
             const nonElement = document.createElement('div')
             nonElement.className = this.wrapClassName('collector-hide')
             return nonElement

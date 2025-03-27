@@ -65,6 +65,7 @@ export class DefaultTitleBar implements TeleTitleBar {
     public readonly namespace: string;
 
     public $titleBar: HTMLElement | undefined;
+    private $buttonsContainer: HTMLElement | undefined;
 
     public $title: HTMLElement | undefined;
 
@@ -96,6 +97,7 @@ export class DefaultTitleBar implements TeleTitleBar {
     public setReadonly(readonly: boolean): void {
         if (this.readonly !== readonly) {
             this.readonly = readonly;
+            this.$buttonsContainer?.classList.toggle(this.wrapClassName('titlebar-btns-disable'), Boolean(isAndroid() || isIOS() || this.readonly))
         }
     }
 
@@ -121,8 +123,8 @@ export class DefaultTitleBar implements TeleTitleBar {
 
             const $buttonsContainer = document.createElement("div");
             $buttonsContainer.className = this.wrapClassName("titlebar-btns");
-            console.log(this.appReadonly || this.readonly)
-            $buttonsContainer.classList.toggle(this.wrapClassName('titlebar-btns-disable'), isAndroid() || isIOS() || this.appReadonly || this.readonly)
+
+            $buttonsContainer.classList.toggle(this.wrapClassName('titlebar-btns-disable'), isAndroid() || isIOS() || this.readonly)
 
             this.buttons.forEach(({ iconClassName, isActive }, i) => {
                 const teleTitleBarBtnIndex = String(i);
@@ -170,6 +172,7 @@ export class DefaultTitleBar implements TeleTitleBar {
                 }
             );
 
+            this.$buttonsContainer = $buttonsContainer
             this.$titleBar.appendChild($titleArea);
             this.$titleBar.appendChild($buttonsContainer);
         }

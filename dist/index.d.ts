@@ -469,6 +469,7 @@ declare class DefaultTitleBar implements TeleTitleBar {
     constructor({ readonly, title, buttons, onEvent, onDragStart, namespace, state, appReadonly, }?: DefaultTitleBarConfig);
     readonly namespace: string;
     $titleBar: HTMLElement | undefined;
+    private $buttonsContainer;
     $title: HTMLElement | undefined;
     $dragArea: HTMLElement;
     setTitle(title: string): void;

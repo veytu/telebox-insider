@@ -1402,8 +1402,10 @@ class DefaultTitleBar {
     }
   }
   setReadonly(readonly) {
+    var _a;
     if (this.readonly !== readonly) {
       this.readonly = readonly;
+      (_a = this.$buttonsContainer) == null ? void 0 : _a.classList.toggle(this.wrapClassName("titlebar-btns-disable"), Boolean(isAndroid() || isIOS() || this.readonly));
     }
   }
   render() {
@@ -1424,8 +1426,7 @@ class DefaultTitleBar {
       $titleArea.appendChild(this.$dragArea);
       const $buttonsContainer = document.createElement("div");
       $buttonsContainer.className = this.wrapClassName("titlebar-btns");
-      console.log(this.appReadonly || this.readonly);
-      $buttonsContainer.classList.toggle(this.wrapClassName("titlebar-btns-disable"), isAndroid() || isIOS() || this.appReadonly || this.readonly);
+      $buttonsContainer.classList.toggle(this.wrapClassName("titlebar-btns-disable"), isAndroid() || isIOS() || this.readonly);
       this.buttons.forEach(({ iconClassName, isActive }, i2) => {
         const teleTitleBarBtnIndex = String(i2);
         const $btn = document.createElement("button");
@@ -1464,6 +1465,7 @@ class DefaultTitleBar {
           }
         }
       );
+      this.$buttonsContainer = $buttonsContainer;
       this.$titleBar.appendChild($titleArea);
       this.$titleBar.appendChild($buttonsContainer);
     }
@@ -2095,7 +2097,7 @@ class TeleBox {
     this.$titleBar = $titleBar;
     const $contentWrap = document.createElement("div");
     $contentWrap.className = this.wrapClassName("content-wrap") + " tele-fancy-scrollbar";
-    $contentWrap.classList.toggle("hide-scroll", this.appReadonly);
+    $contentWrap.classList.toggle("hide-scroll", Boolean(isIOS() || isAndroid() || this.appReadonly));
     const $content = document.createElement("div");
     $content.className = this.wrapClassName("content") + " tele-fancy-scrollbar";
     this.$content = $content;
@@ -2504,11 +2506,12 @@ class TeleBoxCollector {
     return this;
   }
   setReadonly(readonly) {
+    var _a;
     if (this._readonly !== readonly) {
       this._readonly = readonly;
       if (this.$collector) {
         this.$collector.classList.toggle(this.wrapClassName("collector-readonly"), readonly);
-        this.$collector.classList.toggle(this.wrapClassName("collector-hide"), readonly);
+        (_a = this.wrp$) == null ? void 0 : _a.classList.toggle(this.wrapClassName("collector-visible"), !readonly);
       }
     }
     return this;
@@ -2552,7 +2555,7 @@ class TeleBoxCollector {
     this.renderTitles();
   }
   render(root) {
-    if (isAndroid() || isIOS() || this.appReadonly) {
+    if (isAndroid() || isIOS()) {
       const nonElement = document.createElement("div");
       nonElement.className = this.wrapClassName("collector-hide");
       return nonElement;
@@ -2989,7 +2992,7 @@ class TeleBoxManager {
     });
     const collector$ = createVal(
       collector === null ? null : collector || new TeleBoxCollector({
-        visible: this.minimizedBoxes$.value.length > 0 && (!this.appReadonly && !this.readonly),
+        visible: this.minimizedBoxes$.value.length > 0 && !this.readonly,
         readonly: readonly$.value,
         namespace,
         minimizedBoxes: this.minimizedBoxes$.value,
@@ -3000,7 +3003,7 @@ class TeleBoxManager {
     );
     collector$.subscribe((collector2) => {
       if (collector2) {
-        collector2.setVisible(this.minimizedBoxes$.value.length > 0 && !this.appReadonly && !readonly$.value);
+        collector2.setVisible(this.minimizedBoxes$.value.length > 0 && !readonly$.value);
         collector2.setReadonly(readonly$.value);
         collector2.setDarkMode(this._darkMode$.value);
         this._sideEffect.add(() => {
@@ -3023,7 +3026,7 @@ class TeleBoxManager {
     readonly$.subscribe((readonly2) => {
       var _a, _b;
       (_a = collector$.value) == null ? void 0 : _a.setReadonly(readonly2);
-      (_b = collector$.value) == null ? void 0 : _b.setVisible(this.minimizedBoxes$.value.length > 0 && !this.appReadonly && !readonly$.value);
+      (_b = collector$.value) == null ? void 0 : _b.setVisible(this.minimizedBoxes$.value.length > 0 && !readonly$.value);
     });
     this._darkMode$.subscribe((darkMode) => {
       var _a;
