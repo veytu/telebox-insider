@@ -151,7 +151,6 @@ export class TeleBoxCollector {
             this._readonly = readonly
             if (this.$collector) {
                 this.$collector.classList.toggle(this.wrapClassName('collector-readonly'), readonly)
-                this.wrp$?.classList.toggle(this.wrapClassName('collector-visible'), !readonly)
             }
         }
         return this

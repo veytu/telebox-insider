@@ -2504,12 +2504,10 @@ class TeleBoxCollector {
     return this;
   }
   setReadonly(readonly) {
-    var _a;
     if (this._readonly !== readonly) {
       this._readonly = readonly;
       if (this.$collector) {
         this.$collector.classList.toggle(this.wrapClassName("collector-readonly"), readonly);
-        (_a = this.wrp$) == null ? void 0 : _a.classList.toggle(this.wrapClassName("collector-visible"), !readonly);
       }
     }
     return this;
