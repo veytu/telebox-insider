@@ -188,9 +188,9 @@
 }
 
 .#{$namespace}-minimized {
-    opacity: 0;
     pointer-events: none;
     user-select: none;
+    display: none !important;
 }
 
 .#{$namespace}-transforming {

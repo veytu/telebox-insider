@@ -290,9 +290,9 @@
   transition: none;
 }
 .telebox-minimized {
-  opacity: 0;
   pointer-events: none;
   user-select: none;
+  display: none !important;
 }
 .telebox-transforming {
   will-change: transform;
