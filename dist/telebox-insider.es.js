@@ -2261,8 +2261,8 @@ class TeleBox {
               clamp(trackStartY + offsetY, 0, 1 - this.height)
             );
           } else {
-            const xOverflowOffset = 20 / this.containerRect.width;
-            const yOverflowOffset = 20 / this.containerRect.height;
+            const xOverflowOffset = 200 / this.containerRect.width;
+            const yOverflowOffset = 80 / this.containerRect.height;
             this.move(
               clamp(
                 trackStartX + offsetX,
