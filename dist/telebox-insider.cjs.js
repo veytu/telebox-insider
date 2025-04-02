@@ -2074,7 +2074,6 @@ class TeleBox {
       ([coord, size, minimized, containerRect, collectorRect]) => {
         const absoluteWidth = size.width * containerRect.width;
         const absoluteHeight = size.height * containerRect.height;
-        console.log("rect change", size, containerRect, collectorRect);
         return {
           width: absoluteWidth + (minimized && collectorRect ? 1 : 0),
           height: absoluteHeight + (minimized && collectorRect ? 1 : 0),
