@@ -19,7 +19,7 @@ $scrollbar-color-active: rgba(238, 238, 247, 1);
     width: 100%;
     z-index: $max-titlebar-z-index;
     background: #fff;
-    padding: 0 8px;
+    padding: 0 0.571vw;
     .#{$namespace}-title {
         display: none;
     }
@@ -33,13 +33,13 @@ $scrollbar-color-active: rgba(238, 238, 247, 1);
             @include clr(color, titlebarTabFocusColor);
             background-color: #FFF5F5;
             border:1px solid rgba(255, 83, 83, 0.2);
-            height: 26px;
+            height: 1.857vw;
             overflow: hidden;
             max-width: 120px;
             min-width: 64px;
-            padding: 0px 6px;
+            padding: 0px 0.428vw;
             outline: none;
-            font-size: 13px;
+            font-size: 1vw;
             font-family: PingFangSC-Regular, PingFang SC;
             font-weight: 400;
             text-overflow: ellipsis;
@@ -48,7 +48,7 @@ $scrollbar-color-active: rgba(238, 238, 247, 1);
             cursor: pointer;
             user-select: none;
             border-radius: 4px;
-            line-height: 26px;
+            line-height: 1.857vw;
         }
     }
 }
@@ -122,17 +122,17 @@ $scrollbar-color-active: rgba(238, 238, 247, 1);
     flex-wrap: nowrap;
     align-items: center;
     padding: 0;
-    gap: 8px;
+    gap: 0.571vw;
 }
 
 .#{$namespace}-titles-tab {
-    height: 26px;
+    height: 1.857vw;
     overflow: hidden;
     max-width: 120px;
     min-width: 64px;
-    padding: 4px 6px;
+    padding: 0.285vw 0.428vw;
     outline: none;
-    font-size: 13px;
+    font-size: 1vw;
     font-family: PingFangSC-Regular, PingFang SC;
     font-weight: 400;
     text-overflow: ellipsis;
