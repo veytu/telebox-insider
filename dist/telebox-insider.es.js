@@ -1539,13 +1539,16 @@ class TeleBox {
     collectorRect,
     fixed = false,
     addObserver,
-    appReadonly
+    appReadonly,
+    hasHeader = true
   } = {}) {
+    this.hasHeader = true;
     this._renderSideEffect = new o();
     this.handleTrackStart = (ev) => {
       var _a;
       return (_a = this._handleTrackStart) == null ? void 0 : _a.call(this, ev);
     };
+    this.hasHeader = hasHeader;
     this._sideEffect = new o();
     this._valSideEffectBinder = c(this._sideEffect);
     const { combine, createVal } = this._valSideEffectBinder;
@@ -2091,6 +2094,9 @@ class TeleBox {
     this.$box.appendChild($boxMain);
     const $titleBar = document.createElement("div");
     $titleBar.className = this.wrapClassName("titlebar-wrap");
+    if (this.hasHeader == false) {
+      $titleBar.style.display = "none";
+    }
     $titleBar.appendChild(this.titleBar.render());
     this.$titleBar = $titleBar;
     const $contentWrap = document.createElement("div");
@@ -2713,7 +2719,7 @@ class MaxTitleBar extends DefaultTitleBar {
   }
   focusBox(box) {
     var _a;
-    if (this.focusedBox && this.focusedBox === box) {
+    if (this.focusedBox && this.focusedBox === box || !(box == null ? void 0 : box.hasHeader)) {
       return;
     }
     if (this.$titles && this.state === TELE_BOX_STATE.Maximized) {
@@ -2816,6 +2822,9 @@ class MaxTitleBar extends DefaultTitleBar {
       );
       if (this.boxes.length === 1) {
         this.setTitle(this.boxes[0].title);
+        if (this.boxes[0].hasHeader == false) {
+          this.$titleBar.style.display = "none";
+        }
       } else {
         this.$titleBar.replaceChild(
           this.renderTitles(),
@@ -2840,7 +2849,16 @@ class MaxTitleBar extends DefaultTitleBar {
     const $content = document.createElement("div");
     $content.className = this.wrapClassName("titles-content");
     this.$titles.appendChild($content);
-    this.boxes.filter((box) => this.maximizedBoxes$.includes(box.id)).filter((box) => !this.minimizedBoxes$.includes(box.id)).forEach((box) => {
+    const maxBoxes = this.boxes.filter((box) => this.maximizedBoxes$.includes(box.id)).filter((box) => !this.minimizedBoxes$.includes(box.id)).filter((box) => box.hasHeader);
+    const noHeaderBoxes = this.boxes.filter((box) => this.maximizedBoxes$.includes(box.id)).filter((box) => !this.minimizedBoxes$.includes(box.id)).filter((box) => !box.hasHeader);
+    if (this.$titleBar) {
+      if (maxBoxes.length == 0 && noHeaderBoxes.length > 0) {
+        this.$titleBar.style.display = "none";
+      } else {
+        this.$titleBar.style.display = "";
+      }
+    }
+    maxBoxes.forEach((box) => {
       const $tab = document.createElement("button");
       $tab.className = this.wrapClassName("titles-tab");
       $tab.textContent = box.title;

@@ -10,9 +10,9 @@ export type MaxTitleBarTeleBox = Pick<TeleBox, 'id' | 'title' | 'readonly'>
 
 export interface MaxTitleBarConfig extends DefaultTitleBarConfig {
     darkMode: boolean
-    boxes: MaxTitleBarTeleBox[]
+    boxes: TeleBox[]
     containerRect: TeleBoxRect
-    focusedBox?: MaxTitleBarTeleBox
+    focusedBox?: TeleBox
     maximizedBoxes$: string[]
     minimizedBoxes$: string[]
 }
@@ -29,8 +29,8 @@ export class MaxTitleBar extends DefaultTitleBar {
         this.minimizedBoxes$ = config.minimizedBoxes$
     }
 
-    public focusBox(box?: MaxTitleBarTeleBox): void {
-        if (this.focusedBox && this.focusedBox === box) {
+    public focusBox(box?: TeleBox): void {
+        if (this.focusedBox && this.focusedBox === box || !box?.hasHeader) {
             return
         }
 
@@ -60,7 +60,7 @@ export class MaxTitleBar extends DefaultTitleBar {
         }
     }
 
-    public setBoxes(boxes: MaxTitleBarTeleBox[]): void {
+    public setBoxes(boxes: TeleBox[]): void {
         this.boxes = boxes
         this.updateTitles()
     }
@@ -155,6 +155,9 @@ export class MaxTitleBar extends DefaultTitleBar {
             )
             if (this.boxes.length === 1) {
                 this.setTitle(this.boxes[0].title)
+                if (this.boxes[0].hasHeader == false) {
+                    this.$titleBar.style.display = "none"
+                }
             } else {
                 this.$titleBar.replaceChild(
                     this.renderTitles(),
@@ -182,10 +185,25 @@ export class MaxTitleBar extends DefaultTitleBar {
         $content.className = this.wrapClassName('titles-content')
         this.$titles.appendChild($content)
 
-        this.boxes
-            .filter((box) => this.maximizedBoxes$.includes(box.id))
-            .filter((box) => !this.minimizedBoxes$.includes(box.id))
-            .forEach((box) => {
+        const maxBoxes = this.boxes
+        .filter((box) => this.maximizedBoxes$.includes(box.id))
+        .filter((box) => !this.minimizedBoxes$.includes(box.id))
+        .filter((box) => box.hasHeader)
+
+        const noHeaderBoxes = this.boxes
+        .filter((box) => this.maximizedBoxes$.includes(box.id))
+        .filter((box) => !this.minimizedBoxes$.includes(box.id))
+        .filter((box) => !box.hasHeader)
+
+        if (this.$titleBar) {
+            if (maxBoxes.length == 0 && noHeaderBoxes.length > 0) {
+                this.$titleBar.style.display = "none"
+            } else {
+                this.$titleBar.style.display = ""
+            }
+        }
+
+        maxBoxes.forEach((box) => {
                 const $tab = document.createElement('button')
                 $tab.className = this.wrapClassName('titles-tab')
                 $tab.textContent = box.title
@@ -206,9 +224,9 @@ export class MaxTitleBar extends DefaultTitleBar {
 
     protected $titles: HTMLElement | undefined
 
-    protected boxes: MaxTitleBarTeleBox[]
+    protected boxes: TeleBox[]
 
-    public focusedBox: MaxTitleBarTeleBox | undefined
+    public focusedBox: TeleBox | undefined
 
     protected containerRect: TeleBoxRect
     protected maximizedBoxes$: MaxTitleBarConfig['maximizedBoxes$']

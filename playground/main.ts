@@ -64,6 +64,7 @@ createBtn("Create").addEventListener("click", () => {
         title: title.slice(0, 50),
         focus: true,
         content,
+        hasHeader: Math.random() > 0.5,
     });
 });
 

@@ -377,6 +377,7 @@ interface TeleBoxConfig {
     readonly fixed?: boolean;
     readonly addObserver?: (el: HTMLElement, cb: ResizeObserverCallback) => void;
     appReadonly?: boolean;
+    hasHeader?: boolean;
 }
 type CheckTeleBoxConfig<T extends Record<`${TELE_BOX_EVENT}`, any>> = T;
 type TeleBoxEventConfig = CheckTeleBoxConfig<{
@@ -537,7 +538,7 @@ type ValConfig$1 = {
 interface TeleBox extends ValEnhancedResult<ValConfig$1> {
 }
 declare class TeleBox {
-    constructor({ id, title, prefersColorScheme, darkMode, visible, width, height, minWidth, minHeight, x, y, minimized, maximized, readonly, resizable, draggable, fence, fixRatio, focus, zIndex, namespace, titleBar, content, footer, styles, containerRect, collectorRect, fixed, addObserver, appReadonly }?: TeleBoxConfig);
+    constructor({ id, title, prefersColorScheme, darkMode, visible, width, height, minWidth, minHeight, x, y, minimized, maximized, readonly, resizable, draggable, fence, fixRatio, focus, zIndex, namespace, titleBar, content, footer, styles, containerRect, collectorRect, fixed, addObserver, appReadonly, hasHeader, }?: TeleBoxConfig);
     readonly id: string;
     /** ClassName Prefix. For CSS styling. Default "telebox" */
     readonly namespace: string;
@@ -653,6 +654,7 @@ declare class TeleBox {
     setFixed(fixed: boolean): void;
     /** DOM of the box */
     $box: HTMLElement;
+    hasHeader: boolean;
     $contentWrap: HTMLElement;
     private scale;
     /** DOM of the box content */
@@ -765,7 +767,7 @@ interface TeleBoxManagerConfig extends Pick<TeleBoxConfig, "prefersColorScheme" 
     appReadonly?: boolean;
 }
 type TeleBoxManagerBoxConfigBaseProps = "title" | "visible" | "width" | "height" | "minWidth" | "minHeight" | "x" | "y" | "resizable" | "draggable" | "fixRatio" | "zIndex" | 'maximized' | 'minimized';
-type TeleBoxManagerCreateConfig = Pick<TeleBoxConfig, TeleBoxManagerBoxConfigBaseProps | "content" | "footer" | "id" | "focus">;
+type TeleBoxManagerCreateConfig = Pick<TeleBoxConfig, TeleBoxManagerBoxConfigBaseProps | "content" | "footer" | "id" | "focus" | "hasHeader">;
 type TeleBoxManagerQueryConfig = Pick<TeleBoxConfig, TeleBoxManagerBoxConfigBaseProps | "id" | "focus">;
 type TeleBoxManagerUpdateConfig = Pick<TeleBoxConfig, TeleBoxManagerBoxConfigBaseProps | "content" | "footer">;
 type CheckTeleBoxManagerConfig<T extends Record<`${TELE_BOX_MANAGER_EVENT}`, any>> = T;
@@ -796,20 +798,19 @@ interface TeleBoxManagerEvents extends EventEmitter<TeleBoxManagerEvent> {
     emit<U extends TeleBoxManagerEvent>(event: U, ...value: TeleBoxManagerEventConfig[U]): boolean;
 }
 
-type MaxTitleBarTeleBox = Pick<TeleBox, 'id' | 'title' | 'readonly'>;
 interface MaxTitleBarConfig extends DefaultTitleBarConfig {
     darkMode: boolean;
-    boxes: MaxTitleBarTeleBox[];
+    boxes: TeleBox[];
     containerRect: TeleBoxRect;
-    focusedBox?: MaxTitleBarTeleBox;
+    focusedBox?: TeleBox;
     maximizedBoxes$: string[];
     minimizedBoxes$: string[];
 }
 declare class MaxTitleBar extends DefaultTitleBar {
     constructor(config: MaxTitleBarConfig);
-    focusBox(box?: MaxTitleBarTeleBox): void;
+    focusBox(box?: TeleBox): void;
     setContainerRect(rect: TeleBoxRect): void;
-    setBoxes(boxes: MaxTitleBarTeleBox[]): void;
+    setBoxes(boxes: TeleBox[]): void;
     setMaximizedBoxes(boxes: string[]): void;
     setMinimizedBoxes(boxes: string[]): void;
     setState(state: TeleBoxState): void;
@@ -821,8 +822,8 @@ declare class MaxTitleBar extends DefaultTitleBar {
     protected renderTitles(): HTMLElement;
     protected darkMode: boolean;
     protected $titles: HTMLElement | undefined;
-    protected boxes: MaxTitleBarTeleBox[];
-    focusedBox: MaxTitleBarTeleBox | undefined;
+    protected boxes: TeleBox[];
+    focusedBox: TeleBox | undefined;
     protected containerRect: TeleBoxRect;
     protected maximizedBoxes$: MaxTitleBarConfig['maximizedBoxes$'];
     protected minimizedBoxes$: MaxTitleBarConfig['minimizedBoxes$'];

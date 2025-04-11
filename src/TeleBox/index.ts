@@ -109,8 +109,10 @@ export class TeleBox {
         collectorRect,
         fixed = false,
         addObserver,
-        appReadonly
+        appReadonly,
+        hasHeader = true,
     }: TeleBoxConfig = {}) {
+        this.hasHeader = hasHeader
         this._sideEffect = new SideEffectManager()
         this._valSideEffectBinder = createSideEffectBinder(this._sideEffect as any)
         const { combine, createVal } = this._valSideEffectBinder
@@ -741,7 +743,7 @@ export class TeleBox {
 
     /** DOM of the box */
     public $box: HTMLElement
-
+    public hasHeader = true
     public $contentWrap!: HTMLElement
     private scale: Val<number>
 
@@ -882,6 +884,9 @@ export class TeleBox {
 
         const $titleBar = document.createElement('div')
         $titleBar.className = this.wrapClassName('titlebar-wrap')
+        if (this.hasHeader == false) {
+            $titleBar.style.display = "none"
+        }
         $titleBar.appendChild(this.titleBar.render())
         this.$titleBar = $titleBar
 
