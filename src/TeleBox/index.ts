@@ -891,15 +891,17 @@ export class TeleBox {
         const $contentWrap = document.createElement('div')
         $contentWrap.className = this.wrapClassName('content-wrap') + ' tele-fancy-scrollbar'
 
-        if (this.hasHeader == false) {
-            $contentWrap.style.background = 'none'
-            $titleBar.style.display = "none"
-            $boxMain.style.background = "none"
-        }
         $contentWrap.classList.toggle('hide-scroll', Boolean(isIOS() || isAndroid() || this.appReadonly))
         const $content = document.createElement('div')
         $content.className = this.wrapClassName('content') + ' tele-fancy-scrollbar'
         this.$content = $content
+
+        if (this.hasHeader == false) {
+            $contentWrap.style.background = 'none'
+            $titleBar.style.display = "none"
+            $boxMain.style.background = "none"
+            $content.style.background = "none"
+        }
 
         this._renderSideEffect.add(() => {
             let last$userStyles: HTMLStyleElement | undefined
