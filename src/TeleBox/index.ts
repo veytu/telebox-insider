@@ -896,6 +896,13 @@ export class TeleBox {
         $content.className = this.wrapClassName('content') + ' tele-fancy-scrollbar'
         this.$content = $content
 
+        if (this.id?.includes('Plyr')) {
+            $contentWrap.style.background = 'none'
+            // $titleBar.style.display = "none"
+            $boxMain.style.background = "none"
+            $content.style.background = "none"
+        }
+
         if (this.hasHeader == false) {
             $contentWrap.style.background = 'none'
             $titleBar.style.display = "none"

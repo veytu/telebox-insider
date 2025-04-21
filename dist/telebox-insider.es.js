@@ -2004,6 +2004,7 @@ class TeleBox {
     this.fixed = fixed;
   }
   render(root) {
+    var _a;
     if (root) {
       if (root === this.$box) {
         return this.$box;
@@ -2102,6 +2103,11 @@ class TeleBox {
     const $content = document.createElement("div");
     $content.className = this.wrapClassName("content") + " tele-fancy-scrollbar";
     this.$content = $content;
+    if ((_a = this.id) == null ? void 0 : _a.includes("Plyr")) {
+      $contentWrap.style.background = "none";
+      $boxMain.style.background = "none";
+      $content.style.background = "none";
+    }
     if (this.hasHeader == false) {
       $contentWrap.style.background = "none";
       $titleBar.style.display = "none";
