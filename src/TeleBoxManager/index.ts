@@ -123,9 +123,10 @@ export class TeleBoxManager {
         this.maximizedBoxes$ = createVal(maximizedBoxes)
         this.minimizedBoxes$ = createVal(minimizedBoxes)
         this.maximizedBoxes$.reaction((maximizedBoxes, _, skipUpdate) => {
-            this.boxes.forEach((box) =>
+            this.boxes.forEach((box) => {
+                console.log(maximizedBoxes.includes(box.id))
                 box.setMaximized(maximizedBoxes.includes(box.id), skipUpdate)
-            )
+            })
             const maxBoxes = maximizedBoxes.filter((id) => !this.minimizedBoxes$.value.includes(id))
             this.maxTitleBar.setState(
                 maxBoxes.length > 0 ? TELE_BOX_STATE.Maximized : TELE_BOX_STATE.Normal
@@ -248,8 +249,10 @@ export class TeleBoxManager {
         // })
 
         this.minimizedBoxes$.reaction((minimizedBoxes, _, skipUpdate) => {
-            this.boxes.forEach((box) =>
+            this.boxes.forEach((box) => {
+                console.log('mini', minimizedBoxes)
                 box.setMinimized(minimizedBoxes.includes(box.id), skipUpdate)
+            }
             )
 
             const maxBoxes = this.maximizedBoxes$.value.filter((id) => !minimizedBoxes.includes(id))
