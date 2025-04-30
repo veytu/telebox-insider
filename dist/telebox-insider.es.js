@@ -3542,13 +3542,8 @@ class TeleBoxManager {
     if (config.footer != null) {
       box.mountFooter(config.footer);
     }
-    console.log(config);
-    if (config.maximized != null) {
-      box.setMaximized(config.maximized, skipUpdate);
-    }
-    if (config.minimized != null) {
-      box.setMinimized(config.minimized, skipUpdate);
-    }
+    box.setMaximized(!!config.maximized, skipUpdate);
+    box.setMinimized(!!config.minimized, skipUpdate);
   }
   smartPosition(config = {}) {
     let { x, y } = config;
