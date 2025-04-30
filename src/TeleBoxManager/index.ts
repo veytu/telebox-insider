@@ -3,7 +3,7 @@ import shallowequal from 'shallowequal'
 import type { TeleBoxConfig, TeleBoxRect, TeleBoxState } from '../TeleBox/typings'
 import { TeleBoxCollector } from '../TeleBoxCollector'
 import { TeleBox } from '../TeleBox'
-import type {ReadonlyTeleBox} from '../TeleBox'
+import type { ReadonlyTeleBox } from '../TeleBox'
 import { TELE_BOX_EVENT, TELE_BOX_STATE } from '../TeleBox/constants'
 import { TELE_BOX_MANAGER_EVENT } from './constants'
 import type {
@@ -14,21 +14,14 @@ import type {
     TeleBoxManagerUpdateConfig
 } from './typings'
 import { MaxTitleBar } from './MaxTitleBar'
-import type {
-    TeleBoxColorScheme
-} from '..'
-import {
-    TELE_BOX_COLOR_SCHEME,
-    TELE_BOX_DELEGATE_EVENT
-} from '..'
+import type { TeleBoxColorScheme } from '..'
+import { TELE_BOX_COLOR_SCHEME, TELE_BOX_DELEGATE_EVENT } from '..'
 import { genUID, SideEffectManager } from 'side-effect-manager'
-import type {
-    ValEnhancedResult,
-} from 'value-enhancer'
-import {createSideEffectBinder, withValueEnhancer, Val} from 'value-enhancer'
+import type { ValEnhancedResult } from 'value-enhancer'
+import { createSideEffectBinder, withValueEnhancer, Val } from 'value-enhancer'
 import { excludeFromBoth, removeByVal, uniqueByVal } from '../utils'
 import { createCallbackManager } from './utils/callbacks'
-import type {CallbackManager} from './utils/callbacks'
+import type { CallbackManager } from './utils/callbacks'
 import type { AnyToVoidFunction } from '../schedulers'
 
 export * from './typings'
@@ -130,9 +123,13 @@ export class TeleBoxManager {
         this.maximizedBoxes$ = createVal(maximizedBoxes)
         this.minimizedBoxes$ = createVal(minimizedBoxes)
         this.maximizedBoxes$.reaction((maximizedBoxes, _, skipUpdate) => {
-            this.boxes.forEach((box) => box.setMaximized(maximizedBoxes.includes(box.id), skipUpdate))
-            const maxBoxes = maximizedBoxes.filter(id => !this.minimizedBoxes$.value.includes(id))
-            this.maxTitleBar.setState(maxBoxes.length > 0 ? TELE_BOX_STATE.Maximized : TELE_BOX_STATE.Normal)
+            this.boxes.forEach((box) =>
+                box.setMaximized(maximizedBoxes.includes(box.id), skipUpdate)
+            )
+            const maxBoxes = maximizedBoxes.filter((id) => !this.minimizedBoxes$.value.includes(id))
+            this.maxTitleBar.setState(
+                maxBoxes.length > 0 ? TELE_BOX_STATE.Maximized : TELE_BOX_STATE.Normal
+            )
             this.maxTitleBar.setMaximizedBoxes(maximizedBoxes)
             if (!skipUpdate) {
                 this.events.emit(TELE_BOX_MANAGER_EVENT.Maximized, maximizedBoxes)
@@ -223,7 +220,9 @@ export class TeleBoxManager {
             return
         }
 
-        const collectorRect$ = createVal(this.minimizedBoxes$.value.length > 0 ? calcCollectorRect() : void 0)
+        const collectorRect$ = createVal(
+            this.minimizedBoxes$.value.length > 0 ? calcCollectorRect() : void 0
+        )
         collectorRect$.subscribe((collectorRect, _, skipUpdate) => {
             this.boxes.forEach((box) => {
                 box.setCollectorRect(collectorRect, skipUpdate)
@@ -249,10 +248,14 @@ export class TeleBoxManager {
         // })
 
         this.minimizedBoxes$.reaction((minimizedBoxes, _, skipUpdate) => {
-            this.boxes.forEach((box) => box.setMinimized(minimizedBoxes.includes(box.id), skipUpdate))
+            this.boxes.forEach((box) =>
+                box.setMinimized(minimizedBoxes.includes(box.id), skipUpdate)
+            )
 
-            const maxBoxes = this.maximizedBoxes$.value.filter(id => !minimizedBoxes.includes(id))
-            this.maxTitleBar.setState(maxBoxes.length > 0 ? TELE_BOX_STATE.Maximized : TELE_BOX_STATE.Normal)
+            const maxBoxes = this.maximizedBoxes$.value.filter((id) => !minimizedBoxes.includes(id))
+            this.maxTitleBar.setState(
+                maxBoxes.length > 0 ? TELE_BOX_STATE.Maximized : TELE_BOX_STATE.Normal
+            )
             this.maxTitleBar.setMinimizedBoxes(minimizedBoxes)
 
             const minimized = minimizedBoxes.length > 0
@@ -314,64 +317,63 @@ export class TeleBoxManager {
                 switch (event.type) {
                     case TELE_BOX_DELEGATE_EVENT.Maximize: {
                         if (this.maxTitleBar.focusedBox?.id) {
-                            const oldFocusId = this.maxTitleBar.focusedBox?.id;
+                            const oldFocusId = this.maxTitleBar.focusedBox?.id
                             const isInMaximizedBoxes =
-                                this.maximizedBoxes$.value.includes(
-                                    oldFocusId
-                                );
-                            const newMaximizedBoxes: string[] =
-                                isInMaximizedBoxes
-                                    ? removeByVal(
-                                          [...this.maximizedBoxes$.value],
-                                          oldFocusId
-                                      )
-                                    : uniqueByVal([
-                                          ...this.maximizedBoxes$.value,
-                                          this.maxTitleBar.focusedBox?.id,
-                                      ]);
+                                this.maximizedBoxes$.value.includes(oldFocusId)
+                            const newMaximizedBoxes: string[] = isInMaximizedBoxes
+                                ? removeByVal([...this.maximizedBoxes$.value], oldFocusId)
+                                : uniqueByVal([
+                                      ...this.maximizedBoxes$.value,
+                                      this.maxTitleBar.focusedBox?.id
+                                  ])
 
-                            this.setMaximizedBoxes(newMaximizedBoxes);
+                            this.setMaximizedBoxes(newMaximizedBoxes)
 
-                            const hasTopBox = this.makeBoxTopFromMaximized();
+                            const hasTopBox = this.makeBoxTopFromMaximized()
 
                             const oldFocusBox = this.boxes$.value.find(
                                 (box) => box.id == oldFocusId
-                            );
+                            )
                             if (oldFocusBox) {
-                                this.makeBoxTop(oldFocusBox);
+                                this.makeBoxTop(oldFocusBox)
                             }
                             if (!hasTopBox) {
-                                this.setMaximizedBoxes([]);
+                                this.setMaximizedBoxes([])
                             }
                         } else {
-                            this.setMaximizedBoxes([]);
+                            this.setMaximizedBoxes([])
                         }
                         this.externalEvents.emit(TELE_BOX_MANAGER_EVENT.Maximized, [])
-                        break;
+                        break
                     }
                     case TELE_BOX_DELEGATE_EVENT.Minimize: {
                         if (this.maxTitleBar.focusedBox?.id) {
                             const newMinimizedBoxes: string[] = uniqueByVal([
                                 ...this.minimizedBoxes$.value,
-                                this.maxTitleBar.focusedBox?.id,
-                            ]);
+                                this.maxTitleBar.focusedBox?.id
+                            ])
 
-                            this.makeBoxTopFromMaximized();
+                            this.makeBoxTopFromMaximized()
 
-                            this.setMinimizedBoxes(newMinimizedBoxes);
+                            this.setMinimizedBoxes(newMinimizedBoxes)
                         }
-                        this.externalEvents.emit(TELE_BOX_MANAGER_EVENT.Minimized, this.minimizedBoxes$.value)
+                        this.externalEvents.emit(
+                            TELE_BOX_MANAGER_EVENT.Minimized,
+                            this.minimizedBoxes$.value
+                        )
                         break
                     }
                     case TELE_BOX_EVENT.Close: {
-                        const focusedId = this.maxTitleBar.focusedBox?.id;
+                        const focusedId = this.maxTitleBar.focusedBox?.id
                         if (focusedId) {
-                            this.remove(focusedId);
-                            this.makeBoxTopFromMaximized();
-                            this.setMaximizedBoxes(removeByVal(this.maximizedBoxes$.value, focusedId))
+                            this.remove(focusedId)
+                            this.makeBoxTopFromMaximized()
+                            this.setMaximizedBoxes(
+                                removeByVal(this.maximizedBoxes$.value, focusedId)
+                            )
                         }
                         this.externalEvents.emit(TELE_BOX_MANAGER_EVENT.Removed, [])
-                        this.focusTopBox();
+                        this.focusTopBox()
                         break
                     }
                     default: {
@@ -429,7 +431,7 @@ export class TeleBoxManager {
     protected _sideEffect: SideEffectManager
     protected sizeObserver: ResizeObserver
     protected callbackManager: CallbackManager
-    protected elementObserverMap: Map<string, {el: HTMLElement, cb: AnyToVoidFunction}[]>
+    protected elementObserverMap: Map<string, { el: HTMLElement; cb: AnyToVoidFunction }[]>
 
     protected root: HTMLElement
 
@@ -505,9 +507,9 @@ export class TeleBoxManager {
                 const observer = this.elementObserverMap.get(id)
 
                 if (!observer) {
-                    this.elementObserverMap.set(id, [{el, cb}])
+                    this.elementObserverMap.set(id, [{ el, cb }])
                 } else {
-                    observer.push({el, cb})
+                    observer.push({ el, cb })
                 }
 
                 this.callbackManager.addCallback(cb)
@@ -616,7 +618,7 @@ export class TeleBoxManager {
                 this.setMinimizedBoxes(removeByVal(this.minimizedBoxes$.value, boxId))
                 const observeData = this.elementObserverMap.get(boxId)
                 if (observeData) {
-                    observeData.forEach(({el, cb}) => {
+                    observeData.forEach(({ el, cb }) => {
                         this.callbackManager.removeCallback(cb)
                         this.sizeObserver.unobserve(el)
                         this.elementObserverMap.delete(boxId)
@@ -743,8 +745,8 @@ export class TeleBoxManager {
         }
     }
 
-    public setScaleContent (appId: string, scale: number): void {
-        const box = this.boxes.find(item => item.id == appId)
+    public setScaleContent(appId: string, scale: number): void {
+        const box = this.boxes.find((item) => item.id == appId)
 
         if (box) {
             box.setScaleContent(scale)
@@ -812,12 +814,15 @@ export class TeleBoxManager {
             box.mountFooter(config.footer)
         }
 
-        if (config.maximized != null) {
-            box.setMaximized(config.maximized, skipUpdate)
-        }
-
-        if (config.minimized != null) {
-            box.setMinimized(config.minimized, skipUpdate)
+        if (config.maximized != null || config.minimized !== null) {
+            box._state$.setValue(
+                config.minimized
+                    ? TELE_BOX_STATE.Minimized
+                    : config.maximized
+                    ? TELE_BOX_STATE.Maximized
+                    : TELE_BOX_STATE.Normal,
+                skipUpdate
+            )
         }
     }
 
@@ -921,7 +926,7 @@ export class TeleBoxManager {
             : this.boxes.findIndex((box) => box === boxOrID)
     }
 
-    public setMaxTitleFocus (boxOrID: TeleBox | string): void {
+    public setMaxTitleFocus(boxOrID: TeleBox | string): void {
         !!this.getBox(boxOrID) && this.maxTitleBar.focusBox(this.getBox(boxOrID))
     }
 
