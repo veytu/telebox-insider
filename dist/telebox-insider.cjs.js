@@ -1644,10 +1644,10 @@ class TeleBox {
         this.events.emit(TELE_BOX_EVENT.Maximized, maximized2);
       }
     });
-    const state$ = combine(
-      [minimized$, maximized$],
-      ([minimized2, maximized2]) => minimized2 ? TELE_BOX_STATE.Minimized : maximized2 ? TELE_BOX_STATE.Maximized : TELE_BOX_STATE.Normal
-    );
+    const state$ = combine([minimized$, maximized$], ([minimized2, maximized2]) => {
+      console.log("state reaction", minimized2, maximized2);
+      return minimized2 ? TELE_BOX_STATE.Minimized : maximized2 ? TELE_BOX_STATE.Maximized : TELE_BOX_STATE.Normal;
+    });
     state$.reaction((state, _, skipUpdate) => {
       if (!skipUpdate) {
         this.events.emit(TELE_BOX_EVENT.State, state);
@@ -1847,23 +1847,7 @@ class TeleBox {
     return this._state$.value;
   }
   setState(state, skipUpdate = false) {
-    switch (state) {
-      case TELE_BOX_STATE.Maximized: {
-        this.setMinimized(false, skipUpdate);
-        this.setMaximized(true, skipUpdate);
-        break;
-      }
-      case TELE_BOX_STATE.Minimized: {
-        this.setMinimized(true, skipUpdate);
-        this.setMaximized(false, skipUpdate);
-        break;
-      }
-      default: {
-        this.setMinimized(false, skipUpdate);
-        this.setMaximized(false, skipUpdate);
-        break;
-      }
-    }
+    console.log("setstate", state, skipUpdate);
     return this;
   }
   get minWidth() {
@@ -2102,7 +2086,10 @@ class TeleBox {
     this.$titleBar = $titleBar;
     const $contentWrap = document.createElement("div");
     $contentWrap.className = this.wrapClassName("content-wrap") + " tele-fancy-scrollbar";
-    $contentWrap.classList.toggle("hide-scroll", Boolean(isIOS() || isAndroid() || this.appReadonly));
+    $contentWrap.classList.toggle(
+      "hide-scroll",
+      Boolean(isIOS() || isAndroid() || this.appReadonly)
+    );
     const $content = document.createElement("div");
     $content.className = this.wrapClassName("content") + " tele-fancy-scrollbar";
     this.$content = $content;
@@ -2158,7 +2145,10 @@ class TeleBox {
       });
     });
     this._state$.reaction((state) => {
-      $footer.classList.toggle(this.wrapClassName("footer-hide"), state == TELE_BOX_STATE.Maximized);
+      $footer.classList.toggle(
+        this.wrapClassName("footer-hide"),
+        state == TELE_BOX_STATE.Maximized
+      );
     });
     $boxMain.appendChild($titleBar);
     $boxMain.appendChild($contentWrap);

@@ -110,7 +110,7 @@ export class TeleBox {
         fixed = false,
         addObserver,
         appReadonly,
-        hasHeader = true,
+        hasHeader = true
     }: TeleBoxConfig = {}) {
         this.hasHeader = hasHeader
         this._sideEffect = new SideEffectManager()
@@ -222,15 +222,14 @@ export class TeleBox {
             }
         })
 
-        const state$ = combine(
-            [minimized$, maximized$],
-            ([minimized, maximized]): TeleBoxState =>
-                minimized
-                    ? TELE_BOX_STATE.Minimized
-                    : maximized
-                    ? TELE_BOX_STATE.Maximized
-                    : TELE_BOX_STATE.Normal
-        )
+        const state$ = combine([minimized$, maximized$], ([minimized, maximized]): TeleBoxState => {
+            console.log('state reaction', minimized, maximized)
+            return minimized
+                ? TELE_BOX_STATE.Minimized
+                : maximized
+                ? TELE_BOX_STATE.Maximized
+                : TELE_BOX_STATE.Normal
+        })
         state$.reaction((state, _, skipUpdate) => {
             if (!skipUpdate) {
                 this.events.emit(TELE_BOX_EVENT.State, state)
@@ -481,23 +480,24 @@ export class TeleBox {
 
     /** @deprecated use setMaximized and setMinimized instead */
     public setState(state: TeleBoxState, skipUpdate = false): this {
-        switch (state) {
-            case TELE_BOX_STATE.Maximized: {
-                this.setMinimized(false, skipUpdate)
-                this.setMaximized(true, skipUpdate)
-                break
-            }
-            case TELE_BOX_STATE.Minimized: {
-                this.setMinimized(true, skipUpdate)
-                this.setMaximized(false, skipUpdate)
-                break
-            }
-            default: {
-                this.setMinimized(false, skipUpdate)
-                this.setMaximized(false, skipUpdate)
-                break
-            }
-        }
+        console.log('setstate', state, skipUpdate)
+        // switch (state) {
+        //     case TELE_BOX_STATE.Maximized: {
+        //         this.setMinimized(false, skipUpdate)
+        //         this.setMaximized(true, skipUpdate)
+        //         break
+        //     }
+        //     case TELE_BOX_STATE.Minimized: {
+        //         this.setMinimized(true, skipUpdate)
+        //         this.setMaximized(false, skipUpdate)
+        //         break
+        //     }
+        //     default: {
+        //         this.setMinimized(false, skipUpdate)
+        //         this.setMaximized(false, skipUpdate)
+        //         break
+        //     }
+        // }
         return this
     }
 
@@ -892,7 +892,10 @@ export class TeleBox {
         const $contentWrap = document.createElement('div')
         $contentWrap.className = this.wrapClassName('content-wrap') + ' tele-fancy-scrollbar'
 
-        $contentWrap.classList.toggle('hide-scroll', Boolean(isIOS() || isAndroid() || this.appReadonly))
+        $contentWrap.classList.toggle(
+            'hide-scroll',
+            Boolean(isIOS() || isAndroid() || this.appReadonly)
+        )
         const $content = document.createElement('div')
         $content.className = this.wrapClassName('content') + ' tele-fancy-scrollbar'
         this.$content = $content
@@ -900,15 +903,15 @@ export class TeleBox {
         if (this.id?.includes('Plyr')) {
             $contentWrap.style.background = 'none'
             // $titleBar.style.display = "none"
-            $boxMain.style.background = "none"
-            $content.style.background = "none"
+            $boxMain.style.background = 'none'
+            $content.style.background = 'none'
         }
 
         if (this.hasHeader == false) {
             $contentWrap.style.background = 'none'
-            $titleBar.style.display = "none"
-            $boxMain.style.background = "none"
-            $content.style.background = "none"
+            $titleBar.style.display = 'none'
+            $boxMain.style.background = 'none'
+            $content.style.background = 'none'
         }
 
         this._renderSideEffect.add(() => {
@@ -957,7 +960,10 @@ export class TeleBox {
         })
 
         this._state$.reaction((state) => {
-            $footer.classList.toggle(this.wrapClassName('footer-hide'), state == TELE_BOX_STATE.Maximized)
+            $footer.classList.toggle(
+                this.wrapClassName('footer-hide'),
+                state == TELE_BOX_STATE.Maximized
+            )
         })
 
         $boxMain.appendChild($titleBar)
@@ -967,7 +973,7 @@ export class TeleBox {
         this.$contentWrap = $contentWrap
 
         this.addObserver($contentWrap, (data) => {
-            const entry = data.find(entry => entry.target == $contentWrap)
+            const entry = data.find((entry) => entry.target == $contentWrap)
 
             if (entry?.target == $contentWrap) {
                 $content.style.width = entry.contentRect.width * this.scale.value + 'px'
@@ -1161,7 +1167,6 @@ export class TeleBox {
                 trackStartY = this.y
                 trackStartWidth = this.width
                 trackStartHeight = this.height
-
                 ;({ pageX: trackStartPageX, pageY: trackStartPageY } = flattenEvent(ev))
 
                 trackingHandle = target.dataset.teleBoxHandle as TELE_BOX_RESIZE_HANDLE
