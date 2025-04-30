@@ -2041,6 +2041,7 @@ class TeleBox {
       const maximizedClassName = this.wrapClassName("maximized");
       const MAXIMIZED_TIMER_ID = "box-maximized-timer";
       return this._state$.subscribe((state) => {
+        console.log(state === TELE_BOX_STATE.Minimized, state);
         this.$box.classList.toggle(minimizedClassName, state === TELE_BOX_STATE.Minimized);
         if (state === TELE_BOX_STATE.Maximized) {
           this._renderSideEffect.flush(MAXIMIZED_TIMER_ID);
