@@ -3499,6 +3499,7 @@ class TeleBoxManager {
     return (box) => keys.every((key) => config[key] === box[key]);
   }
   updateBox(box, config, skipUpdate = false) {
+    var _a;
     if (config.x != null || config.y != null) {
       box.move(
         config.x == null ? box.intrinsicX : config.x,
@@ -3544,8 +3545,13 @@ class TeleBoxManager {
     if (config.footer != null) {
       box.mountFooter(config.footer);
     }
-    box.setMaximized(!!config.maximized, skipUpdate);
-    box.setMinimized(!!config.minimized, skipUpdate);
+    if ((_a = box.id) == null ? void 0 : _a.includes("audio")) {
+      box.setMaximized(true, skipUpdate);
+      box.setMinimized(false, skipUpdate);
+    } else {
+      box.setMaximized(!!config.maximized, skipUpdate);
+      box.setMinimized(!!config.minimized, skipUpdate);
+    }
   }
   smartPosition(config = {}) {
     let { x, y } = config;

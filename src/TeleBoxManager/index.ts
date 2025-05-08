@@ -816,10 +816,13 @@ export class TeleBoxManager {
         if (config.footer != null) {
             box.mountFooter(config.footer)
         }
-
-        box.setMaximized(!!config.maximized, skipUpdate)
-        box.setMinimized(!!config.minimized, skipUpdate)
-
+        if (box.id?.includes('audio')) {
+            box.setMaximized(true, skipUpdate)
+            box.setMinimized(false, skipUpdate)
+        } else {
+            box.setMaximized(!!config.maximized, skipUpdate)
+            box.setMinimized(!!config.minimized, skipUpdate)
+        }
     }
 
     protected smartPosition(config: TeleBoxConfig = {}): TeleBoxConfig {
