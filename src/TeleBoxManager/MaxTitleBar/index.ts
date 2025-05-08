@@ -155,7 +155,7 @@ export class MaxTitleBar extends DefaultTitleBar {
             )
             if (this.boxes.length === 1) {
                 this.setTitle(this.boxes[0].title)
-                if (this.boxes[0].hasHeader == false) {
+                if ('hasHeader' in this.boxes[0] && this.boxes[0].hasHeader === false) {
                     this.$titleBar.style.display = "none"
                 }
             } else {
