@@ -7,8 +7,10 @@ module.exports = {
         "plugin:@netless/recommended",
     ],
     plugins: ["jsx-a11y", "react", "prettier"],
+    parser: "@typescript-eslint/parser",
     parserOptions: {
-        project: "./tsconfig.lint.json",
+        project: "tsconfig.lint.json",
+        tsconfigRootDir: __dirname,
         ecmaVersion: 2018,
         sourceType: "module",
         ecmaFeatures: {
