@@ -854,7 +854,11 @@ export class TeleBox {
 
         this._renderSideEffect.add(() =>
             this._visible$.subscribe((visible) => {
-                this.$box.style.display = visible ? "block" : "none";
+                if (visible) {
+                    this.$box.style.removeProperty("display");
+                } else {
+                    this.$box.style.display = "none";
+                }
             })
         );
 
