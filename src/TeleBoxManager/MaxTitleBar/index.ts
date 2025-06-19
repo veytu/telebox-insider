@@ -63,6 +63,12 @@ export class MaxTitleBar extends DefaultTitleBar {
 
     public setBoxes(boxes: MaxTitleBarTeleBox[]): void {
         this.boxes = boxes;
+        if (this.$titleBar) {
+            this.$titleBar.classList.toggle(
+                this.wrapClassName("max-titlebar-maximized"),
+                this.state === TELE_BOX_STATE.Maximized && boxes.length > 0
+            );
+        }
         this.updateTitles();
     }
 
@@ -71,7 +77,7 @@ export class MaxTitleBar extends DefaultTitleBar {
         if (this.$titleBar) {
             this.$titleBar.classList.toggle(
                 this.wrapClassName("max-titlebar-maximized"),
-                state === TELE_BOX_STATE.Maximized
+                state === TELE_BOX_STATE.Maximized && this.boxes.length > 0
             );
         }
         this.updateTitles();
@@ -113,7 +119,7 @@ export class MaxTitleBar extends DefaultTitleBar {
         $titleBar.classList.add(this.wrapClassName("max-titlebar"));
         $titleBar.classList.toggle(
             this.wrapClassName("max-titlebar-maximized"),
-            this.state === TELE_BOX_STATE.Maximized
+            this.state === TELE_BOX_STATE.Maximized && this.boxes.length > 0
         );
         $titleBar.classList.toggle(
             this.wrapClassName("readonly"),
