@@ -820,8 +820,15 @@ export class TeleBoxManager {
             box.setMaximized(true, skipUpdate)
             box.setMinimized(false, skipUpdate)
         } else {
-            box.setMaximized(!!config.maximized, skipUpdate)
-            box.setMinimized(!!config.minimized, skipUpdate)
+            console.log(config)
+            if (config.maximized != null) {
+                box.setMaximized(config.maximized, skipUpdate)
+            }
+            if (config.minimized != null) {
+                box.setMinimized(config.minimized, skipUpdate)
+            }
+            // box.setMaximized(!!config.maximized, skipUpdate)
+            // box.setMinimized(!!config.minimized, skipUpdate)
         }
     }
 
