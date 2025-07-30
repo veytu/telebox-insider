@@ -102,6 +102,12 @@ export class MaxTitleBar extends DefaultTitleBar {
         }
     }
 
+    public setIndexZ(zIndex: number): void {
+        if (this.$titleBar) {
+            this.$titleBar.style.zIndex = String(zIndex);
+        }
+    }
+
     public render(): HTMLElement {
         const $titleBar = super.render()
 

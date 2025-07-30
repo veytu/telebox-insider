@@ -816,6 +816,7 @@ declare class MaxTitleBar extends DefaultTitleBar {
     setState(state: TeleBoxState): void;
     setReadonly(readonly: boolean): void;
     setDarkMode(darkMode: boolean): void;
+    setIndexZ(zIndex: number): void;
     render(): HTMLElement;
     destroy(): void;
     updateTitles(): void;

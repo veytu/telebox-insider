@@ -2785,6 +2785,11 @@ class MaxTitleBar extends DefaultTitleBar {
       }
     }
   }
+  setIndexZ(zIndex) {
+    if (this.$titleBar) {
+      this.$titleBar.style.zIndex = String(zIndex);
+    }
+  }
   render() {
     const $titleBar = super.render();
     const { x, y, width } = this.containerRect;
@@ -3209,9 +3214,11 @@ class TeleBoxManager {
     });
     this.maximizedBoxes$.reaction((boxes) => {
       this.maxTitleBar.setMaximizedBoxes(boxes);
+      this.maxTitleBar.setIndexZ(this.boxes$.value.filter((item) => boxes.includes(item.id)).sort((a, b) => b.zIndex - a.zIndex)[0].zIndex + 1);
     });
     this.minimizedBoxes$.reaction((boxes) => {
       this.maxTitleBar.setMinimizedBoxes(boxes);
+      this.maxTitleBar.setIndexZ(this.boxes$.value.filter((item) => boxes.includes(item.id)).sort((a, b) => b.zIndex - a.zIndex)[0].zIndex + 1);
     });
     const valConfig = {
       prefersColorScheme: prefersColorScheme$,
@@ -3344,6 +3351,7 @@ class TeleBoxManager {
       if (!skipUpdate) {
         this.events.emit(TELE_BOX_MANAGER_EVENT.ZIndex, box);
       }
+      this.maxTitleBar.setIndexZ(this.boxes$.value.filter((item) => this.maximizedBoxes$.value.includes(item.id)).sort((a, b) => b.zIndex - a.zIndex)[0].zIndex + 1);
     });
     this.events.emit(TELE_BOX_MANAGER_EVENT.Created, box);
     return box;
