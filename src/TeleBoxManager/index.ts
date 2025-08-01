@@ -397,13 +397,18 @@ export class TeleBoxManager {
 
         this.maximizedBoxes$.reaction((boxes) => {
             this.maxTitleBar.setMaximizedBoxes(boxes)
-            this.maxTitleBar.setIndexZ(this.boxes$.value.filter((item) => boxes.includes(item.id)).sort((a, b) => b.zIndex - a.zIndex)[0].zIndex + 1)
+            const list = this.boxes$.value.filter((item) => boxes.includes(item.id)).sort((a, b) => b.zIndex - a.zIndex)
+            if(list && list.length > 0) {
+                this.maxTitleBar.setIndexZ(list[0].zIndex + 1)
+            }
         })
 
         this.minimizedBoxes$.reaction((boxes) => {
             this.maxTitleBar.setMinimizedBoxes(boxes)
-            this.maxTitleBar.setIndexZ(this.boxes$.value.filter((item) => boxes.includes(item.id)).sort((a, b) => b.zIndex - a.zIndex)[0].zIndex + 1)
-        })
+            const list = this.boxes$.value.filter((item) => boxes.includes(item.id)).sort((a, b) => b.zIndex - a.zIndex)
+            if(list && list.length > 0) {
+                this.maxTitleBar.setIndexZ(list[0].zIndex + 1)
+            }        })
 
         const valConfig: ValConfig = {
             prefersColorScheme: prefersColorScheme$,
@@ -583,7 +588,10 @@ export class TeleBoxManager {
             if (!skipUpdate) {
                 this.events.emit(TELE_BOX_MANAGER_EVENT.ZIndex, box)
             }
-            this.maxTitleBar.setIndexZ(this.boxes$.value.filter((item) => this.maximizedBoxes$.value.includes(item.id)).sort((a, b) => b.zIndex - a.zIndex)[0].zIndex + 1)
+            const list = this.boxes$.value.filter((item) => this.maximizedBoxes$.value.includes(item.id)).sort((a, b) => b.zIndex - a.zIndex)
+            if(list && list.length > 0) {
+                this.maxTitleBar.setIndexZ(list[0].zIndex + 1)
+            }
         })
         this.events.emit(TELE_BOX_MANAGER_EVENT.Created, box)
 
