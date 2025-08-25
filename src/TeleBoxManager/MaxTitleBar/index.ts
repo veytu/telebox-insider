@@ -32,7 +32,8 @@ export class MaxTitleBar extends DefaultTitleBar {
             return
         }
 
-        if (this.$titles && this.state === TELE_BOX_STATE.Maximized) {
+        console.log('[TeleBox] TitleBar FocusBox Called', box?.id,this.focusedBox?.id,this.state)
+        if (this.$titles && (this.state === TELE_BOX_STATE.Maximized || this.hasMaximizedBox())) {
             const { children } = this.$titles.firstElementChild as HTMLElement
             for (let i = children.length - 1; i >= 0; i -= 1) {
                 const $tab = children[i] as HTMLElement
@@ -47,6 +48,10 @@ export class MaxTitleBar extends DefaultTitleBar {
             }
         }
         this.focusedBox = box
+    }
+
+    private hasMaximizedBox(): boolean {
+        return Object.entries(this.allBoxStatusInfo || {}).some(([_, state]) => state === TELE_BOX_STATE.Maximized)
     }
 
     public setContainerRect(rect: TeleBoxRect): void {

@@ -31,6 +31,7 @@ export interface TeleBoxManagerConfig
     /** Where the minimized boxes go. */
     collector?: TeleBoxCollector;
     allBoxStatusInfo?: Record<string, TELE_BOX_STATE>
+    lastLastNotMinimizedBoxsStatus?: Record<string, TELE_BOX_STATE>
     appReadonly?: boolean
 }
 
@@ -76,6 +77,7 @@ export type TeleBoxManagerEventConfig = CheckTeleBoxManagerConfig<{
     removed: [ReadonlyTeleBox[]];
     state: [TeleBoxState];
     all_box_status_info: [Record<string, TELE_BOX_STATE>];
+    last_last_not_minimized_boxs_status: [Record<string, TELE_BOX_STATE>];
     move: [ReadonlyTeleBox];
     resize: [ReadonlyTeleBox];
     intrinsic_move: [ReadonlyTeleBox];

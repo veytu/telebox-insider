@@ -5,6 +5,7 @@ export enum TELE_BOX_MANAGER_EVENT {
     Removed = "removed",
     State = "state",
     AllBoxStatusInfo = "all_box_status_info",
+    LastLastNotMinimizedBoxsStatus = "last_last_not_minimized_boxs_status",
     Move = "move",
     Resize = "resize",
     IntrinsicMove = "intrinsic_move",

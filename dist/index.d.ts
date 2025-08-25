@@ -745,6 +745,7 @@ declare enum TELE_BOX_MANAGER_EVENT {
     Removed = "removed",
     State = "state",
     AllBoxStatusInfo = "all_box_status_info",
+    LastLastNotMinimizedBoxsStatus = "last_last_not_minimized_boxs_status",
     Move = "move",
     Resize = "resize",
     IntrinsicMove = "intrinsic_move",
@@ -763,6 +764,7 @@ interface TeleBoxManagerConfig extends Pick<TeleBoxConfig, "prefersColorScheme" 
     /** Where the minimized boxes go. */
     collector?: TeleBoxCollector;
     allBoxStatusInfo?: Record<string, TELE_BOX_STATE>;
+    lastLastNotMinimizedBoxsStatus?: Record<string, TELE_BOX_STATE>;
     appReadonly?: boolean;
 }
 type TeleBoxManagerBoxConfigBaseProps = "title" | "visible" | "width" | "height" | "minWidth" | "minHeight" | "x" | "y" | "resizable" | "draggable" | "fixRatio" | "zIndex" | 'maximized' | 'minimized';
@@ -777,6 +779,7 @@ type TeleBoxManagerEventConfig = CheckTeleBoxManagerConfig<{
     removed: [ReadonlyTeleBox[]];
     state: [TeleBoxState];
     all_box_status_info: [Record<string, TELE_BOX_STATE>];
+    last_last_not_minimized_boxs_status: [Record<string, TELE_BOX_STATE>];
     move: [ReadonlyTeleBox];
     resize: [ReadonlyTeleBox];
     intrinsic_move: [ReadonlyTeleBox];
@@ -806,6 +809,7 @@ interface MaxTitleBarConfig extends DefaultTitleBarConfig {
 declare class MaxTitleBar extends DefaultTitleBar {
     constructor(config: MaxTitleBarConfig);
     focusBox(box?: TeleBox): void;
+    private hasMaximizedBox;
     setContainerRect(rect: TeleBoxRect): void;
     setBoxes(boxes: TeleBox[]): void;
     setAllBoxStatusInfo(allBoxStatusInfo: Record<string, TELE_BOX_STATE>): void;
@@ -842,12 +846,13 @@ type ValConfig = {
     readonly: Val<boolean, boolean>;
     fence: Val<boolean, boolean>;
     allBoxStatusInfo: Val<Record<string, TELE_BOX_STATE>, boolean>;
+    lastLastNotMinimizedBoxsStatus: Val<Record<string, TELE_BOX_STATE>, boolean>;
 };
 interface TeleBoxManager extends ValEnhancedResult<ValConfig> {
 }
 declare class TeleBoxManager {
     externalEvents: TeleBoxManagerEvents;
-    constructor({ root, prefersColorScheme, fence, containerRect, collector, namespace, readonly, allBoxStatusInfo, appReadonly }?: TeleBoxManagerConfig);
+    constructor({ root, prefersColorScheme, fence, containerRect, collector, namespace, readonly, allBoxStatusInfo, lastLastNotMinimizedBoxsStatus, appReadonly }?: TeleBoxManagerConfig);
     get boxes(): ReadonlyArray<TeleBox>;
     get topBox(): TeleBox | undefined;
     readonly events: TeleBoxManagerEvents;
@@ -860,6 +865,7 @@ declare class TeleBoxManager {
     }[]>;
     protected root: HTMLElement;
     protected allBoxStatusInfo$: Val<Record<string, TELE_BOX_STATE>>;
+    protected lastLastNotMinimizedBoxsStatus$: Val<Record<string, TELE_BOX_STATE>>;
     readonly namespace: string;
     _darkMode$: Val<boolean, boolean>;
     get darkMode(): boolean;
@@ -871,11 +877,14 @@ declare class TeleBoxManager {
     setMaximized(data: boolean, skipUpdate?: boolean): void;
     private cleanAllBoxStatusInfo;
     setAllBoxStatusInfo(allBoxStatusInfo: Record<string, TELE_BOX_STATE>, skipUpdate?: boolean): void;
+    setLastLastNotMinimizedBoxsStatus(lastLastNotMinimizedBoxsStatus: Record<string, TELE_BOX_STATE>, skipUpdate?: boolean): void;
     getMaximizedBoxes(allBoxStatusInfo?: Record<string, TELE_BOX_STATE>): string[];
     getMinimizedBoxes(allBoxStatusInfo?: Record<string, TELE_BOX_STATE>): string[];
     /** @deprecated use setMaximized and setMinimized instead */
     setState(state: TeleBoxState, skipUpdate?: boolean): this;
     create(config?: TeleBoxManagerCreateConfig, smartPosition?: boolean): ReadonlyTeleBox;
+    private changeBoxToMinimized;
+    private changeBoxToClose;
     query(config?: TeleBoxManagerQueryConfig): ReadonlyTeleBox[];
     queryOne(config?: TeleBoxManagerQueryConfig): ReadonlyTeleBox | undefined;
     update(boxID: string, config: TeleBoxManagerUpdateConfig, skipUpdate?: boolean): void;
@@ -897,6 +906,7 @@ declare class TeleBoxManager {
     protected updateBox(box: TeleBox, config: TeleBoxManagerUpdateConfig, skipUpdate?: boolean): void;
     protected smartPosition(config?: TeleBoxConfig): TeleBoxConfig;
     protected makeBoxTop(box: TeleBox, skipUpdate?: boolean): void;
+    makeBoxTopFromNotMinimized(topFocusBox?: TeleBox | undefined, skipUpdate?: boolean): void;
     makeBoxTopFromMaximized(boxId?: string): boolean;
     private appReadonly;
     protected getBoxIndex(boxOrID: TeleBox | string): number;

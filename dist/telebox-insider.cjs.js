@@ -1248,22 +1248,6 @@ function isTruthy(value) {
 function isFalsy(value) {
   return !value;
 }
-function uniqueByVal(arr) {
-  return arr.reduce((acc, item) => {
-    if (!acc.includes(item))
-      acc.push(item);
-    return acc;
-  }, []);
-}
-function removeByVal(arr, val) {
-  const index2 = arr.indexOf(val);
-  if (index2 < 0) {
-    return arr;
-  }
-  const newArr = [...arr];
-  newArr.splice(index2, 1);
-  return newArr;
-}
 function excludeFromBoth(c2, a, b) {
   const aSet = new Set(a);
   const bSet = new Set(b);
@@ -2702,6 +2686,7 @@ var TELE_BOX_MANAGER_EVENT = /* @__PURE__ */ ((TELE_BOX_MANAGER_EVENT2) => {
   TELE_BOX_MANAGER_EVENT2["Removed"] = "removed";
   TELE_BOX_MANAGER_EVENT2["State"] = "state";
   TELE_BOX_MANAGER_EVENT2["AllBoxStatusInfo"] = "all_box_status_info";
+  TELE_BOX_MANAGER_EVENT2["LastLastNotMinimizedBoxsStatus"] = "last_last_not_minimized_boxs_status";
   TELE_BOX_MANAGER_EVENT2["Move"] = "move";
   TELE_BOX_MANAGER_EVENT2["Resize"] = "resize";
   TELE_BOX_MANAGER_EVENT2["IntrinsicMove"] = "intrinsic_move";
@@ -2723,15 +2708,16 @@ class MaxTitleBar extends DefaultTitleBar {
     this.allBoxStatusInfo = config.allBoxStatusInfo;
   }
   focusBox(box) {
-    var _a;
+    var _a, _b;
     if (this.focusedBox && this.focusedBox === box || !(box == null ? void 0 : box.hasHeader)) {
       return;
     }
-    if (this.$titles && this.state === TELE_BOX_STATE.Maximized) {
+    console.log("[TeleBox] TitleBar FocusBox Called", box == null ? void 0 : box.id, (_a = this.focusedBox) == null ? void 0 : _a.id, this.state);
+    if (this.$titles && (this.state === TELE_BOX_STATE.Maximized || this.hasMaximizedBox())) {
       const { children } = this.$titles.firstElementChild;
       for (let i2 = children.length - 1; i2 >= 0; i2 -= 1) {
         const $tab = children[i2];
-        const id = (_a = $tab.dataset) == null ? void 0 : _a.teleBoxID;
+        const id = (_b = $tab.dataset) == null ? void 0 : _b.teleBoxID;
         if (id) {
           if (box && id === box.id) {
             $tab.classList.toggle(this.wrapClassName("titles-tab-focus"), true);
@@ -2742,6 +2728,9 @@ class MaxTitleBar extends DefaultTitleBar {
       }
     }
     this.focusedBox = box;
+  }
+  hasMaximizedBox() {
+    return Object.entries(this.allBoxStatusInfo || {}).some(([_, state]) => state === TELE_BOX_STATE.Maximized);
   }
   setContainerRect(rect) {
     this.containerRect = rect;
@@ -2930,6 +2919,7 @@ class TeleBoxManager {
     namespace = "telebox",
     readonly = false,
     allBoxStatusInfo = {},
+    lastLastNotMinimizedBoxsStatus = {},
     appReadonly = false
   } = {}) {
     this.externalEvents = new EventEmitter();
@@ -2945,6 +2935,7 @@ class TeleBoxManager {
     this.namespace = namespace;
     this.appReadonly = appReadonly;
     this.boxes$ = createVal([]);
+    this.lastLastNotMinimizedBoxsStatus$ = createVal(lastLastNotMinimizedBoxsStatus);
     this.topBox$ = this.boxes$.derive((boxes) => {
       if (boxes.length > 0) {
         const topBox = boxes.reduce(
@@ -2999,14 +2990,10 @@ class TeleBoxManager {
       this.boxes$.value.forEach((box) => {
         const isMaximized = maximizedBoxes.includes(box.id);
         const isMinimized = minimizedBoxes.includes(box.id);
-        console.log("[TeleBox] Setting Box States", { boxId: box.id, isMaximized, isMinimized, skipUpdate });
         box.setMaximized(isMaximized, true);
         box.setMinimized(isMinimized, true);
       });
-      console.log("[TeleBox] MaxTitleBar State Update", { maximizedBoxes, state: maximizedBoxes.length > 0 ? TELE_BOX_STATE.Maximized : TELE_BOX_STATE.Normal });
-      this.maxTitleBar.setState(
-        maximizedBoxes.length > 0 ? TELE_BOX_STATE.Maximized : TELE_BOX_STATE.Normal
-      );
+      this.maxTitleBar.setState(maximizedBoxes.length > 0 ? TELE_BOX_STATE.Maximized : TELE_BOX_STATE.Normal);
       this.maxTitleBar.setAllBoxStatusInfo({ ...allBoxStatusInfo2 });
       const minimized = minimizedBoxes.length > 0;
       console.log("[TeleBox] Collector Visibility Update", { minimized, minimizedBoxes });
@@ -3017,9 +3004,14 @@ class TeleBoxManager {
           collectorRect$.setValue(calcCollectorRect());
         }
       }
+      this.makeBoxTopFromNotMinimized();
       if (!skipUpdate) {
-        console.log("[TeleBox] Emitting Events", { maximizedBoxes, minimizedBoxes, allBoxStatusInfo: allBoxStatusInfo2 });
         this.events.emit(TELE_BOX_MANAGER_EVENT.AllBoxStatusInfo, allBoxStatusInfo2);
+      }
+    });
+    this.lastLastNotMinimizedBoxsStatus$.reaction((lastLastNotMinimizedBoxsStatus2, _, skipUpdate) => {
+      if (!skipUpdate) {
+        this.events.emit(TELE_BOX_MANAGER_EVENT.LastLastNotMinimizedBoxsStatus, lastLastNotMinimizedBoxsStatus2);
       }
     });
     const state$ = combine(
@@ -3063,20 +3055,16 @@ class TeleBoxManager {
         collector2.setDarkMode(this._darkMode$.value);
         this._sideEffect.add(() => {
           collector2.onClick = (boxId) => {
-            var _a;
             console.log("[TeleBox] Collector Click Event", { boxId, readonly: readonly$.value });
             if (!readonly$.value) {
-              const newMinimizedBoxes = removeByVal(
-                this.getMinimizedBoxes().filter(Boolean),
-                boxId
-              );
-              console.log("[TeleBox] Collector Click - Setting Minimized Boxes", { boxId, newMinimizedBoxes });
+              const lastLastNotMinimizedBoxsStatus2 = this.lastLastNotMinimizedBoxsStatus$.value;
+              const lastLastNotMinimizedBoxsStatusBox = lastLastNotMinimizedBoxsStatus2[boxId];
               const allBoxStatusInfo2 = { ...this.allBoxStatusInfo$.value };
-              if (allBoxStatusInfo2[boxId] === TELE_BOX_STATE.Minimized) {
-                allBoxStatusInfo2[boxId] = TELE_BOX_STATE.Normal;
+              if (lastLastNotMinimizedBoxsStatusBox) {
+                allBoxStatusInfo2[boxId] = lastLastNotMinimizedBoxsStatusBox;
+                this.setAllBoxStatusInfo(allBoxStatusInfo2, false);
               }
-              this.setAllBoxStatusInfo(allBoxStatusInfo2);
-              (_a = this.externalEvents) == null ? void 0 : _a.emit("OpenMiniBox", []);
+              this.makeBoxTopFromNotMinimized(this.boxes.find((item) => item.id === boxId), false);
             }
           };
           return () => collector2.destroy();
@@ -3150,121 +3138,51 @@ class TeleBoxManager {
       containerRect: containerRect$.value,
       allBoxStatusInfo: this.allBoxStatusInfo$.value,
       onEvent: (event) => {
-        var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n;
-        console.log("[TeleBox] MaxTitleBar Event Received", { eventType: event.type, focusedBox: (_a = this.maxTitleBar.focusedBox) == null ? void 0 : _a.id });
+        var _a, _b, _c;
+        if (!((_a = this.topBox) == null ? void 0 : _a.id)) {
+          return;
+        }
+        const currentOptionBox = {
+          ...event,
+          boxId: ((_b = this.maxTitleBar.focusedBox) == null ? void 0 : _b.id) || ((_c = this.topBox) == null ? void 0 : _c.id),
+          hasFocus: this.focusBox !== void 0 && this.focusBox !== null
+        };
         switch (event.type) {
           case TELE_BOX_DELEGATE_EVENT.Maximize: {
-            console.log("[TeleBox] MaxTitleBar Maximize Event", { focusedBox: (_b = this.maxTitleBar.focusedBox) == null ? void 0 : _b.id });
-            if ((_c = this.maxTitleBar.focusedBox) == null ? void 0 : _c.id) {
-              const oldFocusId = (_d = this.maxTitleBar.focusedBox) == null ? void 0 : _d.id;
-              const currentMaximizedBoxes = this.getMaximizedBoxes();
-              const isInMaximizedBoxes = currentMaximizedBoxes.includes(oldFocusId);
-              const newMaximizedBoxes = isInMaximizedBoxes ? removeByVal([...currentMaximizedBoxes], oldFocusId) : uniqueByVal([
-                ...currentMaximizedBoxes,
-                (_e = this.maxTitleBar.focusedBox) == null ? void 0 : _e.id
-              ]);
-              console.log("[TeleBox] MaxTitleBar Maximize - Setting Maximized Boxes", {
-                oldFocusId,
-                isInMaximizedBoxes,
-                currentMaximized: currentMaximizedBoxes,
-                newMaximizedBoxes
-              });
-              const allBoxStatusInfo2 = this.cleanAllBoxStatusInfo(this.allBoxStatusInfo$.value);
-              if (isInMaximizedBoxes) {
-                allBoxStatusInfo2[oldFocusId] = TELE_BOX_STATE.Normal;
-              } else {
-                allBoxStatusInfo2[oldFocusId] = TELE_BOX_STATE.Maximized;
-              }
-              console.log("[TeleBox] MaxTitleBar Maximize - Setting AllBoxStatusInfo", {
-                oldFocusId,
-                isInMaximizedBoxes,
-                newState: allBoxStatusInfo2[oldFocusId],
-                allBoxStatusInfo: allBoxStatusInfo2
-              });
-              this.setAllBoxStatusInfo(allBoxStatusInfo2);
-              const hasTopBox = this.makeBoxTopFromMaximized();
-              console.log("[TeleBox] MaxTitleBar Maximize - Box Top Management", { hasTopBox, oldFocusId });
-              const oldFocusBox = this.boxes$.value.find(
-                (box) => box.id == oldFocusId
-              );
-              if (oldFocusBox) {
-                console.log("[TeleBox] MaxTitleBar Maximize - Making Old Focus Box Top", { oldFocusId });
-                this.makeBoxTop(oldFocusBox);
-              }
-              if (!hasTopBox) {
-                console.log("[TeleBox] MaxTitleBar Maximize - No Top Box, Clearing Maximized", { hasTopBox });
-                const allBoxStatusInfo3 = { ...this.allBoxStatusInfo$.value };
-                Object.keys(allBoxStatusInfo3).forEach((boxId) => {
-                  if (allBoxStatusInfo3[boxId] === TELE_BOX_STATE.Maximized) {
-                    allBoxStatusInfo3[boxId] = TELE_BOX_STATE.Normal;
-                  }
-                });
-                this.setAllBoxStatusInfo(allBoxStatusInfo3);
-              }
+            console.log("[TeleBox] TitleBar Options Click To Maximize", currentOptionBox);
+            if (currentOptionBox.hasFocus) {
+              const allBoxStatusInfo2 = { ...this.allBoxStatusInfo$.value };
+              allBoxStatusInfo2[currentOptionBox.boxId] = TELE_BOX_STATE.Maximized === allBoxStatusInfo2[currentOptionBox.boxId] ? TELE_BOX_STATE.Normal : TELE_BOX_STATE.Maximized;
+              this.setAllBoxStatusInfo(allBoxStatusInfo2, false);
             } else {
-              console.log("[TeleBox] MaxTitleBar Maximize - No Focused Box, Clearing Maximized");
               const allBoxStatusInfo2 = { ...this.allBoxStatusInfo$.value };
               Object.keys(allBoxStatusInfo2).forEach((boxId) => {
                 if (allBoxStatusInfo2[boxId] === TELE_BOX_STATE.Maximized) {
                   allBoxStatusInfo2[boxId] = TELE_BOX_STATE.Normal;
                 }
               });
-              this.setAllBoxStatusInfo(allBoxStatusInfo2);
+              this.setAllBoxStatusInfo(allBoxStatusInfo2, false);
             }
-            console.log("[TeleBox] MaxTitleBar Maximize - Emitting External Event");
-            this.externalEvents.emit(TELE_BOX_MANAGER_EVENT.AllBoxStatusInfo, allBoxStatusInfo);
             break;
           }
           case TELE_BOX_DELEGATE_EVENT.Minimize: {
-            console.log("[TeleBox] MaxTitleBar Minimize Event", { focusedBox: (_f = this.maxTitleBar.focusedBox) == null ? void 0 : _f.id });
-            if ((_g = this.maxTitleBar.focusedBox) == null ? void 0 : _g.id) {
-              const currentMinimizedBoxes = this.getMinimizedBoxes();
-              const newMinimizedBoxes = uniqueByVal([
-                ...currentMinimizedBoxes,
-                (_h = this.maxTitleBar.focusedBox) == null ? void 0 : _h.id
-              ]);
-              console.log("[TeleBox] MaxTitleBar Minimize - Setting Minimized Boxes", {
-                focusedBox: (_i = this.maxTitleBar.focusedBox) == null ? void 0 : _i.id,
-                currentMinimized: currentMinimizedBoxes,
-                newMinimizedBoxes
+            console.log("[TeleBox] TitleBar Options Click To Minimize", currentOptionBox);
+            if (currentOptionBox.hasFocus) {
+              this.changeBoxToMinimized(currentOptionBox.boxId);
+            } else {
+              const allBoxStatusInfo2 = { ...this.allBoxStatusInfo$.value };
+              Object.keys(allBoxStatusInfo2).forEach((boxId) => {
+                if (allBoxStatusInfo2[boxId] === TELE_BOX_STATE.Maximized) {
+                  allBoxStatusInfo2[boxId] = TELE_BOX_STATE.Normal;
+                }
               });
-              this.makeBoxTopFromMaximized();
-              const allBoxStatusInfo2 = this.cleanAllBoxStatusInfo(this.allBoxStatusInfo$.value);
-              if ((_j = this.maxTitleBar.focusedBox) == null ? void 0 : _j.id) {
-                allBoxStatusInfo2[this.maxTitleBar.focusedBox.id] = TELE_BOX_STATE.Minimized;
-              }
-              console.log("[TeleBox] MaxTitleBar Minimize - Setting AllBoxStatusInfo", {
-                focusedBoxId: (_k = this.maxTitleBar.focusedBox) == null ? void 0 : _k.id,
-                newState: ((_l = this.maxTitleBar.focusedBox) == null ? void 0 : _l.id) ? allBoxStatusInfo2[this.maxTitleBar.focusedBox.id] : void 0,
-                allBoxStatusInfo: allBoxStatusInfo2
-              });
-              this.setAllBoxStatusInfo(allBoxStatusInfo2);
+              this.setAllBoxStatusInfo(allBoxStatusInfo2, false);
             }
-            console.log("[TeleBox] MaxTitleBar Minimize - Emitting External Event", this.getMinimizedBoxes());
-            this.externalEvents.emit(TELE_BOX_MANAGER_EVENT.AllBoxStatusInfo, allBoxStatusInfo);
             break;
           }
           case TELE_BOX_EVENT.Close: {
-            console.log("[TeleBox] MaxTitleBar Close Event", { focusedBox: (_m = this.maxTitleBar.focusedBox) == null ? void 0 : _m.id });
-            const focusedId = (_n = this.maxTitleBar.focusedBox) == null ? void 0 : _n.id;
-            if (focusedId) {
-              console.log("[TeleBox] MaxTitleBar Close - Removing Box", { focusedId });
-              this.remove(focusedId);
-              this.makeBoxTopFromMaximized();
-              const currentMaximizedBoxes = this.getMaximizedBoxes();
-              const newMaximizedBoxes = removeByVal(currentMaximizedBoxes, focusedId);
-              console.log("[TeleBox] MaxTitleBar Close - Updating Maximized Boxes", {
-                focusedId,
-                currentMaximized: currentMaximizedBoxes,
-                newMaximizedBoxes
-              });
-              const allBoxStatusInfo2 = this.cleanAllBoxStatusInfo(this.allBoxStatusInfo$.value);
-              delete allBoxStatusInfo2[focusedId];
-              this.setAllBoxStatusInfo(allBoxStatusInfo2);
-            }
-            console.log("[TeleBox] MaxTitleBar Close - Emitting External Event");
-            this.externalEvents.emit(TELE_BOX_MANAGER_EVENT.Removed, []);
-            this.focusTopBox();
+            console.log("[TeleBox] TitleBar Options Click To Close", currentOptionBox);
+            this.changeBoxToClose(currentOptionBox.boxId);
             break;
           }
         }
@@ -3287,7 +3205,8 @@ class TeleBoxManager {
       collectorRect: collectorRect$,
       readonly: readonly$,
       fence: fence$,
-      allBoxStatusInfo: this.allBoxStatusInfo$
+      allBoxStatusInfo: this.allBoxStatusInfo$,
+      lastLastNotMinimizedBoxsStatus: this.lastLastNotMinimizedBoxsStatus$
     };
     i(this, valConfig);
     this._state$ = state$;
@@ -3328,7 +3247,7 @@ class TeleBoxManager {
     return cleanedAllBoxStatusInfo;
   }
   setAllBoxStatusInfo(allBoxStatusInfo, skipUpdate = false) {
-    console.log("[TeleBox] SetAllBoxStatusInfo Called", {
+    console.log("[TeleBox] SetAllBoxStatusInfo", {
       oldAllBoxStatusInfo: this.allBoxStatusInfo$.value,
       newAllBoxStatusInfo: allBoxStatusInfo,
       skipUpdate
@@ -3336,11 +3255,16 @@ class TeleBoxManager {
     const cleanedAllBoxStatusInfo = this.cleanAllBoxStatusInfo(allBoxStatusInfo);
     const newAllBoxStatusInfo = { ...cleanedAllBoxStatusInfo };
     this.allBoxStatusInfo$.setValue(newAllBoxStatusInfo);
-    console.log("[TeleBox] SetAllBoxStatusInfo Completed", {
-      allBoxStatusInfo: this.allBoxStatusInfo$.value,
-      maximizedBoxes: this.getMaximizedBoxes(),
-      minimizedBoxes: this.getMinimizedBoxes()
+  }
+  setLastLastNotMinimizedBoxsStatus(lastLastNotMinimizedBoxsStatus, skipUpdate = false) {
+    console.log("[TeleBox] SetLastLastNotMinimizedBoxsStatus", {
+      oldLastLastNotMinimizedBoxsStatus: this.lastLastNotMinimizedBoxsStatus$.value,
+      newLastLastNotMinimizedBoxsStatus: lastLastNotMinimizedBoxsStatus,
+      skipUpdate
     });
+    const cleanedLastLastNotMinimizedBoxsStatus = this.cleanAllBoxStatusInfo(lastLastNotMinimizedBoxsStatus);
+    const newLastLastNotMinimizedBoxsStatus = { ...cleanedLastLastNotMinimizedBoxsStatus };
+    this.lastLastNotMinimizedBoxsStatus$.setValue(newLastLastNotMinimizedBoxsStatus, skipUpdate);
   }
   getMaximizedBoxes(allBoxStatusInfo = this.allBoxStatusInfo$.value) {
     return Object.entries(allBoxStatusInfo).filter(([_, state]) => state === TELE_BOX_STATE.Maximized).map(([boxId, _]) => boxId);
@@ -3416,42 +3340,22 @@ class TeleBoxManager {
     });
     this.setAllBoxStatusInfo(allBoxStatusInfo);
     box._delegateEvents.on(TELE_BOX_DELEGATE_EVENT.Maximize, () => {
-      console.log("[TeleBox] Box Maximize Event", { boxId: box.id });
-      const allBoxIds = this.boxes$.value.map((item) => item.id);
-      console.log("[TeleBox] Box Maximize - Setting All Boxes Maximized", { boxId: box.id, allBoxIds });
+      console.log("[TeleBox] TitleBar Maximize From Box Event", { boxId: box.id });
       const allBoxStatusInfo2 = this.cleanAllBoxStatusInfo(this.allBoxStatusInfo$.value);
-      allBoxIds.forEach((boxId) => {
-        allBoxStatusInfo2[boxId] = TELE_BOX_STATE.Maximized;
+      Object.entries(allBoxStatusInfo2).forEach(([boxId, state]) => {
+        if (state !== TELE_BOX_STATE.Minimized) {
+          allBoxStatusInfo2[boxId] = TELE_BOX_STATE.Maximized;
+        }
       });
-      console.log("[TeleBox] Box Maximize - Setting AllBoxStatusInfo", {
-        boxId: box.id,
-        allBoxIds,
-        allBoxStatusInfo: allBoxStatusInfo2
-      });
-      this.setAllBoxStatusInfo(allBoxStatusInfo2);
-      this.maxTitleBar.focusBox(box);
-      console.log("[TeleBox] Box Maximize - Emitting External Event", [box.id]);
-      this.events.emit(TELE_BOX_MANAGER_EVENT.AllBoxStatusInfo, allBoxStatusInfo2);
+      this.setAllBoxStatusInfo(allBoxStatusInfo2, false);
     });
     box._delegateEvents.on(TELE_BOX_DELEGATE_EVENT.Minimize, () => {
-      console.log("[TeleBox] Box Minimize Event", { boxId: box.id });
-      const allBoxStatusInfo2 = this.cleanAllBoxStatusInfo(this.allBoxStatusInfo$.value);
-      allBoxStatusInfo2[box.id] = TELE_BOX_STATE.Minimized;
-      console.log("[TeleBox] Box Minimize - Setting AllBoxStatusInfo", {
-        boxId: box.id,
-        newState: allBoxStatusInfo2[box.id],
-        allBoxStatusInfo: allBoxStatusInfo2
-      });
-      this.setAllBoxStatusInfo(allBoxStatusInfo2);
-      console.log("[TeleBox] Box Minimize - Emitting External Event", [box.id]);
-      this.events.emit(TELE_BOX_MANAGER_EVENT.AllBoxStatusInfo, allBoxStatusInfo2);
+      console.log("[TeleBox] TitleBar Minimize From Box Event", { boxId: box.id });
+      this.changeBoxToMinimized(box.id);
     });
     box._delegateEvents.on(TELE_BOX_DELEGATE_EVENT.Close, () => {
-      console.log("[TeleBox] Box Close Event", { boxId: box.id });
-      this.remove(box);
-      this.makeBoxTopFromMaximized(box.id);
-      this.focusTopBox();
-      console.log("[TeleBox] Box Close - Emitting External Event", [box]);
+      console.log("[TeleBox] TitleBar Close From Box Event", { boxId: box.id });
+      this.changeBoxToClose(box.id);
       this.events.emit(TELE_BOX_MANAGER_EVENT.Removed, [box]);
     });
     box._coord$.reaction((_, __, skipUpdate) => {
@@ -3480,6 +3384,7 @@ class TeleBoxManager {
       }
     });
     box._zIndex$.reaction((_, __, skipUpdate) => {
+      console.log("[TeleBox] Current Box ZIndex ", box.id, box.zIndex, " Original ZIndex ", box.zIndex);
       if (this.boxes.length > 0) {
         const topBox = this.boxes.reduce(
           (topBox2, box2) => topBox2.zIndex > box2.zIndex ? topBox2 : box2
@@ -3496,6 +3401,20 @@ class TeleBoxManager {
     });
     this.events.emit(TELE_BOX_MANAGER_EVENT.Created, box);
     return box;
+  }
+  changeBoxToMinimized(boxId) {
+    const allBoxStatusInfo = { ...this.allBoxStatusInfo$.value };
+    const lastLastNotMinimizedBoxsStatus = { ...this.lastLastNotMinimizedBoxsStatus$.value };
+    lastLastNotMinimizedBoxsStatus[boxId] = allBoxStatusInfo[boxId];
+    allBoxStatusInfo[boxId] = TELE_BOX_STATE.Minimized;
+    this.setAllBoxStatusInfo(allBoxStatusInfo, false);
+    this.lastLastNotMinimizedBoxsStatus$.setValue(lastLastNotMinimizedBoxsStatus, false);
+  }
+  changeBoxToClose(boxId) {
+    this.remove(boxId, false);
+    const lastLastNotMinimizedBoxsStatus = { ...this.lastLastNotMinimizedBoxsStatus$.value };
+    delete lastLastNotMinimizedBoxsStatus[boxId];
+    this.lastLastNotMinimizedBoxsStatus$.setValue(lastLastNotMinimizedBoxsStatus, false);
   }
   query(config) {
     return config ? this.boxes.filter(this.teleBoxMatcher(config)) : [...this.boxes];
@@ -3519,20 +3438,14 @@ class TeleBoxManager {
     const index2 = this.getBoxIndex(boxOrID);
     if (index2 >= 0) {
       const boxId = typeof boxOrID === "string" ? boxOrID : boxOrID.id;
-      console.log("[TeleBox] Remove - Box ID", { boxId });
       const boxes = this.boxes.slice();
       const deletedBoxes = boxes.splice(index2, 1);
       this.boxes$.setValue(boxes);
       deletedBoxes.forEach((box) => box.destroy());
       if (boxId) {
-        console.log("[TeleBox] Remove - Updating Box Arrays", { boxId, currentMaximized: this.getMaximizedBoxes(), currentMinimized: this.getMinimizedBoxes() });
         const allBoxStatusInfo = { ...this.allBoxStatusInfo$.value };
         delete allBoxStatusInfo[boxId];
-        console.log("[TeleBox] Remove - Setting AllBoxStatusInfo after removing box", {
-          boxId,
-          allBoxStatusInfo
-        });
-        this.setAllBoxStatusInfo(allBoxStatusInfo);
+        this.setAllBoxStatusInfo(allBoxStatusInfo, skipUpdate);
         const observeData = this.elementObserverMap.get(boxId);
         if (observeData) {
           observeData.forEach(({ el, cb }) => {
@@ -3544,10 +3457,8 @@ class TeleBoxManager {
       }
       if (!skipUpdate) {
         if (this.boxes.length <= 0) {
-          console.log("[TeleBox] Remove - No Boxes Left, Clearing Arrays");
-          this.setAllBoxStatusInfo({});
+          this.setAllBoxStatusInfo({}, skipUpdate);
         }
-        console.log("[TeleBox] Remove - Emitting Removed Event", deletedBoxes);
         this.events.emit(TELE_BOX_MANAGER_EVENT.Removed, deletedBoxes);
       }
       return deletedBoxes[0];
@@ -3598,7 +3509,6 @@ class TeleBoxManager {
     console.log("[TeleBox] FocusBox Called", { boxOrID, skipUpdate });
     const targetBox = this.getBox(boxOrID);
     if (targetBox) {
-      console.log("[TeleBox] FocusBox - Target Box Found", { targetBoxId: targetBox.id, currentFocus: targetBox.focus });
       this.boxes$.value.forEach((box) => {
         if (targetBox === box) {
           let focusChanged = false;
@@ -3756,6 +3666,8 @@ class TeleBoxManager {
     return { ...config, x, y, width, height };
   }
   makeBoxTop(box, skipUpdate = false) {
+    var _a, _b;
+    console.log("[TeleBox] TopBox Change To", box.id, box.zIndex, " Original TopBox ", (_a = this.topBox) == null ? void 0 : _a.id, (_b = this.topBox) == null ? void 0 : _b.zIndex);
     if (this.topBox) {
       if (box !== this.topBox) {
         if (this.getMaximizedBoxes().includes(box.id)) {
@@ -3778,7 +3690,34 @@ class TeleBoxManager {
       }
     }
   }
+  makeBoxTopFromNotMinimized(topFocusBox = void 0, skipUpdate = false) {
+    var _a, _b;
+    console.log("[TeleBox] MakeBoxTopFromNotMinimized Called", { topFocusBox: topFocusBox == null ? void 0 : topFocusBox.id, skipUpdate });
+    if (!topFocusBox) {
+      const notMinimizedBoxes = Object.entries(this.allBoxStatusInfo$.value).filter(([_, state]) => state !== TELE_BOX_STATE.Minimized).map(([boxId, _]) => boxId);
+      topFocusBox = (_a = this.boxes.filter((box) => notMinimizedBoxes.includes(box.id))) == null ? void 0 : _a.reduce((maxBox, box) => {
+        return maxBox.zIndex > box.zIndex ? maxBox : box;
+      });
+    }
+    this.makeBoxTop(topFocusBox, skipUpdate);
+    if (this.allBoxStatusInfo$.value[topFocusBox.id] === TELE_BOX_STATE.Maximized) {
+      this.maxTitleBar.focusBox(topFocusBox);
+    } else {
+      const maxBox = (_b = this.boxes.filter((box) => this.allBoxStatusInfo$.value[box.id] === TELE_BOX_STATE.Maximized)) == null ? void 0 : _b.reduce((maxBox2, box) => {
+        return maxBox2.zIndex > box.zIndex ? maxBox2 : box;
+      });
+      this.maxTitleBar.focusBox(maxBox);
+    }
+    if (!skipUpdate) {
+      this.events.emit(TELE_BOX_MANAGER_EVENT.ZIndex, topFocusBox);
+    }
+    const list = this.boxes$.value.filter((item) => this.getMaximizedBoxes().includes(item.id)).sort((a, b) => b.zIndex - a.zIndex);
+    if (list && list.length > 0) {
+      this.maxTitleBar.setIndexZ(list[0].zIndex + 1);
+    }
+  }
   makeBoxTopFromMaximized(boxId) {
+    var _a, _b;
     console.log("[TeleBox] MakeBoxTopFromMaximized Called", { boxId, currentMaximized: this.getMaximizedBoxes(), currentMinimized: this.getMinimizedBoxes() });
     let maxIndexBox = void 0;
     if (boxId) {
@@ -3787,14 +3726,9 @@ class TeleBoxManager {
         console.log("[TeleBox] MakeBoxTopFromMaximized - Found Specific Box", { boxId, maxIndexBox: maxIndexBox == null ? void 0 : maxIndexBox.id });
       }
     } else {
-      const nextFocusBoxes = this.boxes$.value.filter((box) => {
-        var _a;
-        return box.id != ((_a = this.maxTitleBar.focusedBox) == null ? void 0 : _a.id) && this.getMaximizedBoxes().includes(box.id) && !this.getMinimizedBoxes().includes(box.id);
+      maxIndexBox = (_b = (_a = this.boxes) == null ? void 0 : _a.filter((box) => this.allBoxStatusInfo$.value[box.id] === TELE_BOX_STATE.Maximized)) == null ? void 0 : _b.reduce((maxBox, box) => {
+        return maxBox.zIndex > box.zIndex ? maxBox : box;
       });
-      console.log("[TeleBox] MakeBoxTopFromMaximized - Next Focus Boxes", { nextFocusBoxes: nextFocusBoxes.map((b) => b.id) });
-      maxIndexBox = nextFocusBoxes.length ? nextFocusBoxes.reduce((maxItem, current) => {
-        return current._zIndex$.value > maxItem._zIndex$.value ? current : maxItem;
-      }) : void 0;
       if (maxIndexBox) {
         console.log("[TeleBox] MakeBoxTopFromMaximized - Focusing Max Index Box", { maxIndexBox: maxIndexBox.id });
         this.maxTitleBar.focusBox(maxIndexBox);
