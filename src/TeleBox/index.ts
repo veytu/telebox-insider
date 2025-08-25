@@ -374,17 +374,17 @@ export class TeleBox {
                         switch (event.type) {
                             case TELE_BOX_DELEGATE_EVENT.Maximize: {
                                 console.log('[TeleBox] TeleBox TitleBar Maximize Event', { boxId: this.id, currentMaximized: maximized$.value })
-                                maximized$.setValue(!maximized$.value)
+                                // maximized$.setValue(!maximized$.value)
                                 break
                             }
                             case TELE_BOX_DELEGATE_EVENT.Minimize: {
                                 console.log('[TeleBox] TeleBox TitleBar Minimize Event', { boxId: this.id, currentMinimized: minimized$.value })
-                                minimized$.setValue(true)
+                                // minimized$.setValue(true)
                                 break
                             }
                             case TELE_BOX_DELEGATE_EVENT.Close: {
                                 console.log('[TeleBox] TeleBox TitleBar Close Event', { boxId: this.id, currentVisible: visible$.value })
-                                visible$.setValue(false)
+                                // visible$.setValue(false)
                                 break
                             }
                             default: {

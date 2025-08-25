@@ -1036,24 +1036,34 @@ export class TeleBoxManager {
 
     // 从非最小化的boxes中找到zIndex最大的box
     public makeBoxTopFromNotMinimized(topFocusBox: TeleBox | undefined = undefined, skipUpdate = false): void {
-        if(this.boxes.length <= 0){
-            return
-        }
         console.log('[TeleBox] MakeBoxTopFromNotMinimized Called', { topFocusBox: topFocusBox?.id, skipUpdate })
         if (!topFocusBox) {
             const notMinimizedBoxes = Object.entries(this.allBoxStatusInfo$.value).filter(([_, state]) => state !== TELE_BOX_STATE.Minimized).map(([boxId, _]) => boxId)
-            topFocusBox = this.boxes.filter((box: TeleBox) => notMinimizedBoxes.includes(box.id))?.reduce((maxBox, box) => {
-                return maxBox.zIndex > box.zIndex ? maxBox : box
-            })
+            const filteredBoxes = this.boxes.filter((box: TeleBox) => notMinimizedBoxes.includes(box.id))
+            if (filteredBoxes.length > 0) {
+                topFocusBox = filteredBoxes.reduce((maxBox, box) => {
+                    return maxBox.zIndex > box.zIndex ? maxBox : box
+                })
+            }
         }
-        this.makeBoxTop(topFocusBox,skipUpdate)
+        
+        // 如果没有找到topFocusBox，直接返回
+        if (!topFocusBox) {
+            console.log('[TeleBox] No topFocusBox found, returning early')
+            return
+        }
+        
+        this.makeBoxTop(topFocusBox, skipUpdate)
         if(this.allBoxStatusInfo$.value[topFocusBox.id] === TELE_BOX_STATE.Maximized){
             this.maxTitleBar.focusBox(topFocusBox)
         }else{
-            const maxBox = this.boxes.filter((box: TeleBox) => this.allBoxStatusInfo$.value[box.id] === TELE_BOX_STATE.Maximized)?.reduce((maxBox, box) => {
-                return maxBox.zIndex > box.zIndex ? maxBox : box
-            })
-            this.maxTitleBar.focusBox(maxBox)
+            const maximizedBoxes = this.boxes.filter((box: TeleBox) => this.allBoxStatusInfo$.value[box.id] === TELE_BOX_STATE.Maximized)
+            if (maximizedBoxes.length > 0) {
+                const maxBox = maximizedBoxes.reduce((maxBox, box) => {
+                    return maxBox.zIndex > box.zIndex ? maxBox : box
+                })
+                this.maxTitleBar.focusBox(maxBox)
+            }
         }
         if (!skipUpdate) {
             this.events.emit(TELE_BOX_MANAGER_EVENT.ZIndex, topFocusBox)
@@ -1076,12 +1086,15 @@ export class TeleBoxManager {
                 console.log('[TeleBox] MakeBoxTopFromMaximized - Found Specific Box', { boxId, maxIndexBox: maxIndexBox?.id })
             }
         } else {
-            maxIndexBox = this.boxes?.filter((box: TeleBox) => this.allBoxStatusInfo$.value[box.id] === TELE_BOX_STATE.Maximized)?.reduce((maxBox, box) => {
-                return maxBox.zIndex > box.zIndex ? maxBox : box
-            })
-            if (maxIndexBox) {
-                console.log('[TeleBox] MakeBoxTopFromMaximized - Focusing Max Index Box', { maxIndexBox: maxIndexBox.id })
-                this.maxTitleBar.focusBox(maxIndexBox)
+            const maximizedBoxes = this.boxes?.filter((box: TeleBox) => this.allBoxStatusInfo$.value[box.id] === TELE_BOX_STATE.Maximized)
+            if (maximizedBoxes && maximizedBoxes.length > 0) {
+                maxIndexBox = maximizedBoxes.reduce((maxBox, box) => {
+                    return maxBox.zIndex > box.zIndex ? maxBox : box
+                })
+                if (maxIndexBox) {
+                    console.log('[TeleBox] MakeBoxTopFromMaximized - Focusing Max Index Box', { maxIndexBox: maxIndexBox.id })
+                    this.maxTitleBar.focusBox(maxIndexBox)
+                }
             }
         }
 
