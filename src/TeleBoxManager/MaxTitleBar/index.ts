@@ -13,8 +13,7 @@ export interface MaxTitleBarConfig extends DefaultTitleBarConfig {
     boxes: TeleBox[]
     containerRect: TeleBoxRect
     focusedBox?: TeleBox
-    maximizedBoxes$: string[]
-    minimizedBoxes$: string[]
+    allBoxStatusInfo: Record<string, TELE_BOX_STATE>
 }
 
 export class MaxTitleBar extends DefaultTitleBar {
@@ -25,8 +24,7 @@ export class MaxTitleBar extends DefaultTitleBar {
         this.focusedBox = config.focusedBox
         this.containerRect = config.containerRect
         this.darkMode = config.darkMode
-        this.maximizedBoxes$ = config.maximizedBoxes$
-        this.minimizedBoxes$ = config.minimizedBoxes$
+        this.allBoxStatusInfo = config.allBoxStatusInfo
     }
 
     public focusBox(box?: TeleBox): void {
@@ -65,15 +63,12 @@ export class MaxTitleBar extends DefaultTitleBar {
         this.updateTitles()
     }
 
-    public setMaximizedBoxes(boxes: string[]): void {
-        this.maximizedBoxes$ = boxes
+    public setAllBoxStatusInfo(allBoxStatusInfo: Record<string, TELE_BOX_STATE>): void {
+        console.log('[TeleBox] MaxTitleBar - setAllBoxStatusInfo', allBoxStatusInfo)
+        this.allBoxStatusInfo = allBoxStatusInfo
         this.updateTitles()
     }
-    public setMinimizedBoxes(boxes: string[]): void {
-        this.minimizedBoxes$ = boxes
-        this.updateTitles()
-    }
-
+    
     public setState(state: TeleBoxState): void {
         super.setState(state)
         if (this.$titleBar) {
@@ -142,18 +137,24 @@ export class MaxTitleBar extends DefaultTitleBar {
     }
 
     public updateTitles(): void {
+        const maximizedBoxes = Object.entries(this.allBoxStatusInfo)
+            .filter(([_, state]) => state === TELE_BOX_STATE.Maximized)
+            .map(([boxId, _]) => boxId)
+        const minimizedBoxes = Object.entries(this.allBoxStatusInfo)
+            .filter(([_, state]) => state === TELE_BOX_STATE.Minimized)
+            .map(([boxId, _]) => boxId)
         this.$titleBar?.classList.toggle(
             this.wrapClassName('max-titlebar-active'),
-            this.maximizedBoxes$.length > 0 &&
+            maximizedBoxes.length > 0 &&
                 this.boxes.length > 0 &&
-                this.maximizedBoxes$.filter((boxId) => !this.minimizedBoxes$.includes(boxId))
+                maximizedBoxes.filter((boxId) => !minimizedBoxes.includes(boxId))
                     .length > 0
         )
         if (
             this.$titleBar &&
-            this.maximizedBoxes$.length > 0 &&
+            maximizedBoxes.length > 0 &&
             this.boxes.length > 0 &&
-            this.maximizedBoxes$.filter((boxId) => !this.minimizedBoxes$.includes(boxId)).length > 0
+            maximizedBoxes.filter((boxId) => !minimizedBoxes.includes(boxId)).length > 0
         ) {
             this.$titleBar.classList.toggle(
                 this.wrapClassName('max-titlebar-single-title'),
@@ -193,14 +194,21 @@ export class MaxTitleBar extends DefaultTitleBar {
         $content.className = this.wrapClassName('titles-content')
         this.$titles.appendChild($content)
 
+        const maximizedBoxes = Object.entries(this.allBoxStatusInfo)
+            .filter(([_, state]) => state === TELE_BOX_STATE.Maximized)
+            .map(([boxId, _]) => boxId)
+        const minimizedBoxes = Object.entries(this.allBoxStatusInfo)
+            .filter(([_, state]) => state === TELE_BOX_STATE.Minimized)
+            .map(([boxId, _]) => boxId)
+        
         const maxBoxes = this.boxes
-        .filter((box) => this.maximizedBoxes$.includes(box.id))
-        .filter((box) => !this.minimizedBoxes$.includes(box.id))
+        .filter((box) => maximizedBoxes.includes(box.id))
+        .filter((box) => !minimizedBoxes.includes(box.id))
         .filter((box) => box.hasHeader)
 
         const noHeaderBoxes = this.boxes
-        .filter((box) => this.maximizedBoxes$.includes(box.id))
-        .filter((box) => !this.minimizedBoxes$.includes(box.id))
+        .filter((box) => maximizedBoxes.includes(box.id))
+        .filter((box) => !minimizedBoxes.includes(box.id))
         .filter((box) => !box.hasHeader)
 
         if (this.$titleBar) {
@@ -237,6 +245,5 @@ export class MaxTitleBar extends DefaultTitleBar {
     public focusedBox: TeleBox | undefined
 
     protected containerRect: TeleBoxRect
-    protected maximizedBoxes$: MaxTitleBarConfig['maximizedBoxes$']
-    protected minimizedBoxes$: MaxTitleBarConfig['minimizedBoxes$']
+    protected allBoxStatusInfo: MaxTitleBarConfig['allBoxStatusInfo']
 }

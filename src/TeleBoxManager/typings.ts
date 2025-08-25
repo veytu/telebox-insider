@@ -4,6 +4,7 @@ import type { ReadonlyTeleBox, TeleBoxState } from "../TeleBox";
 import type { TeleBoxConfig } from "../TeleBox/typings";
 import type { TeleBoxCollector } from "../TeleBoxCollector";
 import type { TELE_BOX_MANAGER_EVENT } from "./constants";
+import { TELE_BOX_STATE } from "../TeleBox/constants";
 
 type StringStyleKeys<T = keyof CSSStyleDeclaration> =
     T extends keyof CSSStyleDeclaration
@@ -29,8 +30,7 @@ export interface TeleBoxManagerConfig
     root?: HTMLElement;
     /** Where the minimized boxes go. */
     collector?: TeleBoxCollector;
-    minimizedBoxes?: string[]
-    maximizedBoxes?: string[]
+    allBoxStatusInfo?: Record<string, TELE_BOX_STATE>
     appReadonly?: boolean
 }
 
@@ -75,8 +75,7 @@ export type TeleBoxManagerEventConfig = CheckTeleBoxManagerConfig<{
     created: [ReadonlyTeleBox];
     removed: [ReadonlyTeleBox[]];
     state: [TeleBoxState];
-    maximized: [string[]];
-    minimized: [string[]];
+    all_box_status_info: [Record<string, TELE_BOX_STATE>];
     move: [ReadonlyTeleBox];
     resize: [ReadonlyTeleBox];
     intrinsic_move: [ReadonlyTeleBox];

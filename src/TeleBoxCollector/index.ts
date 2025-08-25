@@ -2,6 +2,7 @@ import './style.scss'
 import collectorSVG from './icons/collector.svg'
 import type { TeleStyles } from '../typings'
 import type { TeleBox } from '../TeleBox'
+import { TELE_BOX_STATE } from '../TeleBox/constants'
 import { createSideEffectBinder } from 'value-enhancer'
 import type { Val } from 'value-enhancer'
 import { SideEffectManager } from 'side-effect-manager'
@@ -16,7 +17,7 @@ export interface TeleBoxCollectorConfig {
     namespace?: string
     styles?: TeleStyles
     onClick?: () => void
-    minimizedBoxes?: string[]
+    allBoxStatusInfo?: Record<string, TELE_BOX_STATE>
     boxes?: TeleBox[]
     externalEvents?: any
     appReadonly?: boolean
@@ -30,7 +31,7 @@ export class TeleBoxCollector {
         namespace = 'telebox',
         styles = {},
         onClick,
-        minimizedBoxes = [],
+        allBoxStatusInfo = {},
         boxes = [],
         externalEvents,
         appReadonly
@@ -43,7 +44,7 @@ export class TeleBoxCollector {
         this._darkMode = darkMode
         this.namespace = namespace
         this.styles = styles
-        this.minimizedBoxes = minimizedBoxes
+        this.allBoxStatusInfo = { ...allBoxStatusInfo }
         this.boxes = boxes
         this.onClick = onClick
         this.appReadonly = appReadonly
@@ -106,6 +107,7 @@ export class TeleBoxCollector {
     public onClick: ((boxId: string) => void) | undefined
 
     public $collector: HTMLElement | undefined
+    public allBoxStatusInfo: Record<string, any> = {}
     private wrp$: HTMLElement | undefined
     private count$: HTMLElement | undefined
     private $titles: HTMLElement | undefined
@@ -184,13 +186,19 @@ export class TeleBoxCollector {
         return this
     }
 
-    public setMinimizedBoxes(boxes: string[]): void {
-        this.minimizedBoxes = boxes
-        if (this.count$) {
-            this.count$.textContent = String(this.minimizedBoxes?.length) || '0'
-        }
-
+    public setAllBoxStatusInfo(allBoxStatusInfo: Record<string, any>): void {
+        console.log('[TeleBox] TeleBoxCollector - setAllBoxStatusInfo', allBoxStatusInfo)
+        this.allBoxStatusInfo = { ...allBoxStatusInfo }
+        this.updateMinimizedCount()
         this.renderTitles()
+    }
+
+    private updateMinimizedCount(): void {
+        if (this.count$) {
+            // 从allBoxStatusInfo中获取最小化数量
+            const minimizedCount = Object.values(this.allBoxStatusInfo).filter(status => status === TELE_BOX_STATE.Minimized).length
+            this.count$.textContent = String(minimizedCount)
+        }
     }
 
     public setBoxes (boxes: TeleBox[]):void {
@@ -291,7 +299,7 @@ export class TeleBoxCollector {
 
         $content.innerHTML = ''
 
-        const disposers = this.boxes?.filter((box) => this.minimizedBoxes?.includes(box.id))
+        const disposers = this.boxes?.filter((box) => this.allBoxStatusInfo[box.id] === TELE_BOX_STATE.Minimized)
             .map((box) => {
                 const $tab = document.createElement('button')
                 $tab.className = this.wrapClassName('collector-titles-tab')
@@ -361,7 +369,6 @@ export class TeleBoxCollector {
     protected _readonly: boolean
 
     protected _darkMode: boolean
-    protected minimizedBoxes: TeleBoxCollectorConfig['minimizedBoxes']
     protected boxes: TeleBoxCollectorConfig['boxes']
 
     protected handleCollectorClick = (): void => {
