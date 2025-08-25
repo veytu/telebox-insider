@@ -3690,6 +3690,9 @@ class TeleBoxManager {
   }
   makeBoxTopFromNotMinimized(topFocusBox = void 0, skipUpdate = false) {
     var _a, _b;
+    if (this.boxes.length <= 0) {
+      return;
+    }
     console.log("[TeleBox] MakeBoxTopFromNotMinimized Called", { topFocusBox: topFocusBox == null ? void 0 : topFocusBox.id, skipUpdate });
     if (!topFocusBox) {
       const notMinimizedBoxes = Object.entries(this.allBoxStatusInfo$.value).filter(([_, state]) => state !== TELE_BOX_STATE.Minimized).map(([boxId, _]) => boxId);

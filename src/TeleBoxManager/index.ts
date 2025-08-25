@@ -1036,6 +1036,9 @@ export class TeleBoxManager {
 
     // 从非最小化的boxes中找到zIndex最大的box
     public makeBoxTopFromNotMinimized(topFocusBox: TeleBox | undefined = undefined, skipUpdate = false): void {
+        if(this.boxes.length <= 0){
+            return
+        }
         console.log('[TeleBox] MakeBoxTopFromNotMinimized Called', { topFocusBox: topFocusBox?.id, skipUpdate })
         if (!topFocusBox) {
             const notMinimizedBoxes = Object.entries(this.allBoxStatusInfo$.value).filter(([_, state]) => state !== TELE_BOX_STATE.Minimized).map(([boxId, _]) => boxId)
