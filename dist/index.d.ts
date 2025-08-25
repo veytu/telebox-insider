@@ -876,10 +876,10 @@ declare class TeleBoxManager {
     setMinimized(data: boolean, skipUpdate?: boolean): void;
     setMaximized(data: boolean, skipUpdate?: boolean): void;
     private cleanAllBoxStatusInfo;
-    setAllBoxStatusInfo(allBoxStatusInfo: Record<string, TELE_BOX_STATE>, skipUpdate?: boolean): void;
-    setLastLastNotMinimizedBoxsStatus(lastLastNotMinimizedBoxsStatus: Record<string, TELE_BOX_STATE>, skipUpdate?: boolean): void;
-    getMaximizedBoxes(allBoxStatusInfo?: Record<string, TELE_BOX_STATE>): string[];
-    getMinimizedBoxes(allBoxStatusInfo?: Record<string, TELE_BOX_STATE>): string[];
+    setAllBoxStatusInfo(allBoxStatusInfo: Record<string, TELE_BOX_STATE> | undefined, skipUpdate?: boolean): void;
+    setLastLastNotMinimizedBoxsStatus(lastLastNotMinimizedBoxsStatus: Record<string, TELE_BOX_STATE> | undefined, skipUpdate?: boolean): void;
+    getMaximizedBoxes(allBoxStatusInfo?: Record<string, TELE_BOX_STATE> | undefined): string[];
+    getMinimizedBoxes(allBoxStatusInfo?: Record<string, TELE_BOX_STATE> | undefined): string[];
     /** @deprecated use setMaximized and setMinimized instead */
     setState(state: TeleBoxState, skipUpdate?: boolean): this;
     create(config?: TeleBoxManagerCreateConfig, smartPosition?: boolean): ReadonlyTeleBox;

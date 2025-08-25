@@ -39,7 +39,7 @@ type ValConfig = {
     allBoxStatusInfo: Val<Record<string, TELE_BOX_STATE>, boolean>
     lastLastNotMinimizedBoxsStatus: Val<Record<string, TELE_BOX_STATE>, boolean>
 }
-export interface TeleBoxManager extends ValEnhancedResult<ValConfig> {}
+export interface TeleBoxManager extends ValEnhancedResult<ValConfig> { }
 
 export class TeleBoxManager {
     public externalEvents = new EventEmitter() as TeleBoxManagerEvents
@@ -123,38 +123,38 @@ export class TeleBoxManager {
         })
 
         // 从allBoxStatusInfo中提取minimizedBoxes和maximizedBoxes
-        const extractedMinimizedBoxes = Object.entries(allBoxStatusInfo)
+        const extractedMinimizedBoxes = Object.entries(allBoxStatusInfo || {})
             .filter(([_, state]) => state === TELE_BOX_STATE.Minimized)
             .map(([boxId, _]) => boxId)
-        const extractedMaximizedBoxes = Object.entries(allBoxStatusInfo)
+        const extractedMaximizedBoxes = Object.entries(allBoxStatusInfo || {})
             .filter(([_, state]) => state === TELE_BOX_STATE.Maximized)
             .map(([boxId, _]) => boxId)
-        
+
         this.allBoxStatusInfo$ = createVal(allBoxStatusInfo)
         console.log('[TeleBox] Manager Constructor AllBoxStatusInfo Created', { allBoxStatusInfo })
         this.allBoxStatusInfo$.reaction((allBoxStatusInfo, _, skipUpdate) => {
             console.log('[TeleBox] AllBoxStatusInfo Reaction Triggered', { allBoxStatusInfo, skipUpdate })
             const maximizedBoxes = this.getMaximizedBoxes(allBoxStatusInfo)
             const minimizedBoxes = this.getMinimizedBoxes(allBoxStatusInfo)
-            
+
             // 设置box状态，但使用skipUpdate=true避免触发事件循环
             this.boxes$.value.forEach((box) => {
                 const isMaximized = maximizedBoxes.includes(box.id)
                 const isMinimized = minimizedBoxes.includes(box.id)
                 // if(isMaximized || isMinimized){
-                    box.setMaximized(isMaximized, true) // 使用true来跳过事件触发
-                    box.setMinimized(isMinimized, true) // 使用true来跳过事件触发
+                box.setMaximized(isMaximized, true) // 使用true来跳过事件触发
+                box.setMinimized(isMinimized, true) // 使用true来跳过事件触发
                 // }
             })
             //更新最大化标题栏
             this.maxTitleBar.setState(maximizedBoxes.length > 0 ? TELE_BOX_STATE.Maximized : TELE_BOX_STATE.Normal)
-            this.maxTitleBar.setAllBoxStatusInfo({ ...allBoxStatusInfo })
+            this.maxTitleBar.setAllBoxStatusInfo({ ...(allBoxStatusInfo || {}) })
 
             //最小化按钮显示
             const minimized = minimizedBoxes.length > 0
             console.log('[TeleBox] Collector Visibility Update', { minimized, minimizedBoxes })
             collector$.value?.setVisible(minimized)
-            this.collector?.setAllBoxStatusInfo({ ...allBoxStatusInfo })
+            this.collector?.setAllBoxStatusInfo({ ...(allBoxStatusInfo || {}) })
             if (minimized) {
                 if (collector$.value?.$collector) {
                     collectorRect$.setValue(calcCollectorRect())
@@ -183,8 +183,8 @@ export class TeleBoxManager {
                 return minimizedBoxes.length
                     ? TELE_BOX_STATE.Minimized
                     : maximizedBoxes.length
-                    ? TELE_BOX_STATE.Maximized
-                    : TELE_BOX_STATE.Normal
+                        ? TELE_BOX_STATE.Maximized
+                        : TELE_BOX_STATE.Normal
             }
         )
         state$.reaction((state, _, skipUpdate) => {
@@ -209,15 +209,15 @@ export class TeleBoxManager {
             collector === null
                 ? null
                 : collector ||
-                      new TeleBoxCollector({
-                          visible: this.getMinimizedBoxes().length > 0 && !this.readonly,
-                          readonly: readonly$.value,
-                          namespace,
-                          allBoxStatusInfo: this.allBoxStatusInfo$.value,
-                          boxes: this.boxes$.value,
-                          externalEvents: this.externalEvents,
-                          appReadonly: this.appReadonly
-                      }).mount(root)
+                new TeleBoxCollector({
+                    visible: this.getMinimizedBoxes().length > 0 && !this.readonly,
+                    readonly: readonly$.value,
+                    namespace,
+                    allBoxStatusInfo: this.allBoxStatusInfo$.value,
+                    boxes: this.boxes$.value,
+                    externalEvents: this.externalEvents,
+                    appReadonly: this.appReadonly
+                }).mount(root)
         )
         collector$.subscribe((collector) => {
             if (collector) {
@@ -229,14 +229,14 @@ export class TeleBoxManager {
                         console.log('[TeleBox] Collector Click Event', { boxId, readonly: readonly$.value })
                         if (!readonly$.value) {
                             //最小化列表中item点击,从last里面取上一次的状态进行还原
-                            const lastLastNotMinimizedBoxsStatus = this.lastLastNotMinimizedBoxsStatus$.value
+                            const lastLastNotMinimizedBoxsStatus = this.lastLastNotMinimizedBoxsStatus$.value || {}
                             const lastLastNotMinimizedBoxsStatusBox = lastLastNotMinimizedBoxsStatus[boxId]
-                            const allBoxStatusInfo = { ...this.allBoxStatusInfo$.value }
+                            const allBoxStatusInfo = { ...(this.allBoxStatusInfo$.value || {}) }
                             if (lastLastNotMinimizedBoxsStatusBox) {
                                 allBoxStatusInfo[boxId] = lastLastNotMinimizedBoxsStatusBox
                                 this.setAllBoxStatusInfo(allBoxStatusInfo, false)
                             }
-                            this.makeBoxTopFromNotMinimized(this.boxes.find((item) => item.id === boxId),false)
+                            this.makeBoxTopFromNotMinimized(this.boxes.find((item) => item.id === boxId), false)
                         }
                     }
                     return () => collector.destroy()
@@ -326,37 +326,37 @@ export class TeleBoxManager {
                 switch (event.type) {
                     case TELE_BOX_DELEGATE_EVENT.Maximize: {
                         console.log('[TeleBox] TitleBar Options Click To Maximize', currentOptionBox)
-                        if(currentOptionBox.hasFocus) {
+                        if (currentOptionBox.hasFocus) {
                             //当前有获焦的box，则将当前box设置为最大化，如果当前的是最大化的则设置为normal
-                            const allBoxStatusInfo = { ...this.allBoxStatusInfo$.value }
+                            const allBoxStatusInfo = { ...(this.allBoxStatusInfo$.value || {}) }
                             allBoxStatusInfo[currentOptionBox.boxId] = TELE_BOX_STATE.Maximized === allBoxStatusInfo[currentOptionBox.boxId] ? TELE_BOX_STATE.Normal : TELE_BOX_STATE.Maximized
-                            this.setAllBoxStatusInfo(allBoxStatusInfo,false)
-                        }else{
+                            this.setAllBoxStatusInfo(allBoxStatusInfo, false)
+                        } else {
                             //如果当前没有获焦的box，则清除所有最大化状态
-                            const allBoxStatusInfo = { ...this.allBoxStatusInfo$.value }
+                            const allBoxStatusInfo = { ...(this.allBoxStatusInfo$.value || {}) }
                             Object.keys(allBoxStatusInfo).forEach(boxId => {
                                 if (allBoxStatusInfo[boxId] === TELE_BOX_STATE.Maximized) {
                                     allBoxStatusInfo[boxId] = TELE_BOX_STATE.Normal
                                 }
                             })
-                            this.setAllBoxStatusInfo(allBoxStatusInfo,false)
+                            this.setAllBoxStatusInfo(allBoxStatusInfo, false)
                         }
                         break
                     }
                     case TELE_BOX_DELEGATE_EVENT.Minimize: {
                         console.log('[TeleBox] TitleBar Options Click To Minimize', currentOptionBox)
-                        if(currentOptionBox.hasFocus) {
+                        if (currentOptionBox.hasFocus) {
                             //当前有获焦的box，则将当前box设置为最大化，如果当前的是最大化的则设置为normal
                             this.changeBoxToMinimized(currentOptionBox.boxId)
-                        }else{
+                        } else {
                             //如果当前没有获焦的box，则清除所有最大化状态
-                            const allBoxStatusInfo = { ...this.allBoxStatusInfo$.value }
+                            const allBoxStatusInfo = { ...(this.allBoxStatusInfo$.value || {}) }
                             Object.keys(allBoxStatusInfo).forEach(boxId => {
                                 if (allBoxStatusInfo[boxId] === TELE_BOX_STATE.Maximized) {
                                     allBoxStatusInfo[boxId] = TELE_BOX_STATE.Normal
                                 }
                             })
-                            this.setAllBoxStatusInfo(allBoxStatusInfo,false)
+                            this.setAllBoxStatusInfo(allBoxStatusInfo, false)
                         }
                         break
                     }
@@ -462,7 +462,7 @@ export class TeleBoxManager {
         // }
         // this.setAllBoxStatusInfo(allBoxStatusInfo)
     }
-    
+
     public setMaximized(data: boolean, skipUpdate = false): void {
         console.log('[TeleBox] SetMaximized Called', { data, skipUpdate })
         // const allBoxStatusInfo = { ...this.allBoxStatusInfo$.value }
@@ -483,9 +483,12 @@ export class TeleBoxManager {
     }
 
     // 清理allBoxStatusInfo，只保留当前存在的boxes
-    private cleanAllBoxStatusInfo(allBoxStatusInfo: Record<string, TELE_BOX_STATE>): Record<string, TELE_BOX_STATE> {
+    private cleanAllBoxStatusInfo(allBoxStatusInfo: Record<string, TELE_BOX_STATE> | undefined): Record<string, TELE_BOX_STATE> {
+        if (!allBoxStatusInfo || Object.keys(allBoxStatusInfo).length === 0) {
+            return {}
+        }
         const allBoxIds = this.boxes$.value.map((item) => item.id)
-        const cleanedAllBoxStatusInfo = { ...allBoxStatusInfo }
+        const cleanedAllBoxStatusInfo = { ...(allBoxStatusInfo || {}) }
         Object.keys(cleanedAllBoxStatusInfo).forEach(boxId => {
             if (!allBoxIds.includes(boxId)) {
                 delete cleanedAllBoxStatusInfo[boxId]
@@ -494,37 +497,47 @@ export class TeleBoxManager {
         return cleanedAllBoxStatusInfo
     }
 
-    public setAllBoxStatusInfo(allBoxStatusInfo: Record<string, TELE_BOX_STATE>, skipUpdate = false): void {
-        console.log('[TeleBox] SetAllBoxStatusInfo', { 
+    public setAllBoxStatusInfo(allBoxStatusInfo: Record<string, TELE_BOX_STATE> | undefined, skipUpdate = false): void {
+        allBoxStatusInfo = allBoxStatusInfo || {}
+        console.log('[TeleBox] SetAllBoxStatusInfo', {
             oldAllBoxStatusInfo: this.allBoxStatusInfo$.value,
-            newAllBoxStatusInfo: allBoxStatusInfo, 
-            skipUpdate 
+            newAllBoxStatusInfo: allBoxStatusInfo,
+            skipUpdate
         })
         // 清理allBoxStatusInfo，只保留当前存在的boxes
-        const cleanedAllBoxStatusInfo = this.cleanAllBoxStatusInfo(allBoxStatusInfo)
+        const cleanedAllBoxStatusInfo = this.cleanAllBoxStatusInfo(allBoxStatusInfo || {})
         // 创建新的对象，避免直接修改传入的对象
         const newAllBoxStatusInfo = { ...cleanedAllBoxStatusInfo }
         this.allBoxStatusInfo$.setValue(newAllBoxStatusInfo)
     }
 
-    public setLastLastNotMinimizedBoxsStatus(lastLastNotMinimizedBoxsStatus: Record<string, TELE_BOX_STATE>, skipUpdate = false): void {
-        console.log('[TeleBox] SetLastLastNotMinimizedBoxsStatus', { 
+    public setLastLastNotMinimizedBoxsStatus(lastLastNotMinimizedBoxsStatus: Record<string, TELE_BOX_STATE> | undefined, skipUpdate = false): void {
+        lastLastNotMinimizedBoxsStatus = lastLastNotMinimizedBoxsStatus || {}
+        console.log('[TeleBox] SetLastLastNotMinimizedBoxsStatus', {
             oldLastLastNotMinimizedBoxsStatus: this.lastLastNotMinimizedBoxsStatus$.value,
-            newLastLastNotMinimizedBoxsStatus: lastLastNotMinimizedBoxsStatus, 
-            skipUpdate 
+            newLastLastNotMinimizedBoxsStatus: lastLastNotMinimizedBoxsStatus,
+            skipUpdate
         })
-        const cleanedLastLastNotMinimizedBoxsStatus = this.cleanAllBoxStatusInfo(lastLastNotMinimizedBoxsStatus)
+        const cleanedLastLastNotMinimizedBoxsStatus = this.cleanAllBoxStatusInfo(lastLastNotMinimizedBoxsStatus || {})
         const newLastLastNotMinimizedBoxsStatus = { ...cleanedLastLastNotMinimizedBoxsStatus }
-        this.lastLastNotMinimizedBoxsStatus$.setValue(newLastLastNotMinimizedBoxsStatus,skipUpdate)
+        this.lastLastNotMinimizedBoxsStatus$.setValue(newLastLastNotMinimizedBoxsStatus, skipUpdate)
     }
 
-    public getMaximizedBoxes(allBoxStatusInfo: Record<string, TELE_BOX_STATE> = this.allBoxStatusInfo$.value): string[] {
+    public getMaximizedBoxes(allBoxStatusInfo: Record<string, TELE_BOX_STATE> | undefined = this.allBoxStatusInfo$.value): string[] {
+        allBoxStatusInfo = allBoxStatusInfo || {}
+        if (!allBoxStatusInfo || Object.keys(allBoxStatusInfo).length === 0) {
+            return []
+        }
         return Object.entries(allBoxStatusInfo)
             .filter(([_, state]) => state === TELE_BOX_STATE.Maximized)
             .map(([boxId, _]) => boxId)
     }
-    
-    public getMinimizedBoxes(allBoxStatusInfo: Record<string, TELE_BOX_STATE> = this.allBoxStatusInfo$.value): string[] {
+
+    public getMinimizedBoxes(allBoxStatusInfo: Record<string, TELE_BOX_STATE> | undefined = this.allBoxStatusInfo$.value): string[] {
+        allBoxStatusInfo = allBoxStatusInfo || {}
+        if (!allBoxStatusInfo || Object.keys(allBoxStatusInfo).length === 0) {
+            return []
+        }
         return Object.entries(allBoxStatusInfo)
             .filter(([_, state]) => state === TELE_BOX_STATE.Minimized)
             .map(([boxId, _]) => boxId)
@@ -561,11 +574,11 @@ export class TeleBoxManager {
         // 如果有其他box最小化，新box不应该最小化（除非明确指定）
         const currentMaximizedBoxes = this.getMaximizedBoxes()
         const currentMinimizedBoxes = this.getMinimizedBoxes()
-        
-        const managerMaximized$ = currentMaximizedBoxes.includes(id) || 
+
+        const managerMaximized$ = currentMaximizedBoxes.includes(id) ||
             (currentMaximizedBoxes.length > 0 && config.maximized !== false)
-        
-        const managerMinimized$ = currentMinimizedBoxes.includes(id) || 
+
+        const managerMinimized$ = currentMinimizedBoxes.includes(id) ||
             (config.minimized === true)
 
         const box = new TeleBox({
@@ -606,9 +619,9 @@ export class TeleBoxManager {
         }
 
         this.boxes$.setValue([...this.boxes, box])
-        
+
         // 更新allBoxStatusInfo，确保新创建的box状态被记录
-        const allBoxStatusInfo = { ...this.allBoxStatusInfo$.value }
+        const allBoxStatusInfo = { ...(this.allBoxStatusInfo$.value || {}) }
         if (managerMaximized$) {
             allBoxStatusInfo[id] = TELE_BOX_STATE.Maximized
         } else if (managerMinimized$) {
@@ -616,12 +629,12 @@ export class TeleBoxManager {
         } else {
             allBoxStatusInfo[id] = TELE_BOX_STATE.Normal
         }
-        console.log('[TeleBox] Create - Setting AllBoxStatusInfo for new box', { 
-            boxId: id, 
-            managerMaximized$, 
-            managerMinimized$, 
+        console.log('[TeleBox] Create - Setting AllBoxStatusInfo for new box', {
+            boxId: id,
+            managerMaximized$,
+            managerMinimized$,
             newState: allBoxStatusInfo[id],
-            allBoxStatusInfo 
+            allBoxStatusInfo
         })
         this.setAllBoxStatusInfo(allBoxStatusInfo)
 
@@ -634,7 +647,7 @@ export class TeleBoxManager {
                     allBoxStatusInfo[boxId] = TELE_BOX_STATE.Maximized
                 }
             })
-            this.setAllBoxStatusInfo(allBoxStatusInfo,false)
+            this.setAllBoxStatusInfo(allBoxStatusInfo, false)
         })
         box._delegateEvents.on(TELE_BOX_DELEGATE_EVENT.Minimize, () => {
             console.log('[TeleBox] TitleBar Minimize From Box Event', { boxId: box.id })
@@ -672,7 +685,7 @@ export class TeleBoxManager {
             }
         })
         box._zIndex$.reaction((_, __, skipUpdate) => {
-            console.log('[TeleBox] Current Box ZIndex ', box.id,box.zIndex," Original ZIndex ",box.zIndex)
+            console.log('[TeleBox] Current Box ZIndex ', box.id, box.zIndex, " Original ZIndex ", box.zIndex)
             if (this.boxes.length > 0) {
                 const topBox = this.boxes.reduce((topBox, box) =>
                     topBox.zIndex > box.zIndex ? topBox : box
@@ -683,7 +696,7 @@ export class TeleBoxManager {
                 this.events.emit(TELE_BOX_MANAGER_EVENT.ZIndex, box)
             }
             const list = this.boxes$.value.filter((item) => this.getMaximizedBoxes().includes(item.id)).sort((a, b) => b.zIndex - a.zIndex)
-            if(list && list.length > 0) {
+            if (list && list.length > 0) {
                 this.maxTitleBar.setIndexZ(list[0].zIndex + 1)
             }
         })
@@ -694,23 +707,23 @@ export class TeleBoxManager {
 
     //修改box为最小化
     private changeBoxToMinimized(boxId: string): void {
-        const allBoxStatusInfo = { ...this.allBoxStatusInfo$.value }
+        const allBoxStatusInfo = { ...(this.allBoxStatusInfo$.value || {}) }
         //更新lastLastNotMinimizedBoxsStatus
         const lastLastNotMinimizedBoxsStatus = { ...this.lastLastNotMinimizedBoxsStatus$.value }
         lastLastNotMinimizedBoxsStatus[boxId] = allBoxStatusInfo[boxId]
         //更新allBoxStatusInfo
         allBoxStatusInfo[boxId] = TELE_BOX_STATE.Minimized
-        this.setAllBoxStatusInfo(allBoxStatusInfo,false)
-        this.lastLastNotMinimizedBoxsStatus$.setValue(lastLastNotMinimizedBoxsStatus,false)
+        this.setAllBoxStatusInfo(allBoxStatusInfo, false)
+        this.lastLastNotMinimizedBoxsStatus$.setValue(lastLastNotMinimizedBoxsStatus, false)
     }
 
     //修改box为删除关闭
     private changeBoxToClose(boxId: string): void {
-        this.remove(boxId,false)
+        this.remove(boxId, false)
         //更新lastLastNotMinimizedBoxsStatus
         const lastLastNotMinimizedBoxsStatus = { ...this.lastLastNotMinimizedBoxsStatus$.value }
         delete lastLastNotMinimizedBoxsStatus[boxId]
-        this.lastLastNotMinimizedBoxsStatus$.setValue(lastLastNotMinimizedBoxsStatus,false)
+        this.lastLastNotMinimizedBoxsStatus$.setValue(lastLastNotMinimizedBoxsStatus, false)
     }
 
     public query(config?: TeleBoxManagerQueryConfig): ReadonlyTeleBox[] {
@@ -745,10 +758,10 @@ export class TeleBoxManager {
             this.boxes$.setValue(boxes)
             deletedBoxes.forEach((box) => box.destroy())
             if (boxId) {
-                const allBoxStatusInfo = { ...this.allBoxStatusInfo$.value }
+                const allBoxStatusInfo = { ...(this.allBoxStatusInfo$.value || {}) }
                 // 清除该box的状态
                 delete allBoxStatusInfo[boxId]
-                this.setAllBoxStatusInfo(allBoxStatusInfo,skipUpdate)
+                this.setAllBoxStatusInfo(allBoxStatusInfo, skipUpdate)
                 const observeData = this.elementObserverMap.get(boxId)
                 if (observeData) {
                     observeData.forEach(({ el, cb }) => {
@@ -760,7 +773,7 @@ export class TeleBoxManager {
             }
             if (!skipUpdate) {
                 if (this.boxes.length <= 0) {
-                    this.setAllBoxStatusInfo({},skipUpdate)
+                    this.setAllBoxStatusInfo({}, skipUpdate)
                 }
                 this.events.emit(TELE_BOX_MANAGER_EVENT.Removed, deletedBoxes)
             }
@@ -1006,7 +1019,7 @@ export class TeleBoxManager {
     }
 
     protected makeBoxTop(box: TeleBox, skipUpdate = false): void {
-        console.log('[TeleBox] TopBox Change To', box.id,box.zIndex," Original TopBox ",this.topBox?.id,this.topBox?.zIndex)
+        console.log('[TeleBox] TopBox Change To', box.id, box.zIndex, " Original TopBox ", this.topBox?.id, this.topBox?.zIndex)
         if (this.topBox) {
             if (box !== this.topBox) {
                 if (this.getMaximizedBoxes().includes(box.id)) {
@@ -1038,7 +1051,8 @@ export class TeleBoxManager {
     public makeBoxTopFromNotMinimized(topFocusBox: TeleBox | undefined = undefined, skipUpdate = false): void {
         console.log('[TeleBox] MakeBoxTopFromNotMinimized Called', { topFocusBox: topFocusBox?.id, skipUpdate })
         if (!topFocusBox) {
-            const notMinimizedBoxes = Object.entries(this.allBoxStatusInfo$.value).filter(([_, state]) => state !== TELE_BOX_STATE.Minimized).map(([boxId, _]) => boxId)
+            const allBoxStatusInfo = this.allBoxStatusInfo$.value || {}
+            const notMinimizedBoxes = Object.entries(allBoxStatusInfo).filter(([_, state]) => state !== TELE_BOX_STATE.Minimized).map(([boxId, _]) => boxId)
             const filteredBoxes = this.boxes.filter((box: TeleBox) => notMinimizedBoxes.includes(box.id))
             if (filteredBoxes.length > 0) {
                 topFocusBox = filteredBoxes.reduce((maxBox, box) => {
@@ -1046,18 +1060,19 @@ export class TeleBoxManager {
                 })
             }
         }
-        
+
         // 如果没有找到topFocusBox，直接返回
         if (!topFocusBox) {
             console.log('[TeleBox] No topFocusBox found, returning early')
             return
         }
-        
+
         this.makeBoxTop(topFocusBox, skipUpdate)
-        if(this.allBoxStatusInfo$.value[topFocusBox.id] === TELE_BOX_STATE.Maximized){
+        const allBoxStatusInfo = this.allBoxStatusInfo$.value || {}
+        if (allBoxStatusInfo[topFocusBox.id] === TELE_BOX_STATE.Maximized) {
             this.maxTitleBar.focusBox(topFocusBox)
-        }else{
-            const maximizedBoxes = this.boxes.filter((box: TeleBox) => this.allBoxStatusInfo$.value[box.id] === TELE_BOX_STATE.Maximized)
+        } else {
+            const maximizedBoxes = this.boxes.filter((box: TeleBox) => allBoxStatusInfo[box.id] === TELE_BOX_STATE.Maximized)
             if (maximizedBoxes.length > 0) {
                 const maxBox = maximizedBoxes.reduce((maxBox, box) => {
                     return maxBox.zIndex > box.zIndex ? maxBox : box
@@ -1086,7 +1101,8 @@ export class TeleBoxManager {
                 console.log('[TeleBox] MakeBoxTopFromMaximized - Found Specific Box', { boxId, maxIndexBox: maxIndexBox?.id })
             }
         } else {
-            const maximizedBoxes = this.boxes?.filter((box: TeleBox) => this.allBoxStatusInfo$.value[box.id] === TELE_BOX_STATE.Maximized)
+            const allBoxStatusInfo = this.allBoxStatusInfo$.value || {}
+            const maximizedBoxes = this.boxes?.filter((box: TeleBox) => allBoxStatusInfo[box.id] === TELE_BOX_STATE.Maximized)
             if (maximizedBoxes && maximizedBoxes.length > 0) {
                 maxIndexBox = maximizedBoxes.reduce((maxBox, box) => {
                     return maxBox.zIndex > box.zIndex ? maxBox : box
