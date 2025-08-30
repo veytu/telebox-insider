@@ -14,4 +14,8 @@ export enum TELE_BOX_MANAGER_EVENT {
     ZIndex = "z_index",
     PrefersColorScheme = "prefers_color_scheme",
     DarkMode = "dark_mode",
+    // box标题栏操作
+    BoxToMinimized = "boxToMinimized",
+    BoxToMaximized = "boxToMaximized",
+    BoxToNormal = "boxToNormal",
 }

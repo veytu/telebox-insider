@@ -88,6 +88,9 @@ export type TeleBoxManagerEventConfig = CheckTeleBoxManagerConfig<{
     dark_mode: [boolean];
     onScaleChange: [number];
     OpenMiniBox: [any]
+    boxToMinimized: [{boxId:string,allBoxStatusInfo:Record<string, TELE_BOX_STATE>}]
+    boxToMaximized: [{boxId:string,allBoxStatusInfo:Record<string, TELE_BOX_STATE>}]
+    boxToNormal: [{boxId:string,allBoxStatusInfo:Record<string, TELE_BOX_STATE>}]
 }>;
 
 export type TeleBoxManagerEvent = keyof TeleBoxManagerEventConfig;

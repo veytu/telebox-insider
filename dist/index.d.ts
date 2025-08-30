@@ -753,7 +753,10 @@ declare enum TELE_BOX_MANAGER_EVENT {
     VisualResize = "visual_resize",
     ZIndex = "z_index",
     PrefersColorScheme = "prefers_color_scheme",
-    DarkMode = "dark_mode"
+    DarkMode = "dark_mode",
+    BoxToMinimized = "boxToMinimized",
+    BoxToMaximized = "boxToMaximized",
+    BoxToNormal = "boxToNormal"
 }
 
 type StringStyleKeys<T = keyof CSSStyleDeclaration> = T extends keyof CSSStyleDeclaration ? CSSStyleDeclaration[T] extends string ? T : never : never;
@@ -790,6 +793,18 @@ type TeleBoxManagerEventConfig = CheckTeleBoxManagerConfig<{
     dark_mode: [boolean];
     onScaleChange: [number];
     OpenMiniBox: [any];
+    boxToMinimized: [{
+        boxId: string;
+        allBoxStatusInfo: Record<string, TELE_BOX_STATE>;
+    }];
+    boxToMaximized: [{
+        boxId: string;
+        allBoxStatusInfo: Record<string, TELE_BOX_STATE>;
+    }];
+    boxToNormal: [{
+        boxId: string;
+        allBoxStatusInfo: Record<string, TELE_BOX_STATE>;
+    }];
 }>;
 type TeleBoxManagerEvent = keyof TeleBoxManagerEventConfig;
 interface TeleBoxManagerEvents extends EventEmitter<TeleBoxManagerEvent> {

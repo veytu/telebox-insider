@@ -2692,6 +2692,9 @@ var TELE_BOX_MANAGER_EVENT = /* @__PURE__ */ ((TELE_BOX_MANAGER_EVENT2) => {
   TELE_BOX_MANAGER_EVENT2["ZIndex"] = "z_index";
   TELE_BOX_MANAGER_EVENT2["PrefersColorScheme"] = "prefers_color_scheme";
   TELE_BOX_MANAGER_EVENT2["DarkMode"] = "dark_mode";
+  TELE_BOX_MANAGER_EVENT2["BoxToMinimized"] = "boxToMinimized";
+  TELE_BOX_MANAGER_EVENT2["BoxToMaximized"] = "boxToMaximized";
+  TELE_BOX_MANAGER_EVENT2["BoxToNormal"] = "boxToNormal";
   return TELE_BOX_MANAGER_EVENT2;
 })(TELE_BOX_MANAGER_EVENT || {});
 var style = "";
@@ -3062,6 +3065,13 @@ class TeleBoxManager {
                 this.setAllBoxStatusInfo(allBoxStatusInfo2, false);
               }
               this.makeBoxTopFromNotMinimized(this.boxes.find((item) => item.id === boxId), false);
+              if (lastLastNotMinimizedBoxsStatusBox === TELE_BOX_STATE.Minimized) {
+                this.events.emit(TELE_BOX_MANAGER_EVENT.BoxToMinimized, { boxId, allBoxStatusInfo: allBoxStatusInfo2 });
+              } else if (lastLastNotMinimizedBoxsStatusBox === TELE_BOX_STATE.Maximized) {
+                this.events.emit(TELE_BOX_MANAGER_EVENT.BoxToMaximized, { boxId, allBoxStatusInfo: allBoxStatusInfo2 });
+              } else if (lastLastNotMinimizedBoxsStatusBox === TELE_BOX_STATE.Normal) {
+                this.events.emit(TELE_BOX_MANAGER_EVENT.BoxToNormal, { boxId, allBoxStatusInfo: allBoxStatusInfo2 });
+              }
             }
           };
           return () => collector2.destroy();
@@ -3160,6 +3170,7 @@ class TeleBoxManager {
               });
               this.setAllBoxStatusInfo(allBoxStatusInfo2, false);
             }
+            this.events.emit(TELE_BOX_MANAGER_EVENT.BoxToMaximized, { boxId: currentOptionBox.boxId, allBoxStatusInfo: this.allBoxStatusInfo$.value || {} });
             break;
           }
           case TELE_BOX_DELEGATE_EVENT.Minimize: {
@@ -3175,11 +3186,13 @@ class TeleBoxManager {
               });
               this.setAllBoxStatusInfo(allBoxStatusInfo2, false);
             }
+            this.events.emit(TELE_BOX_MANAGER_EVENT.BoxToMinimized, { boxId: currentOptionBox.boxId, allBoxStatusInfo: this.allBoxStatusInfo$.value || {} });
             break;
           }
           case TELE_BOX_EVENT.Close: {
             console.log("[TeleBox] TitleBar Options Click To Close", currentOptionBox);
             this.changeBoxToClose(currentOptionBox.boxId);
+            this.events.emit(TELE_BOX_MANAGER_EVENT.BoxToNormal, { boxId: currentOptionBox.boxId, allBoxStatusInfo: this.allBoxStatusInfo$.value || {} });
             break;
           }
         }
@@ -3358,15 +3371,18 @@ class TeleBoxManager {
         }
       });
       this.setAllBoxStatusInfo(allBoxStatusInfo2, false);
+      this.events.emit(TELE_BOX_MANAGER_EVENT.BoxToNormal, { boxId: box.id, allBoxStatusInfo: this.allBoxStatusInfo$.value || {} });
     });
     box._delegateEvents.on(TELE_BOX_DELEGATE_EVENT.Minimize, () => {
       console.log("[TeleBox] TitleBar Minimize From Box Event", { boxId: box.id });
       this.changeBoxToMinimized(box.id);
+      this.events.emit(TELE_BOX_MANAGER_EVENT.BoxToMinimized, { boxId: box.id, allBoxStatusInfo: this.allBoxStatusInfo$.value || {} });
     });
     box._delegateEvents.on(TELE_BOX_DELEGATE_EVENT.Close, () => {
       console.log("[TeleBox] TitleBar Close From Box Event", { boxId: box.id });
       this.changeBoxToClose(box.id);
       this.events.emit(TELE_BOX_MANAGER_EVENT.Removed, [box]);
+      this.events.emit(TELE_BOX_MANAGER_EVENT.BoxToNormal, { boxId: box.id, allBoxStatusInfo: this.allBoxStatusInfo$.value || {} });
     });
     box._coord$.reaction((_, __, skipUpdate) => {
       if (!skipUpdate) {
