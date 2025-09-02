@@ -22,9 +22,11 @@ export type DefaultTitleBarButton = TeleTitleBarEvent & {
 
 export interface DefaultTitleBarConfig extends TeleTitleBarConfig {
     buttons?: ReadonlyArray<DefaultTitleBarButton>;
+    boxStatus?: TeleBoxState;
 }
 
 export class DefaultTitleBar implements TeleTitleBar {
+    protected boxStatus?: TeleBoxState;
     public constructor({
         readonly = false,
         title,
@@ -33,6 +35,7 @@ export class DefaultTitleBar implements TeleTitleBar {
         onDragStart,
         namespace = "telebox",
         state = TELE_BOX_STATE.Normal,
+        boxStatus,
     }: DefaultTitleBarConfig = {}) {
         this.readonly = readonly;
         this.onEvent = onEvent;
@@ -40,6 +43,7 @@ export class DefaultTitleBar implements TeleTitleBar {
         this.namespace = namespace;
         this.title = title;
         this.state = state;
+        this.boxStatus = boxStatus;
 
         this.buttons = buttons || [
             {
@@ -91,11 +95,28 @@ export class DefaultTitleBar implements TeleTitleBar {
         }
     }
 
+    public setBoxStatus(boxStatus?: TeleBoxState): void {
+        if (this.boxStatus !== boxStatus) {
+            this.boxStatus = boxStatus;
+            if (boxStatus) {
+                this.buttons.forEach((btn, i) => {
+                    if (btn.isActive) {
+                        this.$btns[i].classList.toggle(
+                            "is-active",
+                            btn.isActive(boxStatus)
+                        );
+                    }
+                });
+            }
+        }
+    }
+
     public setReadonly(readonly: boolean): void {
         if (this.readonly !== readonly) {
             this.readonly = readonly;
         }
     }
+
 
     public render(): HTMLElement {
         if (!this.$titleBar) {
@@ -131,7 +152,7 @@ export class DefaultTitleBar implements TeleTitleBar {
                 $btn.dataset.teleTitleBarNoDblClick = "true";
 
                 if (isActive) {
-                    $btn.classList.toggle("is-active", isActive(this.state));
+                    $btn.classList.toggle("is-active", isActive(this.boxStatus || this.state));
                 }
 
                 this.$btns.push($btn);

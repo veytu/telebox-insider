@@ -27,6 +27,8 @@ export enum TELE_BOX_EVENT {
     Maximized = "maximized",
     Readonly = "readonly",
     Destroyed = "destroyed",
+    BoxStatus = "box_status",
+    LastNotMinimizedBoxStatus = "last_not_minimized_box_status",
 }
 
 export enum TELE_BOX_DELEGATE_EVENT {

@@ -5,16 +5,18 @@ import { DefaultTitleBar, DefaultTitleBarConfig } from "../../TeleTitleBar";
 import { TELE_BOX_STATE } from "../../TeleBox/constants";
 import { TeleBoxRect, TeleBoxState } from "../../TeleBox/typings";
 
-export type MaxTitleBarTeleBox = Pick<TeleBox, "id" | "title" | "readonly">;
+export type MaxTitleBarTeleBox = Pick<TeleBox, "id" | "title" | "readonly" | "zIndex" | "$box">;
 
 export interface MaxTitleBarConfig extends DefaultTitleBarConfig {
     darkMode: boolean;
     boxes: MaxTitleBarTeleBox[];
     containerRect: TeleBoxRect;
     focusedBox?: MaxTitleBarTeleBox;
+    boxesStatus?: Map<string, TeleBoxState>;
 }
 
 export class MaxTitleBar extends DefaultTitleBar {
+    public boxesStatus?: Map<string, TeleBoxState>;
     public constructor(config: MaxTitleBarConfig) {
         super(config);
 
@@ -22,34 +24,74 @@ export class MaxTitleBar extends DefaultTitleBar {
         this.focusedBox = config.focusedBox;
         this.containerRect = config.containerRect;
         this.darkMode = config.darkMode;
+        this.boxesStatus = config.boxesStatus;
     }
 
+    public hasMaximizedBoxInStatus(): boolean {
+        if (!this.boxesStatus || this.boxesStatus.size === 0) {
+            return false
+        }
+        const hasMaximizedBox = [...this.boxesStatus.values()].find((state) => state === TELE_BOX_STATE.Maximized);
+        return !!hasMaximizedBox;
+    }
+
+    public get MaximizedBoxes(): MaxTitleBarTeleBox[] {
+        if (!this.boxesStatus || this.boxesStatus.size === 0) {
+            return [];
+        }
+        return this.boxes.filter((box) => this.boxesStatus && this.boxesStatus.get(box.id) === TELE_BOX_STATE.Maximized);
+    }
+
+    /**
+     * 设置MaxTitleBar的focusedBox
+     * @param box 如果box为空，则全部失去焦点
+     * @returns 
+     */
     public focusBox(box?: MaxTitleBarTeleBox): void {
         if (this.focusedBox && this.focusedBox === box) {
             return;
         }
-
-        if (this.$titles && this.state === TELE_BOX_STATE.Maximized) {
+        if (this.$titles) {
             const { children } = this.$titles.firstElementChild as HTMLElement;
-            for (let i = children.length - 1; i >= 0; i -= 1) {
-                const $tab = children[i] as HTMLElement;
-                const id = $tab.dataset?.teleBoxID;
-                if (id) {
-                    if (box && id === box.id) {
-                        $tab.classList.toggle(
-                            this.wrapClassName("titles-tab-focus"),
-                            true
-                        );
-                    } else if (this.focusedBox && id === this.focusedBox.id) {
-                        $tab.classList.toggle(
-                            this.wrapClassName("titles-tab-focus"),
-                            false
-                        );
+            if (this.state === TELE_BOX_STATE.Maximized && !this.hasMaximizedBoxInStatus()) {
+                for (let i = children.length - 1; i >= 0; i -= 1) {
+                    const $tab = children[i] as HTMLElement;
+                    const id = $tab.dataset?.teleBoxID;
+                    if (id) {
+                        if (box && id === box.id) {
+                            $tab.classList.toggle(
+                                this.wrapClassName("titles-tab-focus"),
+                                true
+                            );
+                        } else if (this.focusedBox && id === this.focusedBox.id) {
+                            $tab.classList.toggle(
+                                this.wrapClassName("titles-tab-focus"),
+                                false
+                            );
+                        }
+                    }
+                }
+            } else if (this.hasMaximizedBoxInStatus()) {
+                for (let i = children.length - 1; i >= 0; i -= 1) {
+                    const $tab = children[i] as HTMLElement;
+                    const id = $tab.dataset?.teleBoxID;
+                    if (id) {
+                        if (box && id === box.id) {
+                            $tab.classList.toggle(
+                                this.wrapClassName("titles-tab-focus"),
+                                true
+                            );
+                        } else if (this.focusedBox && id === this.focusedBox.id) {
+                            $tab.classList.toggle(
+                                this.wrapClassName("titles-tab-focus"),
+                                false
+                            );
+                        }
                     }
                 }
             }
         }
-        this.focusedBox = box;
+        this.focusedBox = box;  
     }
 
     public setContainerRect(rect: TeleBoxRect): void {
@@ -61,12 +103,26 @@ export class MaxTitleBar extends DefaultTitleBar {
         }
     }
 
+    public setBoxesStatus(boxesStatus: Map<string, TeleBoxState>): void {
+        this.boxesStatus = boxesStatus;
+        if (this.hasMaximizedBoxInStatus()) {
+            this.setBoxStatus(TELE_BOX_STATE.Maximized);
+        }
+        if (this.$titleBar) {
+            this.$titleBar.classList.toggle(
+                this.wrapClassName("max-titlebar-maximized"),
+                this.state === TELE_BOX_STATE.Maximized && this.boxes.length > 0 || this.hasMaximizedBoxInStatus()
+            );
+        }
+        this.updateTitles();
+    }
+
     public setBoxes(boxes: MaxTitleBarTeleBox[]): void {
         this.boxes = boxes;
         if (this.$titleBar) {
             this.$titleBar.classList.toggle(
                 this.wrapClassName("max-titlebar-maximized"),
-                this.state === TELE_BOX_STATE.Maximized && boxes.length > 0
+                this.state === TELE_BOX_STATE.Maximized && boxes.length > 0 || this.hasMaximizedBoxInStatus()
             );
         }
         this.updateTitles();
@@ -77,7 +133,7 @@ export class MaxTitleBar extends DefaultTitleBar {
         if (this.$titleBar) {
             this.$titleBar.classList.toggle(
                 this.wrapClassName("max-titlebar-maximized"),
-                state === TELE_BOX_STATE.Maximized && this.boxes.length > 0
+                (state === TELE_BOX_STATE.Maximized && this.boxes.length > 0) || this.hasMaximizedBoxInStatus()
             );
         }
         this.updateTitles();
@@ -148,12 +204,12 @@ export class MaxTitleBar extends DefaultTitleBar {
     }
 
     public updateTitles(): void {
-        if (this.$titleBar && this.state === TELE_BOX_STATE.Maximized) {
+        if (this.$titleBar && (this.state === TELE_BOX_STATE.Maximized || this.hasMaximizedBoxInStatus())) {
             this.$titleBar.classList.toggle(
                 this.wrapClassName("max-titlebar-single-title"),
-                this.boxes.length === 1
+                this.boxes.length === 1 || (this.hasMaximizedBoxInStatus() && this.MaximizedBoxes.length === 1)
             );
-            if (this.boxes.length === 1) {
+            if (this.boxes.length === 1 || (this.hasMaximizedBoxInStatus() && this.MaximizedBoxes.length === 1)) {
                 this.setTitle(this.boxes[0].title);
             } else {
                 this.$titleBar.replaceChild(
@@ -182,7 +238,7 @@ export class MaxTitleBar extends DefaultTitleBar {
         $content.className = this.wrapClassName("titles-content");
         this.$titles.appendChild($content);
 
-        this.boxes.forEach((box) => {
+        (this.hasMaximizedBoxInStatus() ? this.MaximizedBoxes : this.boxes).forEach((box) => {
             const $tab = document.createElement("button");
             $tab.className = this.wrapClassName("titles-tab");
             $tab.textContent = box.title;

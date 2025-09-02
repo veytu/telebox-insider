@@ -1,7 +1,7 @@
 import type EventEmitter from "eventemitter3";
 import { TeleBoxColorScheme } from "..";
 import type { ReadonlyTeleBox, TeleBoxState } from "../TeleBox";
-import type { TeleBoxConfig } from "../TeleBox/typings";
+import type { NotMinimizedBoxState, TeleBoxConfig } from "../TeleBox/typings";
 import type { TeleBoxCollector } from "../TeleBoxCollector";
 import type { TELE_BOX_MANAGER_EVENT } from "./constants";
 
@@ -34,7 +34,9 @@ type TeleBoxManagerBoxConfigBaseProps =
     | "resizable"
     | "draggable"
     | "fixRatio"
-    | "zIndex";
+    | "zIndex"
+    | "boxStatus"
+    | "lastNotMinimizedBoxStatus";
 
 export type TeleBoxManagerCreateConfig = Pick<
     TeleBoxConfig,
@@ -71,6 +73,8 @@ export type TeleBoxManagerEventConfig = CheckTeleBoxManagerConfig<{
     z_index: [ReadonlyTeleBox];
     prefers_color_scheme: [TeleBoxColorScheme];
     dark_mode: [boolean];
+    box_status: [{ id: string, boxStatus?: TeleBoxState }];
+    last_not_minimized_box_status: [{ id: string, boxStatus?: NotMinimizedBoxState }];
 }>;
 
 export type TeleBoxManagerEvent = keyof TeleBoxManagerEventConfig;

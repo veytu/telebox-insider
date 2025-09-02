@@ -14,4 +14,6 @@ export enum TELE_BOX_MANAGER_EVENT {
     ZIndex = "z_index",
     PrefersColorScheme = "prefers_color_scheme",
     DarkMode = "dark_mode",
+    BoxStatus = "box_status",
+    LastNotMinimizedBoxStatus = "last_not_minimized_box_status",
 }

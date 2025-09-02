@@ -38,6 +38,7 @@ import type {
     TeleBoxCoord,
     TeleBoxSize,
     TeleBoxColorScheme,
+    NotMinimizedBoxState,
 } from "./typings";
 
 export * from "./constants";
@@ -108,6 +109,8 @@ export class TeleBox {
             height: window.innerHeight,
         },
         collectorRect,
+        boxStatus,
+        lastNotMinimizedBoxStatus
     }: TeleBoxConfig = {}) {
         this._sideEffect = new SideEffectManager();
         this._valSideEffectBinder = createSideEffectBinder(this._sideEffect);
@@ -117,6 +120,8 @@ export class TeleBox {
         this.namespace = namespace;
         this.events = new EventEmitter();
         this._delegateEvents = new EventEmitter();
+        const boxStatus$ = createVal<TeleBoxState | undefined, boolean>(boxStatus);
+        const lastNotMinimizedBoxStatus$ = createVal<NotMinimizedBoxState | undefined, boolean>(lastNotMinimizedBoxStatus);
 
         const prefersColorScheme$ = createVal<TeleBoxColorScheme, boolean>(
             prefersColorScheme
@@ -234,13 +239,14 @@ export class TeleBox {
         });
 
         const state$ = combine(
-            [minimized$, maximized$],
-            ([minimized, maximized]): TeleBoxState =>
+            [minimized$, maximized$, boxStatus$],
+            ([minimized, maximized, boxStatus]): TeleBoxState =>
                 minimized
                     ? TELE_BOX_STATE.Minimized
                     : maximized
                     ? TELE_BOX_STATE.Maximized
-                    : TELE_BOX_STATE.Normal
+                    : !boxStatus ? TELE_BOX_STATE.Normal
+                    : boxStatus
         );
         state$.reaction((state, _, skipUpdate) => {
             if (!skipUpdate) {
@@ -279,9 +285,9 @@ export class TeleBox {
         });
 
         const size$ = combine(
-            [intrinsicSize$, maximized$],
-            ([intrinsicSize, maximized]) => {
-                if (maximized) {
+            [intrinsicSize$, maximized$, boxStatus$],
+            ([intrinsicSize, maximized, boxStatus]) => {
+                if (maximized || boxStatus === TELE_BOX_STATE.Maximized) {
                     return { width: 1, height: 1 };
                 }
                 return intrinsicSize;
@@ -295,9 +301,9 @@ export class TeleBox {
         });
 
         const visualSize$ = combine(
-            [size$, minimized$, containerRect$, collectorRect$],
-            ([size, minimized, containerRect, collectorRect]) => {
-                if (minimized && collectorRect) {
+            [size$, minimized$, containerRect$, collectorRect$, boxStatus$],
+            ([size, minimized, containerRect, collectorRect, boxStatus]) => {
+                if ((minimized || boxStatus === TELE_BOX_STATE.Minimized) && collectorRect) {
                     return {
                         width:
                             collectorRect.width /
@@ -337,6 +343,8 @@ export class TeleBox {
                 collectorRect$,
                 minimized$,
                 maximized$,
+                boxStatus$,
+                lastNotMinimizedBoxStatus$,
             ],
             ([
                 intrinsicCoord,
@@ -345,9 +353,11 @@ export class TeleBox {
                 collectorRect,
                 minimized,
                 maximized,
+                boxStatus,
+                lastNotMinimizedBoxStatus,
             ]) => {
-                if (minimized && collectorRect) {
-                    if (maximized) {
+                if ((minimized || boxStatus === TELE_BOX_STATE.Minimized) && collectorRect) {
+                    if (maximized || lastNotMinimizedBoxStatus === TELE_BOX_STATE.Maximized) {
                         return {
                             x:
                                 (collectorRect.x + collectorRect.width / 2) /
@@ -370,7 +380,7 @@ export class TeleBox {
                             intrinsicSize.height / 2,
                     };
                 }
-                if (maximized) {
+                if (maximized || boxStatus === TELE_BOX_STATE.Maximized) {
                     return { x: 0, y: 0 };
                 }
                 return intrinsicCoord;
@@ -389,6 +399,7 @@ export class TeleBox {
                 readonly: readonly$.value,
                 title: title$.value,
                 namespace: this.namespace,
+                boxStatus: boxStatus$.value,
                 onDragStart: (event) => this._handleTrackStart?.(event),
                 onEvent: (event): void => {
                     if (this._delegateEvents.listeners.length > 0) {
@@ -396,11 +407,15 @@ export class TeleBox {
                     } else {
                         switch (event.type) {
                             case TELE_BOX_DELEGATE_EVENT.Maximize: {
-                                maximized$.setValue(!maximized$.value);
+                                if (!boxStatus$.value) {
+                                    maximized$.setValue(!maximized$.value);
+                                }
                                 break;
                             }
                             case TELE_BOX_DELEGATE_EVENT.Minimize: {
-                                minimized$.setValue(true);
+                                if (!boxStatus$.value) {
+                                    minimized$.setValue(true);
+                                }
                                 break;
                             }
                             case TELE_BOX_DELEGATE_EVENT.Close: {
@@ -420,6 +435,9 @@ export class TeleBox {
             });
         readonly$.reaction((readonly) => {
             this.titleBar.setReadonly(readonly);
+        });
+        boxStatus$.reaction((boxStatus) => {
+            this.titleBar.setBoxStatus(boxStatus);
         });
 
         const $userContent$ = createVal(content);
@@ -456,6 +474,8 @@ export class TeleBox {
         this._visualSize$ = visualSize$;
         this._coord$ = coord$;
         this._intrinsicCoord$ = intrinsicCoord$;
+        this._boxStatus$ = boxStatus$;
+        this._lastNotMinimizedBoxStatus$ = lastNotMinimizedBoxStatus$;
 
         if (this.fixRatio) {
             this.transform(
@@ -491,7 +511,20 @@ export class TeleBox {
     public _visualSize$: Val<TeleBoxSize, boolean>;
     public _coord$: Val<TeleBoxCoord, boolean>;
     public _intrinsicCoord$: Val<TeleBoxCoord, boolean>;
+    public _boxStatus$: Val<TeleBoxState | undefined, boolean>;
+    public _lastNotMinimizedBoxStatus$: Val<NotMinimizedBoxState | undefined, boolean>;
 
+    public get boxStatus(): TeleBoxState | undefined {
+        return this._boxStatus$.value;
+    }
+
+    public set boxStatus(boxStatus: TeleBoxState | undefined) {
+        this._boxStatus$.setValue(boxStatus);
+    }
+
+    public get lastNotMinimizedBoxStatus(): NotMinimizedBoxState | undefined {
+        return this._lastNotMinimizedBoxStatus$.value;
+    }
     public get darkMode(): boolean {
         return this._darkMode$.value;
     }
@@ -520,6 +553,29 @@ export class TeleBox {
                 this.setMaximized(false, skipUpdate);
                 break;
             }
+        }
+        return this;
+    }
+
+    public setBoxStatus(boxStatus: TeleBoxState, skipUpdate = false): this {
+        if (boxStatus === TELE_BOX_STATE.Minimized) {
+            if (this._boxStatus$.value && this._boxStatus$.value !== TELE_BOX_STATE.Minimized) {
+                this.setLastNotMinimizedBoxStatus(this._boxStatus$.value, skipUpdate);
+            }
+        } else {
+            this.setLastNotMinimizedBoxStatus(undefined, skipUpdate);
+        }
+        this._boxStatus$.setValue(boxStatus, skipUpdate);
+        if (!skipUpdate) {
+            this.events.emit(TELE_BOX_EVENT.BoxStatus, {id: this.id, boxStatus});
+        }
+        return this;
+    }
+
+    public setLastNotMinimizedBoxStatus(lastNotMinimizedBoxStatus?: NotMinimizedBoxState, skipUpdate = false): this {
+        this._lastNotMinimizedBoxStatus$.setValue(lastNotMinimizedBoxStatus, skipUpdate);
+        if (!skipUpdate) {
+            this.events.emit(TELE_BOX_EVENT.LastNotMinimizedBoxStatus, {id: this.id, lastNotMinimizedBoxStatus});
         }
         return this;
     }
@@ -892,25 +948,26 @@ export class TeleBox {
                     this._minimized$,
                     this._containerRect$,
                     this._collectorRect$,
+                    this._boxStatus$,
                 ],
-                ([coord, size, minimized, containerRect, collectorRect]) => {
+                ([coord, size, minimized, containerRect, collectorRect, boxStatus]) => {
                     const absoluteWidth = size.width * containerRect.width;
                     const absoluteHeight = size.height * containerRect.height;
                     return {
                         width:
                             absoluteWidth +
-                            (minimized && collectorRect ? 1 : 0),
+                            ((minimized || boxStatus === TELE_BOX_STATE.Minimized) && collectorRect ? 1 : 0),
                         height:
                             absoluteHeight +
-                            (minimized && collectorRect ? 1 : 0),
+                            ((minimized || boxStatus === TELE_BOX_STATE.Minimized) && collectorRect ? 1 : 0),
                         x: coord.x * containerRect.width,
                         y: coord.y * containerRect.height,
                         scaleX:
-                            minimized && collectorRect
+                            (minimized || boxStatus === TELE_BOX_STATE.Minimized) && collectorRect
                                 ? collectorRect.width / absoluteWidth
                                 : 1,
                         scaleY:
-                            minimized && collectorRect
+                            (minimized || boxStatus === TELE_BOX_STATE.Minimized) && collectorRect
                                 ? collectorRect.height / absoluteHeight
                                 : 1,
                     };

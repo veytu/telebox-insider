@@ -17,6 +17,8 @@ export type TeleBoxSize = { width: number; height: number };
 
 export type TeleBoxState = `${TELE_BOX_STATE}`;
 
+export type NotMinimizedBoxState = `${Exclude<TELE_BOX_STATE, TELE_BOX_STATE.Minimized>}`;
+
 export interface TeleBoxRect {
     readonly x: number;
     readonly y: number;
@@ -81,6 +83,10 @@ export interface TeleBoxConfig {
     readonly containerRect?: TeleBoxRect;
     /** Position and dimension of collector */
     readonly collectorRect?: TeleBoxRect;
+    /** Status of boxes. */
+    readonly boxStatus?: TeleBoxState;
+    /** Last not minimized box status. */
+    readonly lastNotMinimizedBoxStatus?: NotMinimizedBoxState;
 }
 
 type CheckTeleBoxConfig<T extends Record<`${TELE_BOX_EVENT}`, any>> = T;
@@ -102,6 +108,8 @@ export type TeleBoxEventConfig = CheckTeleBoxConfig<{
     maximized: boolean;
     readonly: boolean;
     destroyed: void;
+    box_status: { id: string; boxStatus: TeleBoxState };
+    last_not_minimized_box_status: { id: string; lastNotMinimizedBoxStatus?: NotMinimizedBoxState };
 }>;
 
 export type TeleBoxEvent = keyof TeleBoxEventConfig;

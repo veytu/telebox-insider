@@ -3,8 +3,8 @@ import type { TeleBoxDelegateEventConfig, TeleBoxState } from "../TeleBox";
 export type TeleTitleBarEvent<U = keyof TeleBoxDelegateEventConfig> =
     U extends keyof TeleBoxDelegateEventConfig
         ? TeleBoxDelegateEventConfig[U] extends void
-            ? { type: U; value?: TeleBoxDelegateEventConfig[U] }
-            : { type: U; value: TeleBoxDelegateEventConfig[U] }
+            ? { type: U; value?: TeleBoxDelegateEventConfig[U]; boxId?: string }
+            : { type: U; value: TeleBoxDelegateEventConfig[U]; boxId?: string }
         : never;
 
 export interface TeleTitleBarConfig {
@@ -26,4 +26,6 @@ export interface TeleTitleBar {
     render(): HTMLElement;
 
     destroy(): void;
+
+    setBoxStatus(boxStatus?: TeleBoxState): void;
 }

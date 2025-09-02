@@ -6,6 +6,8 @@ import {
     TeleBoxColorScheme,
     TeleBoxManager,
     TeleBoxRect,
+    TELE_BOX_MANAGER_EVENT,
+    TELE_BOX_STATE,
 } from "../src";
 
 const btns = document.querySelector(".btns")!;
@@ -51,6 +53,14 @@ const manager = new TeleBoxManager({
 
 (window as any).manager = manager;
 
+manager.events.on(TELE_BOX_MANAGER_EVENT.ZIndex, (box) => {
+    console.log("zIndex====>zIndex", box.id, box.zIndex);
+});
+
+manager.events.on(TELE_BOX_MANAGER_EVENT.BoxStatus, (box) => {
+    console.log("zIndex====>BoxStatus", box);
+});
+
 createBtn("Create").addEventListener("click", () => {
     const title = faker.datatype.boolean()
         ? faker.commerce.productName()
@@ -64,6 +74,7 @@ createBtn("Create").addEventListener("click", () => {
         title: title.slice(0, 50),
         focus: true,
         content,
+        // boxStatus: TELE_BOX_STATE.Normal,
     });
     if (manager.minimized) {
         manager.setMinimized(false);

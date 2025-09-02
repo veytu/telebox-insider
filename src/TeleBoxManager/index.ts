@@ -1,6 +1,7 @@
 import EventEmitter from "eventemitter3";
 import shallowequal from "shallowequal";
 import type {
+    NotMinimizedBoxState,
     TeleBoxConfig,
     TeleBoxRect,
     TeleBoxState,
@@ -16,7 +17,7 @@ import type {
     TeleBoxManagerQueryConfig,
     TeleBoxManagerUpdateConfig,
 } from "./typings";
-import { MaxTitleBar } from "./MaxTitleBar";
+import { MaxTitleBar, MaxTitleBarTeleBox } from "./MaxTitleBar";
 import {
     TeleBoxColorScheme,
     TELE_BOX_COLOR_SCHEME,
@@ -46,6 +47,9 @@ type ValConfig = {
 export interface TeleBoxManager extends ValEnhancedResult<ValConfig> {}
 
 export class TeleBoxManager {
+    private boxesStatus$: Map<string, TeleBoxState>;
+    private lastNotMinimizedBoxesStatus$: Map<string, NotMinimizedBoxState>;
+
     public constructor({
         root = document.body,
         prefersColorScheme = TELE_BOX_COLOR_SCHEME.Light,
@@ -71,14 +75,18 @@ export class TeleBoxManager {
         this.boxes$ = createVal<TeleBox[]>([]);
         this.topBox$ = this.boxes$.derive((boxes) => {
             if (boxes.length > 0) {
-                const topBox = boxes.reduce((topBox, box) =>
-                    topBox.zIndex > box.zIndex ? topBox : box
-                );
+                const topBox = boxes.reduce((topBox, box) =>  {
+                    if (box.boxStatus && box.boxStatus === TELE_BOX_STATE.Minimized) {
+                        return topBox;
+                    }
+                    return topBox.zIndex > box.zIndex ? topBox : box;
+                });
                 return topBox;
             }
             return;
         });
-
+        this.boxesStatus$ = new Map<string, TeleBoxState>();
+        this.lastNotMinimizedBoxesStatus$ = new Map<string, NotMinimizedBoxState>();
         const prefersDark = window.matchMedia("(prefers-color-scheme: dark)");
         const prefersDark$ = createVal(false);
 
@@ -184,6 +192,16 @@ export class TeleBoxManager {
                 this._sideEffect.add(() => {
                     collector.onClick = () => {
                         if (!readonly$.value) {
+                            if (this.hasMinimizedBox()) {
+                                this.getAllMinimizedBoxes().forEach((box) => {
+                                    const lastNotMinimizedBoxStatus = box.lastNotMinimizedBoxStatus;
+                                    if (lastNotMinimizedBoxStatus) {
+                                        this.setBoxStatus(box.id, lastNotMinimizedBoxStatus);
+                                    } else {
+                                        this.setBoxStatus(box.id, TELE_BOX_STATE.Normal);
+                                    }
+                                });
+                            }
                             minimized$.setValue(false);
                         }
                     };
@@ -191,6 +209,7 @@ export class TeleBoxManager {
                 }, "collect-onClick");
             }
         });
+
         readonly$.subscribe((readonly) =>
             collector$.value?.setReadonly(readonly)
         );
@@ -198,7 +217,7 @@ export class TeleBoxManager {
             collector$.value?.setDarkMode(darkMode);
         });
 
-        const calcCollectorRect = (): TeleBoxRect | undefined => {
+        this._calcCollectorRect = (): TeleBoxRect | undefined => {
             if (collector$.value?.$collector) {
                 const { x, y, width, height } =
                     collector$.value.$collector.getBoundingClientRect();
@@ -214,7 +233,7 @@ export class TeleBoxManager {
         };
 
         const collectorRect$ = createVal(
-            minimized$.value ? calcCollectorRect() : void 0
+            minimized$.value ? this._calcCollectorRect() : void 0
         );
         collectorRect$.subscribe((collectorRect, _, skipUpdate) => {
             this.boxes.forEach((box) => {
@@ -227,7 +246,7 @@ export class TeleBoxManager {
 
             if (minimized) {
                 if (collector$.value?.$collector) {
-                    collectorRect$.setValue(calcCollectorRect());
+                    collectorRect$.setValue(this._calcCollectorRect());
                 } else if (import.meta.env.DEV) {
                     console.warn("No collector for minimized boxes.");
                 }
@@ -267,7 +286,9 @@ export class TeleBoxManager {
                     const box = this.getBox(id);
                     if (box) {
                         this.focusBox(box);
-                        this.makeBoxTop(box);
+                        if ((box.boxStatus && box.boxStatus !== TELE_BOX_STATE.Maximized) || !box.boxStatus) {
+                            this.makeBoxTop(box);
+                        }
                         return;
                     }
                 }
@@ -294,19 +315,35 @@ export class TeleBoxManager {
             state: state$.value,
             boxes: this.boxes$.value,
             containerRect: containerRect$.value,
+            boxesStatus: this.boxesStatus$,
             onEvent: (event): void => {
                 switch (event.type) {
                     case TELE_BOX_DELEGATE_EVENT.Maximize: {
-                        maximized$.setValue(!maximized$.value);
+                        if (this.hasBoxesStatus() && this.maxTitleBar.focusedBox?.id) {
+                            this.setBoxStatus(this.maxTitleBar.focusedBox.id, TELE_BOX_STATE.Normal);
+                            this.makeMaximizedTopBoxFocus();
+                        } else {
+                            maximized$.setValue(!maximized$.value);
+                        }
                         break;
                     }
                     case TELE_BOX_DELEGATE_EVENT.Minimize: {
-                        minimized$.setValue(true);
+                        if (this.hasBoxesStatus() && this.maxTitleBar.focusedBox?.id) {
+                            this.setBoxStatus(this.maxTitleBar.focusedBox.id, TELE_BOX_STATE.Minimized);
+                            this.makeMaximizedTopBoxFocus();
+                        } else {
+                            minimized$.setValue(true);
+                        }
                         break;
                     }
                     case TELE_BOX_EVENT.Close: {
-                        this.removeTopBox();
-                        this.focusTopBox();
+                        if (this.hasBoxesStatus() && this.maxTitleBar.focusedBox?.id) {
+                            this.remove(this.maxTitleBar.focusedBox.id);
+                            this.makeMaximizedTopBoxFocus();
+                        } else {
+                            this.removeTopBox();
+                            this.focusTopBox();
+                        }
                         break;
                     }
                     default: {
@@ -361,6 +398,8 @@ export class TeleBoxManager {
 
     public _darkMode$: Val<boolean, boolean>;
 
+    public _calcCollectorRect: () => TeleBoxRect | undefined;
+
     public get darkMode(): boolean {
         return this._darkMode$.value;
     }
@@ -393,6 +432,96 @@ export class TeleBoxManager {
         return this;
     }
 
+    public setBoxStatus(boxId: string, boxStatus?: TeleBoxState, skipUpdate = false): void {
+        const boxesStatus = this.boxesStatus$;
+        if (boxStatus) {
+            const oldBoxStatus = boxesStatus.get(boxId);
+            boxesStatus.set(boxId, boxStatus);
+            if (boxStatus === TELE_BOX_STATE.Minimized && oldBoxStatus !== TELE_BOX_STATE.Minimized) {
+                this.setLastNotMinimizedBoxStatus(boxId, oldBoxStatus, skipUpdate);
+            } else if (oldBoxStatus === TELE_BOX_STATE.Minimized && boxStatus !== TELE_BOX_STATE.Minimized) {
+                this.setLastNotMinimizedBoxStatus(boxId, undefined, skipUpdate);
+            }
+        } else {
+            boxesStatus.delete(boxId);
+            this.setLastNotMinimizedBoxStatus(boxId, undefined, skipUpdate);
+        }
+        this.setBoxesStatus(boxesStatus, skipUpdate);
+        if (!skipUpdate) {
+            this.events.emit(TELE_BOX_MANAGER_EVENT.BoxStatus, { id: boxId, boxStatus});
+        }
+    }
+
+    private setBoxesStatus(boxesStatus: Map<string, TeleBoxState>, skipUpdate = false): void {
+        let topBox:TeleBox | undefined;
+        const topBoxId = this.topBox?.id;
+        let hasMinimizedBox = false;
+        this.boxes.forEach((box) => {
+            const boxStatus = boxesStatus.get(box.id);
+            if (boxStatus) {
+                if (boxStatus !== TELE_BOX_STATE.Minimized && box.zIndex > (topBox?.zIndex ?? 0)) {
+                    topBox = box;
+                }
+                box.setBoxStatus(boxStatus, skipUpdate);
+                if (boxStatus === TELE_BOX_STATE.Minimized) {
+                    hasMinimizedBox = true;
+                }
+            }
+        });
+        if (hasMinimizedBox) {
+            this.collector?.setVisible(true);
+            if (this.collector?.$collector) {
+                this.setCollectorRect(this._calcCollectorRect());
+            } else if (import.meta.env.DEV) {
+                console.warn("No collector for minimized boxes.");
+            }
+        } else {
+            this.collector?.setVisible(false);
+        }
+        if (topBox && topBoxId !== topBox.id) {
+            this.makeBoxTop(topBox, skipUpdate);
+            this.focusTopBox();
+            this.topBox$.setValue(topBox);
+        }
+        if (this.maxTitleBar) {
+            this.maxTitleBar.setBoxesStatus(boxesStatus);
+        }
+    }
+    
+    public hasBoxesStatus(): boolean {
+        return this.boxesStatus$.size > 0;
+    }
+
+    public hasMinimizedBox(): boolean {
+        return this.boxes.some((box) => box.boxStatus && box.boxStatus === TELE_BOX_STATE.Minimized);
+    }
+
+    public setLastNotMinimizedBoxStatus(boxId: string, lastNotMinimizedBoxStatus?: NotMinimizedBoxState, skipUpdate = false): void {
+        const boxesStatus = this.lastNotMinimizedBoxesStatus$;
+        if (lastNotMinimizedBoxStatus) {
+            boxesStatus.set(boxId, lastNotMinimizedBoxStatus);
+        } else {
+            boxesStatus.delete(boxId);
+        }
+        this.setLastNotMinimizedBoxesStatus(boxesStatus, skipUpdate);
+        if (!skipUpdate) {
+            this.events.emit(TELE_BOX_MANAGER_EVENT.LastNotMinimizedBoxStatus, { id: boxId, boxStatus:lastNotMinimizedBoxStatus});
+        }
+    }
+
+    private setLastNotMinimizedBoxesStatus(lastNotMinimizedBoxesStatus: Map<string, NotMinimizedBoxState>, skipUpdate = false): void {
+        this.boxes.forEach((box) => {
+            const boxStatus = lastNotMinimizedBoxesStatus.get(box.id);
+            if (boxStatus) {
+                box.setLastNotMinimizedBoxStatus(boxStatus, skipUpdate);
+            }
+        });
+    }
+
+    private getAllMinimizedBoxes(): ReadonlyArray<TeleBox> {
+        return this.boxes.filter((box) => box.boxStatus && box.boxStatus === TELE_BOX_STATE.Minimized);
+    }
+
     public create(
         config: TeleBoxManagerCreateConfig = {},
         smartPosition = true
@@ -422,11 +551,41 @@ export class TeleBoxManager {
 
         this.boxes$.setValue([...this.boxes, box]);
 
+        if (box.boxStatus) {
+            this.setBoxStatus(box.id, box.boxStatus, true);
+        }
+
+        if (box._lastNotMinimizedBoxStatus$.value) {
+            this.setLastNotMinimizedBoxStatus(box.id, box._lastNotMinimizedBoxStatus$.value, true);
+        }
+
         box._delegateEvents.on(TELE_BOX_DELEGATE_EVENT.Maximize, () => {
-            this.setMaximized(!this.maximized);
+            if (box.boxStatus) {
+                if (box.boxStatus === TELE_BOX_STATE.Maximized) {
+                    this.setBoxStatus(box.id, TELE_BOX_STATE.Normal);
+                } else {
+                    this.boxes.forEach((box) => {
+                        if (box.boxStatus === TELE_BOX_STATE.Normal) {
+                            this.setBoxStatus(box.id, TELE_BOX_STATE.Maximized);
+                        }
+                    });
+                }
+                this.makeMaximizedTopBoxFocus();
+            } else {
+                this.setMaximized(!this.maximized);
+            }
+
         });
         box._delegateEvents.on(TELE_BOX_DELEGATE_EVENT.Minimize, () => {
-            this.setMinimized(true);
+            if (box.boxStatus) {
+                const oldBoxStatus = box.boxStatus;
+                this.setBoxStatus(box.id, TELE_BOX_STATE.Minimized);
+                if (oldBoxStatus === TELE_BOX_STATE.Maximized) {
+                    this.makeMaximizedTopBoxFocus();
+                }
+            } else{
+                this.setMinimized(true);
+            }
         });
         box._delegateEvents.on(TELE_BOX_DELEGATE_EVENT.Close, () => {
             this.remove(box);
@@ -459,9 +618,12 @@ export class TeleBoxManager {
         });
         box._zIndex$.reaction((_, __, skipUpdate) => {
             if (this.boxes.length > 0) {
-                const topBox = this.boxes.reduce((topBox, box) =>
-                    topBox.zIndex > box.zIndex ? topBox : box
-                );
+                const topBox = this.boxes.reduce((topBox, box) => {
+                    if (box.boxStatus && box.boxStatus === TELE_BOX_STATE.Minimized) {
+                        return topBox;
+                    }
+                    return topBox.zIndex > box.zIndex ? topBox : box;
+                });
                 this.topBox$.setValue(topBox);
             }
             if (!skipUpdate) {
@@ -511,6 +673,11 @@ export class TeleBoxManager {
         boxOrID: string | TeleBox,
         skipUpdate = false
     ): ReadonlyTeleBox | undefined {
+        const box = this.getBox(boxOrID);
+        if (box) {
+            this.setBoxStatus(box.id, undefined, skipUpdate);
+            this.setLastNotMinimizedBoxStatus(box.id, undefined, skipUpdate);
+        }
         const index = this.getBoxIndex(boxOrID);
         if (index >= 0) {
             const boxes = this.boxes.slice();
@@ -540,6 +707,8 @@ export class TeleBoxManager {
         const deletedBoxes = this.boxes$.value;
         this.boxes$.setValue([]);
         deletedBoxes.forEach((box) => box.destroy());
+        this.boxesStatus$.clear();
+        this.lastNotMinimizedBoxesStatus$.clear();
         if (!skipUpdate) {
             if (this.boxes.length <= 0) {
                 this.setMaximized(false);
@@ -587,7 +756,11 @@ export class TeleBoxManager {
                     this.blurBox(box, skipUpdate);
                 }
             });
-            this.maxTitleBar.focusBox(targetBox);
+            if (this.maxTitleBar.hasMaximizedBoxInStatus()) {
+                this.makeMaximizedBoxFocus(targetBox);
+            } else {
+                this.maxTitleBar.focusBox(targetBox);
+            }
         }
     }
 
@@ -607,7 +780,11 @@ export class TeleBoxManager {
                 }
             }
             if (this.maxTitleBar.focusedBox === targetBox) {
-                this.maxTitleBar.focusBox();
+                if (this.maxTitleBar.hasMaximizedBoxInStatus()) {
+                    this.makeMaximizedTopBoxFocus();
+                } else {
+                    this.maxTitleBar.focusBox();
+                }
             }
         }
     }
@@ -622,7 +799,11 @@ export class TeleBoxManager {
             }
         });
         if (this.maxTitleBar.focusedBox) {
-            this.maxTitleBar.focusBox();
+            if (this.maxTitleBar.hasMaximizedBoxInStatus()) {
+                this.makeMaximizedBoxBlur();
+            } else {
+                this.maxTitleBar.focusBox();
+            }
         }
     }
 
@@ -691,6 +872,12 @@ export class TeleBoxManager {
         if (config.footer != null) {
             box.mountFooter(config.footer);
         }
+        if (config.boxStatus) {
+            this.setBoxStatus(box.id, config.boxStatus, skipUpdate);
+        }
+        if (config.lastNotMinimizedBoxStatus) {
+            this.setLastNotMinimizedBoxStatus(box.id, config.lastNotMinimizedBoxStatus, skipUpdate);
+        }
     }
 
     protected smartPosition(config: TeleBoxConfig = {}): TeleBoxConfig {
@@ -736,9 +923,65 @@ export class TeleBoxManager {
     protected makeBoxTop(box: TeleBox, skipUpdate = false): void {
         if (this.topBox) {
             if (box !== this.topBox) {
+                const currentBoxZIndex = box.zIndex;
+                const addZIndex = this.topBox.zIndex + 1 - box.zIndex;
                 box.setZIndex(this.topBox.zIndex + 1, skipUpdate);
+                this.makeTopBoxEffect(box.id, addZIndex, currentBoxZIndex, skipUpdate);
             }
         }
+    }
+
+    protected makeMaximizedTopBoxFocus(): void {
+        let maximizedBox: MaxTitleBarTeleBox | undefined;
+        if (this.maxTitleBar.hasMaximizedBoxInStatus()) {
+            maximizedBox = this.maxTitleBar.MaximizedBoxes.reduce((topBox, currentBox) => {
+                if (!topBox) {
+                    return currentBox;
+                }
+                return topBox.zIndex > currentBox.zIndex ? topBox : currentBox;
+            });
+            if (maximizedBox) {
+                this.maxTitleBar.focusBox(maximizedBox);
+            }
+        }
+    }
+
+    private makeTopBoxEffect(boxId: string, addZIndex: number, currentZIndex: number, skipUpdate = false): void {
+        if (this.hasBoxesStatus() && this.hasMinimizedBox()) {
+            this.boxes.forEach((b) => {
+                if (b.boxStatus && b.id !== boxId && b.zIndex >= currentZIndex) {
+                    b.setZIndex(b.zIndex + addZIndex, skipUpdate);
+                }
+            });
+        }
+    }
+
+    protected makeMaximizedBoxFocus(maximizedBox: MaxTitleBarTeleBox, skipUpdate = false): void {
+        if (this.maxTitleBar.hasMaximizedBoxInStatus() && this.maxTitleBar.MaximizedBoxes.find((box) => box.id === maximizedBox.id)) {
+            const currentZIndex = maximizedBox.zIndex;
+            const currentMaximizedTopBox = this.maxTitleBar.MaximizedBoxes.reduce((topBox, box) => {
+                if (!topBox) {
+                    return box;
+                }
+                return topBox.zIndex > box.zIndex ? topBox : box;
+            });
+            if (currentMaximizedTopBox !== maximizedBox) {
+                const addZIndex = currentMaximizedTopBox.zIndex - currentZIndex + 1;
+                this.boxes.forEach((box) => {
+                    if (this.maxTitleBar.MaximizedBoxes.find((b) => b.id === box.id && b.id !== maximizedBox.id)) {
+                        return;
+                    }
+                    if (box.zIndex >= currentZIndex) {
+                        box.setZIndex(box.zIndex + addZIndex, skipUpdate);
+                    }
+                });
+            }
+            this.maxTitleBar.focusBox(maximizedBox);
+        }
+    }
+
+    protected makeMaximizedBoxBlur(): void {
+        this.maxTitleBar.focusBox();
     }
 
     protected getBoxIndex(boxOrID: TeleBox | string): number {
