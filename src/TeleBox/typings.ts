@@ -6,7 +6,7 @@ import type {
     TELE_BOX_DELEGATE_EVENT,
     TELE_BOX_RESIZE_HANDLE,
     TELE_BOX_STATE,
-    TELE_BOX_COLOR_SCHEME,
+    TELE_BOX_COLOR_SCHEME
 } from "./constants";
 
 export type TeleBoxColorScheme = `${TELE_BOX_COLOR_SCHEME}`;
@@ -81,10 +81,13 @@ export interface TeleBoxConfig {
     readonly containerRect?: TeleBoxRect;
     /** Position and dimension of collector */
     readonly collectorRect?: TeleBoxRect;
-    readonly fixed?: boolean
-    readonly addObserver?: (el: HTMLElement, cb: ResizeObserverCallback) => void
-    appReadonly?: boolean
-    hasHeader?: boolean
+    readonly fixed?: boolean;
+    readonly addObserver?: (
+        el: HTMLElement,
+        cb: ResizeObserverCallback
+    ) => void;
+    appReadonly?: boolean;
+    hasHeader?: boolean;
 }
 
 type CheckTeleBoxConfig<T extends Record<`${TELE_BOX_EVENT}`, any>> = T;

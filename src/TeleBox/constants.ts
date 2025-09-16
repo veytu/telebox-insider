@@ -1,13 +1,13 @@
 export enum TELE_BOX_COLOR_SCHEME {
     Light = "light",
     Dark = "dark",
-    Auto = "auto",
+    Auto = "auto"
 }
 
 export enum TELE_BOX_STATE {
     Normal = "normal",
     Minimized = "minimized",
-    Maximized = "maximized",
+    Maximized = "maximized"
 }
 
 export enum TELE_BOX_EVENT {
@@ -26,13 +26,13 @@ export enum TELE_BOX_EVENT {
     Minimized = "minimized",
     Maximized = "maximized",
     Readonly = "readonly",
-    Destroyed = "destroyed",
+    Destroyed = "destroyed"
 }
 
 export enum TELE_BOX_DELEGATE_EVENT {
     Close = "close",
     Maximize = "maximize",
-    Minimize = "minimize",
+    Minimize = "minimize"
 }
 
 export enum TELE_BOX_RESIZE_HANDLE {
@@ -43,7 +43,7 @@ export enum TELE_BOX_RESIZE_HANDLE {
     NorthWest = "nw",
     NorthEast = "ne",
     SouthEast = "se",
-    SouthWest = "sw",
+    SouthWest = "sw"
 }
 
 export const TeleBoxDragHandleType = "dh";

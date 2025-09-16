@@ -101,7 +101,10 @@ export const isIOS = (): boolean => {
 };
 
 export const isAndroid = (): boolean => {
-    return typeof navigator !== "undefined" && /Android/.test(window.navigator.userAgent);
+    return (
+        typeof navigator !== "undefined" &&
+        /Android/.test(window.navigator.userAgent)
+    );
 };
 
 export function flattenEvent(ev: MouseEvent | TouchEvent): MouseEvent | Touch {

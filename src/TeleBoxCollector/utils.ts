@@ -1,4 +1,7 @@
-export function getHiddenElementSize(element: HTMLElement): {height: number; width: number}{
+export function getHiddenElementSize(element: HTMLElement): {
+    height: number;
+    width: number;
+} {
     const clone = element.cloneNode(true) as HTMLElement;
 
     clone.style.position = "absolute";
@@ -13,5 +16,5 @@ export function getHiddenElementSize(element: HTMLElement): {height: number; wid
 
     document.body.removeChild(clone);
 
-    return {height: rect.height, width: rect.width}
+    return { height: rect.height, width: rect.width };
 }

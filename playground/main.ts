@@ -5,7 +5,7 @@ import {
     TeleBoxCollector,
     TeleBoxColorScheme,
     TeleBoxManager,
-    TeleBoxRect,
+    TeleBoxRect
 } from "../src";
 
 const btns = document.querySelector(".btns")!;
@@ -44,9 +44,9 @@ const manager = new TeleBoxManager({
         styles: {
             position: "absolute",
             bottom: "10px",
-            left: "20px",
-        },
-    }).mount(board),
+            left: "20px"
+        }
+    }).mount(board)
 });
 
 (window as any).manager = manager;
@@ -64,8 +64,12 @@ createBtn("Create").addEventListener("click", () => {
         title: title.slice(0, 50),
         focus: true,
         content,
-        hasHeader: Math.random() > 0.5,
+        // todo 要研究下为啥要写成Math.random() > 0.5
+        hasHeader: true
     });
+    if (manager.minimized) {
+        manager.setMinimized(false);
+    }
 });
 
 createBtn("Remove").addEventListener("click", () => {
@@ -88,7 +92,7 @@ createBtn(manager.readonly ? "Readonly" : "Writable").addEventListener(
 createSelector("light", [
     { key: "light", title: "light" },
     { key: "dark", title: "dark" },
-    { key: "auto", title: "auto" },
+    { key: "auto", title: "auto" }
 ]).addEventListener("change", (evt) => {
     manager.setPrefersColorScheme(
         (evt.currentTarget as HTMLSelectElement).value as TeleBoxColorScheme

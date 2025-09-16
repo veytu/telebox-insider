@@ -1,24 +1,21 @@
-/* eslint-env node */
+/* eslint-disable import/no-anonymous-default-export */
 import path from "path";
-import { defineConfig } from "vite";
-// import excludeDependenciesFromBundle from "rollup-plugin-exclude-dependencies-from-bundle";
 
-export default defineConfig(({ mode }) => {
+export default ({ command, mode }) => {
     const isProd = mode === "production";
 
     return {
         build: {
             lib: {
                 entry: path.resolve(__dirname, "src/index.ts"),
-                formats: ["es", "cjs"],
+                formats: ["es", "cjs"]
             },
             outDir: "dist",
             sourcemap: isProd,
             rollupOptions: {
-                external: ["react"],
+                external: ["react"]
             },
-            minify: false,
-        },
-        // plugins: [excludeDependenciesFromBundle()],
+            minify: false
+        }
     };
-});
+};

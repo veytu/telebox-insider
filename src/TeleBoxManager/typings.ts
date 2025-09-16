@@ -30,9 +30,9 @@ export interface TeleBoxManagerConfig
     root?: HTMLElement;
     /** Where the minimized boxes go. */
     collector?: TeleBoxCollector;
-    allBoxStatusInfo?: Record<string, TELE_BOX_STATE>
-    lastLastNotMinimizedBoxsStatus?: Record<string, TELE_BOX_STATE>
-    appReadonly?: boolean
+    allBoxStatusInfo?: Record<string, TELE_BOX_STATE>;
+    lastLastNotMinimizedBoxsStatus?: Record<string, TELE_BOX_STATE>;
+    appReadonly?: boolean;
 }
 
 type TeleBoxManagerBoxConfigBaseProps =
@@ -48,12 +48,17 @@ type TeleBoxManagerBoxConfigBaseProps =
     | "draggable"
     | "fixRatio"
     | "zIndex"
-    | 'maximized'
-    | 'minimized';
+    | "maximized"
+    | "minimized";
 
 export type TeleBoxManagerCreateConfig = Pick<
     TeleBoxConfig,
-    TeleBoxManagerBoxConfigBaseProps | "content" | "footer" | "id" | "focus" | "hasHeader"
+    | TeleBoxManagerBoxConfigBaseProps
+    | "content"
+    | "footer"
+    | "id"
+    | "focus"
+    | "hasHeader"
 >;
 
 export type TeleBoxManagerQueryConfig = Pick<
@@ -87,10 +92,16 @@ export type TeleBoxManagerEventConfig = CheckTeleBoxManagerConfig<{
     prefers_color_scheme: [TeleBoxColorScheme];
     dark_mode: [boolean];
     onScaleChange: [number];
-    OpenMiniBox: [any]
-    boxToMinimized: [{boxId:string,allBoxStatusInfo:Record<string, TELE_BOX_STATE>}]
-    boxToMaximized: [{boxId:string,allBoxStatusInfo:Record<string, TELE_BOX_STATE>}]
-    boxToNormal: [{boxId:string,allBoxStatusInfo:Record<string, TELE_BOX_STATE>}]
+    OpenMiniBox: [any];
+    boxToMinimized: [
+        { boxId: string; allBoxStatusInfo: Record<string, TELE_BOX_STATE> }
+    ];
+    boxToMaximized: [
+        { boxId: string; allBoxStatusInfo: Record<string, TELE_BOX_STATE> }
+    ];
+    boxToNormal: [
+        { boxId: string; allBoxStatusInfo: Record<string, TELE_BOX_STATE> }
+    ];
 }>;
 
 export type TeleBoxManagerEvent = keyof TeleBoxManagerEventConfig;

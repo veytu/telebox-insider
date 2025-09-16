@@ -17,5 +17,5 @@ export enum TELE_BOX_MANAGER_EVENT {
     // box标题栏操作
     BoxToMinimized = "boxToMinimized",
     BoxToMaximized = "boxToMaximized",
-    BoxToNormal = "boxToNormal",
+    BoxToNormal = "boxToNormal"
 }

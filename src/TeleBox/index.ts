@@ -1,13 +1,17 @@
-import './style.scss'
+import "./style.scss";
 
-import EventEmitter from 'eventemitter3'
-import styler from 'stylefire'
-import shallowequal from 'shallowequal'
-import { SideEffectManager } from 'side-effect-manager'
-import type { Val, ValEnhancedResult, ValSideEffectBinder } from 'value-enhancer'
-import { createSideEffectBinder, withValueEnhancer } from 'value-enhancer'
-import type { TeleTitleBar } from '../TeleTitleBar'
-import { DefaultTitleBar } from '../TeleTitleBar'
+import EventEmitter from "eventemitter3";
+import styler from "stylefire";
+import shallowequal from "shallowequal";
+import { SideEffectManager } from "side-effect-manager";
+import type {
+    Val,
+    ValEnhancedResult,
+    ValSideEffectBinder
+} from "value-enhancer";
+import { createSideEffectBinder, withValueEnhancer } from "value-enhancer";
+import type { TeleTitleBar } from "../TeleTitleBar";
+import { DefaultTitleBar } from "../TeleTitleBar";
 import {
     clamp,
     flattenEvent,
@@ -18,14 +22,14 @@ import {
     isIOS,
     isTruthy,
     preventEvent
-} from '../utils'
+} from "../utils";
 import {
     TELE_BOX_EVENT,
     TELE_BOX_STATE,
     TELE_BOX_RESIZE_HANDLE,
     TELE_BOX_DELEGATE_EVENT,
     TELE_BOX_COLOR_SCHEME
-} from './constants'
+} from "./constants";
 import type {
     TeleBoxConfig,
     TeleBoxRect,
@@ -36,41 +40,41 @@ import type {
     TeleBoxCoord,
     TeleBoxSize,
     TeleBoxColorScheme
-} from './typings'
-import type { AnyToVoidFunction } from '../schedulers'
+} from "./typings";
+import type { AnyToVoidFunction } from "../schedulers";
 
-export * from './constants'
-export * from './typings'
+export * from "./constants";
+export * from "./typings";
 
 type ValConfig = {
-    prefersColorScheme: Val<TeleBoxColorScheme, boolean>
-    darkMode: Val<boolean, boolean>
-    containerRect: Val<TeleBoxRect, boolean>
-    collectorRect: Val<TeleBoxRect | undefined, boolean>
+    prefersColorScheme: Val<TeleBoxColorScheme, boolean>;
+    darkMode: Val<boolean, boolean>;
+    containerRect: Val<TeleBoxRect, boolean>;
+    collectorRect: Val<TeleBoxRect | undefined, boolean>;
     /** Box title. Default empty. */
-    title: Val<string, boolean>
+    title: Val<string, boolean>;
     /** Is box visible */
-    visible: Val<boolean, boolean>
+    visible: Val<boolean, boolean>;
     /** Is box readonly */
-    readonly: Val<boolean, boolean>
+    readonly: Val<boolean, boolean>;
     /** Able to resize box window */
-    resizable: Val<boolean, boolean>
+    resizable: Val<boolean, boolean>;
     /** Able to drag box window */
-    draggable: Val<boolean, boolean>
+    draggable: Val<boolean, boolean>;
     /** Restrict box to always be within the containing area. */
-    fence: Val<boolean, boolean>
+    fence: Val<boolean, boolean>;
     /** Fixed width/height ratio for box window. */
-    fixRatio: Val<boolean, boolean>
-    focus: Val<boolean, boolean>
-    zIndex: Val<number, boolean>
+    fixRatio: Val<boolean, boolean>;
+    focus: Val<boolean, boolean>;
+    zIndex: Val<number, boolean>;
     /** Is box minimized. Default false. */
-    minimized: Val<boolean, boolean>
+    minimized: Val<boolean, boolean>;
     /** Is box maximized. Default false. */
-    maximized: Val<boolean, boolean>
-    $userContent: Val<HTMLElement | undefined>
-    $userFooter: Val<HTMLElement | undefined>
-    $userStyles: Val<HTMLStyleElement | undefined>
-}
+    maximized: Val<boolean, boolean>;
+    $userContent: Val<HTMLElement | undefined>;
+    $userFooter: Val<HTMLElement | undefined>;
+    $userStyles: Val<HTMLStyleElement | undefined>;
+};
 export interface TeleBox extends ValEnhancedResult<ValConfig> {}
 
 export class TeleBox {
@@ -95,7 +99,7 @@ export class TeleBox {
         fixRatio = false,
         focus = false,
         zIndex = 100,
-        namespace = 'telebox',
+        namespace = "telebox",
         titleBar,
         content,
         footer,
@@ -112,129 +116,154 @@ export class TeleBox {
         appReadonly,
         hasHeader = true
     }: TeleBoxConfig = {}) {
-        this.hasHeader = hasHeader
-        this._sideEffect = new SideEffectManager()
-        this._valSideEffectBinder = createSideEffectBinder(this._sideEffect as any)
-        const { combine, createVal } = this._valSideEffectBinder
-        this.addObserver = addObserver || noop
-        this.appReadonly = appReadonly
-        this.id = id
-        this.namespace = namespace
-        this.events = new EventEmitter()
-        this._delegateEvents = new EventEmitter()
-        this.scale = createVal(1)
+        this.hasHeader = hasHeader;
+        this._sideEffect = new SideEffectManager();
+        this._valSideEffectBinder = createSideEffectBinder(
+            this._sideEffect as any
+        );
+        const { combine, createVal } = this._valSideEffectBinder;
+        this.addObserver = addObserver || noop;
+        this.appReadonly = appReadonly;
+        this.id = id;
+        this.namespace = namespace;
+        this.events = new EventEmitter();
+        this._delegateEvents = new EventEmitter();
+        this.scale = createVal(1);
 
-        this.fixed = fixed
+        this.fixed = fixed;
 
-        const prefersColorScheme$ = createVal<TeleBoxColorScheme, boolean>(prefersColorScheme)
+        const prefersColorScheme$ = createVal<TeleBoxColorScheme, boolean>(
+            prefersColorScheme
+        );
         prefersColorScheme$.reaction((prefersColorScheme, _, skipUpdate) => {
             if (!skipUpdate) {
-                this.events.emit(TELE_BOX_EVENT.PrefersColorScheme, prefersColorScheme)
+                this.events.emit(
+                    TELE_BOX_EVENT.PrefersColorScheme,
+                    prefersColorScheme
+                );
             }
-        })
+        });
 
-        const darkMode$ = createVal(Boolean(darkMode))
+        const darkMode$ = createVal(Boolean(darkMode));
 
         if (darkMode == null) {
-            prefersColorScheme$.subscribe((prefersColorScheme, _, skipUpdate) => {
-                this._sideEffect.add(() => {
-                    if (prefersColorScheme === 'auto') {
-                        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)')
-                        if (prefersDark) {
-                            darkMode$.setValue(prefersDark.matches, skipUpdate)
-                            const handler = (evt: MediaQueryListEvent): void => {
-                                darkMode$.setValue(evt.matches, skipUpdate)
+            prefersColorScheme$.subscribe(
+                (prefersColorScheme, _, skipUpdate) => {
+                    this._sideEffect.add(() => {
+                        if (prefersColorScheme === "auto") {
+                            const prefersDark = window.matchMedia(
+                                "(prefers-color-scheme: dark)"
+                            );
+                            if (prefersDark) {
+                                darkMode$.setValue(
+                                    prefersDark.matches,
+                                    skipUpdate
+                                );
+                                const handler = (
+                                    evt: MediaQueryListEvent
+                                ): void => {
+                                    darkMode$.setValue(evt.matches, skipUpdate);
+                                };
+                                prefersDark.addListener(handler);
+                                return () =>
+                                    prefersDark.removeListener(handler);
+                            } else {
+                                return noop;
                             }
-                            prefersDark.addListener(handler)
-                            return () => prefersDark.removeListener(handler)
                         } else {
-                            return noop
+                            darkMode$.setValue(
+                                prefersColorScheme === "dark",
+                                skipUpdate
+                            );
+                            return noop;
                         }
-                    } else {
-                        darkMode$.setValue(prefersColorScheme === 'dark', skipUpdate)
-                        return noop
-                    }
-                }, 'prefers-color-scheme')
-            })
+                    }, "prefers-color-scheme");
+                }
+            );
         }
 
         darkMode$.reaction((darkMode, _, skipUpdate) => {
             if (!skipUpdate) {
-                this.events.emit(TELE_BOX_EVENT.DarkMode, darkMode)
+                this.events.emit(TELE_BOX_EVENT.DarkMode, darkMode);
             }
-        })
+        });
 
-        const containerRect$ = createVal(containerRect, shallowequal)
+        const containerRect$ = createVal(containerRect, shallowequal);
 
-        const collectorRect$ = createVal(collectorRect, shallowequal)
+        const collectorRect$ = createVal(collectorRect, shallowequal);
 
-        const title$ = createVal(title)
+        const title$ = createVal(title);
         title$.reaction((title, _, skipUpdate) => {
             if (!skipUpdate) {
-                this.titleBar.setTitle(title)
+                this.titleBar.setTitle(title);
             }
-        })
+        });
 
-        const visible$ = createVal(visible)
+        const visible$ = createVal(visible);
         visible$.reaction((visible, _, skipUpdate) => {
             if (!skipUpdate && !visible) {
-                this.events.emit(TELE_BOX_EVENT.Close)
+                this.events.emit(TELE_BOX_EVENT.Close);
             }
-        })
+        });
 
-        const readonly$ = createVal(readonly)
+        const readonly$ = createVal(readonly);
         readonly$.reaction((readonly, _, skipUpdate) => {
             if (!skipUpdate) {
-                this.events.emit(TELE_BOX_EVENT.Readonly, readonly)
+                this.events.emit(TELE_BOX_EVENT.Readonly, readonly);
             }
-        })
+        });
 
-        const resizable$ = createVal(resizable)
-        const draggable$ = createVal(draggable)
-        const fence$ = createVal(fence)
-        const fixRatio$ = createVal(fixRatio)
+        const resizable$ = createVal(resizable);
+        const draggable$ = createVal(draggable);
+        const fence$ = createVal(fence);
+        const fixRatio$ = createVal(fixRatio);
 
-        const zIndex$ = createVal(zIndex)
+        const zIndex$ = createVal(zIndex);
         zIndex$.reaction((zIndex, _, skipUpdate) => {
             if (!skipUpdate) {
-                this.events.emit(TELE_BOX_EVENT.ZIndex, zIndex)
+                this.events.emit(TELE_BOX_EVENT.ZIndex, zIndex);
             }
-        })
+        });
 
-        const focus$ = createVal(focus)
+        const focus$ = createVal(focus);
         focus$.reaction((focus, _, skipUpdate) => {
             if (!skipUpdate) {
-                this.events.emit(focus ? TELE_BOX_EVENT.Focus : TELE_BOX_EVENT.Blur)
+                this.events.emit(
+                    focus ? TELE_BOX_EVENT.Focus : TELE_BOX_EVENT.Blur
+                );
             }
-        })
+        });
 
-        const minimized$ = createVal(minimized)
+        const minimized$ = createVal(minimized);
         minimized$.reaction((minimized, _, skipUpdate) => {
             if (!skipUpdate) {
-                this.events.emit(TELE_BOX_EVENT.Minimized, minimized)
+                this.events.emit(TELE_BOX_EVENT.Minimized, minimized);
             }
-        })
+        });
 
-        const maximized$ = createVal(maximized)
+        const maximized$ = createVal(maximized);
         maximized$.reaction((maximized, _, skipUpdate) => {
             if (!skipUpdate) {
-                this.events.emit(TELE_BOX_EVENT.Maximized, maximized)
+                this.events.emit(TELE_BOX_EVENT.Maximized, maximized);
             }
-        })
+        });
 
-        const state$ = combine([minimized$, maximized$], ([minimized, maximized]): TeleBoxState => {
-            console.log('state reaction', minimized, maximized)
-            return minimized
-                ? TELE_BOX_STATE.Minimized
-                : maximized
-                ? TELE_BOX_STATE.Maximized
-                : TELE_BOX_STATE.Normal
-        })
+        const state$ = combine(
+            [minimized$, maximized$],
+            ([minimized, maximized]): TeleBoxState => {
+                console.log("state reaction", minimized, maximized);
+                return minimized
+                    ? TELE_BOX_STATE.Minimized
+                    : maximized
+                      ? TELE_BOX_STATE.Maximized
+                      : TELE_BOX_STATE.Normal;
+            }
+        );
         state$.reaction((state, _, skipUpdate) => {
             if (!skipUpdate) {
-                this.events.emit(TELE_BOX_EVENT.State, state)
+                this.events.emit(TELE_BOX_EVENT.State, state);
             }
-        })
+        });
 
         const minSize$ = createVal(
             {
@@ -242,7 +271,7 @@ export class TeleBox {
                 height: clamp(minHeight, 0, 1)
             },
             shallowequal
-        )
+        );
 
         const intrinsicSize$ = createVal(
             {
@@ -250,7 +279,7 @@ export class TeleBox {
                 height: clamp(height, minSize$.value.height, 1)
             },
             shallowequal
-        )
+        );
         minSize$.reaction((minSize, _, skipUpdate) => {
             intrinsicSize$.setValue(
                 {
@@ -258,55 +287,64 @@ export class TeleBox {
                     height: clamp(height, minSize.height, 1)
                 },
                 skipUpdate
-            )
-        })
+            );
+        });
         intrinsicSize$.reaction((size, _, skipUpdate) => {
             if (!skipUpdate) {
-                this.events.emit(TELE_BOX_EVENT.IntrinsicResize, size)
+                this.events.emit(TELE_BOX_EVENT.IntrinsicResize, size);
             }
-        })
+        });
 
         const size$ = combine(
             [intrinsicSize$, maximized$],
             ([intrinsicSize, maximized]) => {
                 if (maximized) {
-                    return { width: 1, height: 1 }
+                    return { width: 1, height: 1 };
                 }
-                return intrinsicSize
+                return intrinsicSize;
             },
             shallowequal
-        )
+        );
         size$.reaction((size, _, skipUpdate) => {
             if (!skipUpdate) {
-                this.events.emit(TELE_BOX_EVENT.Resize, size)
+                this.events.emit(TELE_BOX_EVENT.Resize, size);
             }
-        })
+        });
 
         const visualSize$ = combine(
             [size$, minimized$, containerRect$, collectorRect$],
             ([size, minimized, containerRect, collectorRect]) => {
                 if (minimized && collectorRect) {
                     return {
-                        width: collectorRect.width / size.width / containerRect.width,
-                        height: collectorRect.height / size.height / containerRect.height
-                    }
+                        width:
+                            collectorRect.width /
+                            size.width /
+                            containerRect.width,
+                        height:
+                            collectorRect.height /
+                            size.height /
+                            containerRect.height
+                    };
                 }
-                return size
+                return size;
             },
             shallowequal
-        )
+        );
         visualSize$.reaction((size, _, skipUpdate) => {
             if (!skipUpdate) {
-                this.events.emit(TELE_BOX_EVENT.VisualResize, size)
+                this.events.emit(TELE_BOX_EVENT.VisualResize, size);
             }
-        })
+        });
 
-        const intrinsicCoord$ = createVal({ x: clamp(x, 0, 1), y: clamp(y, 0, 1) }, shallowequal)
+        const intrinsicCoord$ = createVal(
+            { x: clamp(x, 0, 1), y: clamp(y, 0, 1) },
+            shallowequal
+        );
         intrinsicCoord$.reaction((coord, _, skipUpdate) => {
             if (!skipUpdate) {
-                this.events.emit(TELE_BOX_EVENT.IntrinsicMove, coord)
+                this.events.emit(TELE_BOX_EVENT.IntrinsicMove, coord);
             }
-        })
+        });
 
         const coord$ = combine(
             [
@@ -329,35 +367,38 @@ export class TeleBox {
                     if (maximized) {
                         return {
                             x:
-                                (collectorRect.x + collectorRect.width / 2) / containerRect.width -
+                                (collectorRect.x + collectorRect.width / 2) /
+                                    containerRect.width -
                                 1 / 2,
                             y:
                                 (collectorRect.y + collectorRect.height / 2) /
                                     containerRect.height -
                                 1 / 2
-                        }
+                        };
                     }
                     return {
                         x:
-                            (collectorRect.x + collectorRect.width / 2) / containerRect.width -
+                            (collectorRect.x + collectorRect.width / 2) /
+                                containerRect.width -
                             intrinsicSize.width / 2,
                         y:
-                            (collectorRect.y + collectorRect.height / 2) / containerRect.height -
+                            (collectorRect.y + collectorRect.height / 2) /
+                                containerRect.height -
                             intrinsicSize.height / 2
-                    }
+                    };
                 }
                 if (maximized) {
-                    return { x: 0, y: 0 }
+                    return { x: 0, y: 0 };
                 }
-                return intrinsicCoord
+                return intrinsicCoord;
             },
             shallowequal
-        )
+        );
         coord$.reaction((coord, _, skipUpdate) => {
             if (!skipUpdate) {
-                this.events.emit(TELE_BOX_EVENT.Move, coord)
+                this.events.emit(TELE_BOX_EVENT.Move, coord);
             }
-        })
+        });
 
         this.titleBar =
             titleBar ||
@@ -369,39 +410,60 @@ export class TeleBox {
                 onDragStart: (event) => this._handleTrackStart?.(event),
                 onEvent: (event): void => {
                     if (this._delegateEvents.listeners.length > 0) {
-                        this._delegateEvents.emit(event.type)
+                        this._delegateEvents.emit(event.type);
                     } else {
                         switch (event.type) {
                             case TELE_BOX_DELEGATE_EVENT.Maximize: {
-                                console.log('[TeleBox] TeleBox TitleBar Maximize Event', { boxId: this.id, currentMaximized: maximized$.value })
+                                console.log(
+                                    "[TeleBox] TeleBox TitleBar Maximize Event",
+                                    {
+                                        boxId: this.id,
+                                        currentMaximized: maximized$.value
+                                    }
+                                );
                                 // maximized$.setValue(!maximized$.value)
-                                break
+                                break;
                             }
                             case TELE_BOX_DELEGATE_EVENT.Minimize: {
-                                console.log('[TeleBox] TeleBox TitleBar Minimize Event', { boxId: this.id, currentMinimized: minimized$.value })
+                                console.log(
+                                    "[TeleBox] TeleBox TitleBar Minimize Event",
+                                    {
+                                        boxId: this.id,
+                                        currentMinimized: minimized$.value
+                                    }
+                                );
                                 // minimized$.setValue(true)
-                                break
+                                break;
                             }
                             case TELE_BOX_DELEGATE_EVENT.Close: {
-                                console.log('[TeleBox] TeleBox TitleBar Close Event', { boxId: this.id, currentVisible: visible$.value })
+                                console.log(
+                                    "[TeleBox] TeleBox TitleBar Close Event",
+                                    {
+                                        boxId: this.id,
+                                        currentVisible: visible$.value
+                                    }
+                                );
                                 // visible$.setValue(false)
-                                break
+                                break;
                             }
                             default: {
-                                console.error('Unsupported titleBar event:', event)
-                                break
+                                console.error(
+                                    "Unsupported titleBar event:",
+                                    event
+                                );
+                                break;
                             }
                         }
                     }
                 }
-            })
+            });
         readonly$.reaction((readonly) => {
-            this.titleBar.setReadonly(readonly)
-        })
+            this.titleBar.setReadonly(readonly);
+        });
 
-        const $userContent$ = createVal(content)
-        const $userFooter$ = createVal(footer)
-        const $userStyles$ = createVal(styles)
+        const $userContent$ = createVal(content);
+        const $userFooter$ = createVal(footer);
+        const $userStyles$ = createVal(styles);
 
         const valConfig: ValConfig = {
             prefersColorScheme: prefersColorScheme$,
@@ -422,17 +484,17 @@ export class TeleBox {
             $userContent: $userContent$,
             $userFooter: $userFooter$,
             $userStyles: $userStyles$
-        }
+        };
 
-        withValueEnhancer(this, valConfig)
+        withValueEnhancer(this, valConfig);
 
-        this._state$ = state$
-        this._minSize$ = minSize$
-        this._size$ = size$
-        this._intrinsicSize$ = intrinsicSize$
-        this._visualSize$ = visualSize$
-        this._coord$ = coord$
-        this._intrinsicCoord$ = intrinsicCoord$
+        this._state$ = state$;
+        this._minSize$ = minSize$;
+        this._size$ = size$;
+        this._intrinsicSize$ = intrinsicSize$;
+        this._visualSize$ = visualSize$;
+        this._coord$ = coord$;
+        this._intrinsicCoord$ = intrinsicCoord$;
 
         if (this.fixRatio) {
             this.transform(
@@ -441,49 +503,52 @@ export class TeleBox {
                 size$.value.width,
                 size$.value.height,
                 true
-            )
+            );
         }
 
-        this.$box = this.render()
+        this.$box = this.render();
     }
 
-    public readonly id: string
+    public readonly id: string;
 
     /** ClassName Prefix. For CSS styling. Default "telebox" */
-    public readonly namespace: string
+    public readonly namespace: string;
 
-    public readonly events: TeleBoxEvents
+    public readonly events: TeleBoxEvents;
 
-    public readonly _delegateEvents: TeleBoxDelegateEvents
+    public readonly _delegateEvents: TeleBoxDelegateEvents;
 
-    protected _sideEffect: SideEffectManager
-    protected readonly addObserver: (el: HTMLElement, cb: ResizeObserverCallback) => void
+    protected _sideEffect: SideEffectManager;
+    protected readonly addObserver: (
+        el: HTMLElement,
+        cb: ResizeObserverCallback
+    ) => void;
 
-    protected _valSideEffectBinder: ValSideEffectBinder
+    protected _valSideEffectBinder: ValSideEffectBinder;
 
-    public titleBar: TeleTitleBar
+    public titleBar: TeleTitleBar;
 
-    public _minSize$: Val<TeleBoxSize, boolean>
-    public _size$: Val<TeleBoxSize, boolean>
-    public _intrinsicSize$: Val<TeleBoxSize, boolean>
-    public _visualSize$: Val<TeleBoxSize, boolean>
-    public _coord$: Val<TeleBoxCoord, boolean>
-    public _intrinsicCoord$: Val<TeleBoxCoord, boolean>
-    private appReadonly: boolean | undefined
+    public _minSize$: Val<TeleBoxSize, boolean>;
+    public _size$: Val<TeleBoxSize, boolean>;
+    public _intrinsicSize$: Val<TeleBoxSize, boolean>;
+    public _visualSize$: Val<TeleBoxSize, boolean>;
+    public _coord$: Val<TeleBoxCoord, boolean>;
+    public _intrinsicCoord$: Val<TeleBoxCoord, boolean>;
+    private appReadonly: boolean | undefined;
 
     public get darkMode(): boolean {
-        return this._darkMode$.value
+        return this._darkMode$.value;
     }
 
-    public _state$: Val<TeleBoxState, boolean>
+    public _state$: Val<TeleBoxState, boolean>;
 
     public get state(): TeleBoxState {
-        return this._state$.value
+        return this._state$.value;
     }
 
     /** @deprecated use setMaximized and setMinimized instead */
     public setState(state: TeleBoxState, skipUpdate = false): this {
-        console.log('setstate', state, skipUpdate)
+        console.log("setstate", state, skipUpdate);
         // switch (state) {
         //     case TELE_BOX_STATE.Maximized: {
         //         this.setMinimized(false, skipUpdate)
@@ -501,17 +566,17 @@ export class TeleBox {
         //         break
         //     }
         // }
-        return this
+        return this;
     }
 
     /** Minimum box width relative to container element. 0~1. Default 0. */
     public get minWidth(): number {
-        return this._minSize$.value.width
+        return this._minSize$.value.width;
     }
 
     /** Minimum box height relative to container element. 0~1. Default 0. */
     public get minHeight(): number {
-        return this._minSize$.value.height
+        return this._minSize$.value.height;
     }
 
     /**
@@ -519,8 +584,11 @@ export class TeleBox {
      * @returns this
      */
     public setMinWidth(minWidth: number, skipUpdate = false): this {
-        this._minSize$.setValue({ width: minWidth, height: this.minHeight }, skipUpdate)
-        return this
+        this._minSize$.setValue(
+            { width: minWidth, height: this.minHeight },
+            skipUpdate
+        );
+        return this;
     }
 
     /**
@@ -528,18 +596,21 @@ export class TeleBox {
      * @returns this
      */
     public setMinHeight(minHeight: number, skipUpdate = false): this {
-        this._minSize$.setValue({ width: this.minWidth, height: minHeight }, skipUpdate)
-        return this
+        this._minSize$.setValue(
+            { width: this.minWidth, height: minHeight },
+            skipUpdate
+        );
+        return this;
     }
 
     /** Intrinsic box width relative to container element(without counting the effect of maximization or minimization). 0~1. Default 0.5. */
     public get intrinsicWidth(): number {
-        return this._intrinsicSize$.value.width
+        return this._intrinsicSize$.value.width;
     }
 
     /** Intrinsic box height relative to container element(without counting the effect of maximization or minimization). 0~1. Default 0.5. */
     public get intrinsicHeight(): number {
-        return this._intrinsicSize$.value.height
+        return this._intrinsicSize$.value.height;
     }
 
     /**
@@ -550,48 +621,48 @@ export class TeleBox {
      * @returns this
      */
     public resize(width: number, height: number, skipUpdate = false): this {
-        this._intrinsicSize$.setValue({ width, height }, skipUpdate)
-        return this
+        this._intrinsicSize$.setValue({ width, height }, skipUpdate);
+        return this;
     }
 
     /** Box width relative to container element. 0~1. Default 0.5. */
     public get width(): number {
-        return this._size$.value.width
+        return this._size$.value.width;
     }
 
     /** Box height relative to container element. 0~1. Default 0.5. */
     public get height(): number {
-        return this._size$.value.height
+        return this._size$.value.height;
     }
 
     /** Box width in pixels. */
     public get absoluteWidth(): number {
-        return this.width * this.containerRect.width
+        return this.width * this.containerRect.width;
     }
 
     /** Box height in pixels. */
     public get absoluteHeight(): number {
-        return this.height * this.containerRect.height
+        return this.height * this.containerRect.height;
     }
 
     /** Actual rendered box width relative to container element. 0~1. Default 0.5. */
     public get visualWidth(): number {
-        return this._visualSize$.value.width
+        return this._visualSize$.value.width;
     }
 
     /** Actual rendered box height relative to container element. 0~1. Default 0.5. */
     public get visualHeight(): number {
-        return this._visualSize$.value.height
+        return this._visualSize$.value.height;
     }
 
     /** Intrinsic box x position relative to container element(without counting the effect of maximization or minimization). 0~1. Default 0.1. */
     public get intrinsicX(): number {
-        return this._intrinsicCoord$.value.x
+        return this._intrinsicCoord$.value.x;
     }
 
     /** Intrinsic box y position relative to container element(without counting the effect of maximization or minimization). 0~1. Default 0.1. */
     public get intrinsicY(): number {
-        return this._intrinsicCoord$.value.y
+        return this._intrinsicCoord$.value.y;
     }
 
     /**
@@ -602,19 +673,19 @@ export class TeleBox {
      * @returns this
      */
     public move(x: number, y: number, skipUpdate = false): this {
-        if (this.fixed) return this
-        this._intrinsicCoord$.setValue({ x, y }, skipUpdate)
-        return this
+        if (this.fixed) return this;
+        this._intrinsicCoord$.setValue({ x, y }, skipUpdate);
+        return this;
     }
 
     /** Box x position relative to container element. 0~1. Default 0.1. */
     public get x(): number {
-        return this._coord$.value.x
+        return this._coord$.value.x;
     }
 
     /** Box y position relative to container element. 0~1. Default 0.1. */
     public get y(): number {
-        return this._coord$.value.y
+        return this._coord$.value.y;
     }
 
     /**
@@ -634,17 +705,18 @@ export class TeleBox {
         skipUpdate = false
     ): this {
         if (this.fixRatio) {
-            const newHeight = (this.intrinsicHeight / this.intrinsicWidth) * width
+            const newHeight =
+                (this.intrinsicHeight / this.intrinsicWidth) * width;
             if (y !== this.intrinsicY) {
-                y -= newHeight - height
+                y -= newHeight - height;
             }
-            height = newHeight
+            height = newHeight;
         }
 
         if (y < 0) {
-            y = 0
+            y = 0;
             if (height > this.intrinsicHeight) {
-                height = this.intrinsicHeight
+                height = this.intrinsicHeight;
             }
         }
 
@@ -655,7 +727,7 @@ export class TeleBox {
                     y: height >= this.minHeight ? y : this.intrinsicY
                 },
                 skipUpdate
-            )
+            );
         }
 
         this._intrinsicSize$.setValue(
@@ -664,17 +736,17 @@ export class TeleBox {
                 height: clamp(height, this.minHeight, 1)
             },
             skipUpdate
-        )
+        );
 
-        return this
+        return this;
     }
 
     /**
      * Mount box to a container element.
      */
     public mount(container: HTMLElement): this {
-        container.appendChild(this.render())
-        return this
+        container.appendChild(this.render());
+        return this;
     }
 
     /**
@@ -682,103 +754,103 @@ export class TeleBox {
      */
     public unmount(): this {
         if (this.$box) {
-            this.$box.remove()
+            this.$box.remove();
         }
-        return this
+        return this;
     }
 
     /**
      * Mount dom to box content.
      */
     public mountContent(content: HTMLElement): this {
-        this.set$userContent(content)
-        return this
+        this.set$userContent(content);
+        return this;
     }
 
     /**
      * Unmount content from the box.
      */
     public unmountContent(): this {
-        this.set$userContent(undefined)
-        return this
+        this.set$userContent(undefined);
+        return this;
     }
 
     /**
      * Mount dom to box Footer.
      */
     public mountFooter(footer: HTMLElement): this {
-        this.set$userFooter(footer)
-        return this
+        this.set$userFooter(footer);
+        return this;
     }
 
     /**
      * Unmount Footer from the box.
      */
     public unmountFooter(): this {
-        this.set$userFooter(undefined)
-        return this
+        this.set$userFooter(undefined);
+        return this;
     }
 
     public getUserStyles(): HTMLStyleElement | undefined {
-        return this.$userStyles
+        return this.$userStyles;
     }
 
     public mountStyles(styles: string | HTMLStyleElement): this {
-        let $styles: HTMLStyleElement
-        if (typeof styles === 'string') {
-            $styles = document.createElement('style')
-            $styles.textContent = styles
+        let $styles: HTMLStyleElement;
+        if (typeof styles === "string") {
+            $styles = document.createElement("style");
+            $styles.textContent = styles;
         } else {
-            $styles = styles
+            $styles = styles;
         }
-        this.set$userStyles($styles)
-        return this
+        this.set$userStyles($styles);
+        return this;
     }
 
     public unmountStyles(): this {
-        this.set$userStyles(undefined)
-        return this
+        this.set$userStyles(undefined);
+        return this;
     }
 
     public setFixed(fixed: boolean): void {
-        this.fixed = fixed
+        this.fixed = fixed;
     }
 
     /** DOM of the box */
-    public $box: HTMLElement
-    public hasHeader = true
-    public $contentWrap!: HTMLElement
-    private scale: Val<number>
+    public $box: HTMLElement;
+    public hasHeader = true;
+    public $contentWrap!: HTMLElement;
+    private scale: Val<number>;
 
     /** DOM of the box content */
-    public $content!: HTMLElement
+    public $content!: HTMLElement;
 
     /** DOM of the box title bar */
-    public $titleBar!: HTMLElement
+    public $titleBar!: HTMLElement;
 
     /** DOM of the box footer */
-    public $footer!: HTMLElement
+    public $footer!: HTMLElement;
 
-    protected _renderSideEffect = new SideEffectManager()
+    protected _renderSideEffect = new SideEffectManager();
 
     public render(root?: HTMLElement): HTMLElement {
         if (root) {
             if (root === this.$box) {
-                return this.$box
+                return this.$box;
             } else {
-                this.$box = root
+                this.$box = root;
             }
         } else {
             if (this.$box) {
-                return this.$box
+                return this.$box;
             } else {
-                this.$box = document.createElement('div')
+                this.$box = document.createElement("div");
             }
         }
 
-        this._renderSideEffect.flushAll()
+        this._renderSideEffect.flushAll();
 
-        this.$box.classList.add(this.wrapClassName('box'))
+        this.$box.classList.add(this.wrapClassName("box"));
 
         const bindClassName = <TValue>(
             el: Element,
@@ -787,32 +859,40 @@ export class TeleBox {
             predicate: (value: TValue) => boolean = isTruthy
         ): string => {
             return this._renderSideEffect.add(() => {
-                const wrappedClassName = this.wrapClassName(className)
+                const wrappedClassName = this.wrapClassName(className);
                 return val.subscribe((value) => {
-                    el.classList.toggle(wrappedClassName, predicate(value))
-                })
-            })
-        }
+                    el.classList.toggle(wrappedClassName, predicate(value));
+                });
+            });
+        };
 
-        bindClassName(this.$box, this._readonly$, 'readonly')
-        bindClassName(this.$box, this._draggable$, 'no-drag', isFalsy)
-        bindClassName(this.$box, this._resizable$, 'no-resize', isFalsy)
-        bindClassName(this.$box, this._focus$, 'blur', isFalsy)
-        bindClassName(this.$box, this._darkMode$, 'color-scheme-dark')
-        bindClassName(this.$box, this._darkMode$, 'color-scheme-light', isFalsy)
+        bindClassName(this.$box, this._readonly$, "readonly");
+        bindClassName(this.$box, this._draggable$, "no-drag", isFalsy);
+        bindClassName(this.$box, this._resizable$, "no-resize", isFalsy);
+        bindClassName(this.$box, this._focus$, "blur", isFalsy);
+        bindClassName(this.$box, this._darkMode$, "color-scheme-dark");
+        bindClassName(
+            this.$box,
+            this._darkMode$,
+            "color-scheme-light",
+            isFalsy
+        );
 
         this._renderSideEffect.add(() => {
-            const minimizedClassName = this.wrapClassName('minimized')
-            const maximizedClassName = this.wrapClassName('maximized')
-            const MAXIMIZED_TIMER_ID = 'box-maximized-timer'
+            const minimizedClassName = this.wrapClassName("minimized");
+            const maximizedClassName = this.wrapClassName("maximized");
+            const MAXIMIZED_TIMER_ID = "box-maximized-timer";
 
             return this._state$.subscribe((state) => {
-                console.log(state === TELE_BOX_STATE.Minimized, state)
-                this.$box.classList.toggle(minimizedClassName, state === TELE_BOX_STATE.Minimized)
+                console.log(state === TELE_BOX_STATE.Minimized, state);
+                this.$box.classList.toggle(
+                    minimizedClassName,
+                    state === TELE_BOX_STATE.Minimized
+                );
 
                 if (state === TELE_BOX_STATE.Maximized) {
-                    this._renderSideEffect.flush(MAXIMIZED_TIMER_ID)
-                    this.$box.classList.toggle(maximizedClassName, true)
+                    this._renderSideEffect.flush(MAXIMIZED_TIMER_ID);
+                    this.$box.classList.toggle(maximizedClassName, true);
                 } else {
                     // delay so that transition won't be triggered
                     // this._renderSideEffect.setTimeout(
@@ -823,34 +903,42 @@ export class TeleBox {
                     //     MAXIMIZED_TIMER_ID
                     // )
 
-                    this.$box.classList.toggle(maximizedClassName, false)
+                    this.$box.classList.toggle(maximizedClassName, false);
                 }
-            })
-        })
+            });
+        });
 
         this._renderSideEffect.add(() =>
             this._visible$.subscribe((visible) => {
-                this.$box.style.display = visible ? 'block' : 'none'
+                if (visible) {
+                    this.$box.style.removeProperty("display");
+                } else {
+                    this.$box.style.display = "none";
+                }
             })
-        )
+        );
 
         this._renderSideEffect.add(() =>
             this._zIndex$.subscribe((zIndex) => {
-                this.$box.style.zIndex = String(zIndex)
+                this.$box.style.zIndex = String(zIndex);
             })
-        )
+        );
 
-        const boxStyler = styler(this.$box)
+        const boxStyler = styler(this.$box);
 
-        this.$box.dataset.teleBoxID = this.id
+        this.$box.dataset.teleBoxID = this.id;
 
-        this.$box.style.width = this.absoluteWidth + 'px'
-        this.$box.style.height = this.absoluteHeight + 'px'
+        this.$box.style.width = this.absoluteWidth + "px";
+        this.$box.style.height = this.absoluteHeight + "px";
         // Add 10px offset on first frame
         // which creates a subtle moving effect
-        const translateX = this.x * this.containerRect.width + this.containerRect.x
-        const translateY = this.y * this.containerRect.height + this.containerRect.y
-        this.$box.style.transform = `translate(${translateX - 10}px,${translateY - 10}px)`
+        const translateX =
+            this.x * this.containerRect.width + this.containerRect.x;
+        const translateY =
+            this.y * this.containerRect.height + this.containerRect.y;
+        this.$box.style.transform = `translate(${translateX - 10}px,${
+            translateY - 10
+        }px)`;
 
         this._valSideEffectBinder
             .combine(
@@ -862,189 +950,202 @@ export class TeleBox {
                     this._collectorRect$
                 ],
                 ([coord, size, minimized, containerRect, collectorRect]) => {
-                    const absoluteWidth = size.width * containerRect.width
-                    const absoluteHeight = size.height * containerRect.height
-
+                    const absoluteWidth = size.width * containerRect.width;
+                    const absoluteHeight = size.height * containerRect.height;
                     return {
-                        width: absoluteWidth + (minimized && collectorRect ? 1 : 0),
-                        height: absoluteHeight + (minimized && collectorRect ? 1 : 0),
+                        width:
+                            absoluteWidth +
+                            (minimized && collectorRect ? 1 : 0),
+                        height:
+                            absoluteHeight +
+                            (minimized && collectorRect ? 1 : 0),
                         x: coord.x * containerRect.width,
                         y: coord.y * containerRect.height,
                         scaleX: 1,
                         scaleY: 1
-                    }
+                    };
                 },
                 shallowequal
             )
             .subscribe((styles) => {
-                boxStyler.set(styles)
-            })
+                boxStyler.set(styles);
+            });
 
-        boxStyler.set({ x: translateX, y: translateY })
+        boxStyler.set({ x: translateX, y: translateY });
 
-        const $boxMain = document.createElement('div')
-        $boxMain.className = this.wrapClassName('box-main')
-        this.$box.appendChild($boxMain)
+        const $boxMain = document.createElement("div");
+        $boxMain.className = this.wrapClassName("box-main");
+        this.$box.appendChild($boxMain);
 
-        const $titleBar = document.createElement('div')
-        $titleBar.className = this.wrapClassName('titlebar-wrap')
+        const $titleBar = document.createElement("div");
+        $titleBar.className = this.wrapClassName("titlebar-wrap");
 
-        $titleBar.appendChild(this.titleBar.render())
-        this.$titleBar = $titleBar
+        $titleBar.appendChild(this.titleBar.render());
+        this.$titleBar = $titleBar;
 
-        const $contentWrap = document.createElement('div')
-        $contentWrap.className = this.wrapClassName('content-wrap') + ' tele-fancy-scrollbar'
+        const $contentWrap = document.createElement("div");
+        $contentWrap.className =
+            this.wrapClassName("content-wrap") + " tele-fancy-scrollbar";
 
         $contentWrap.classList.toggle(
-            'hide-scroll',
+            "hide-scroll",
             Boolean(isIOS() || isAndroid() || this.appReadonly)
-        )
-        const $content = document.createElement('div')
-        $content.className = this.wrapClassName('content') + ' tele-fancy-scrollbar'
-        this.$content = $content
+        );
+        const $content = document.createElement("div");
+        $content.className =
+            this.wrapClassName("content") + " tele-fancy-scrollbar";
+        this.$content = $content;
 
-        if (this.id?.includes('Plyr')) {
-            $contentWrap.style.background = 'none'
+        if (this.id?.includes("Plyr")) {
+            $contentWrap.style.background = "none";
             // $titleBar.style.display = "none"
-            $boxMain.style.background = 'none'
-            $content.style.background = 'none'
+            $boxMain.style.background = "none";
+            $content.style.background = "none";
         }
 
         if (this.hasHeader == false) {
-            $contentWrap.style.background = 'none'
-            $titleBar.style.display = 'none'
-            $boxMain.style.background = 'none'
-            $content.style.background = 'none'
+            $contentWrap.style.background = "none";
+            $titleBar.style.display = "none";
+            $boxMain.style.background = "none";
+            $content.style.background = "none";
         }
 
         this._renderSideEffect.add(() => {
-            let last$userStyles: HTMLStyleElement | undefined
+            let last$userStyles: HTMLStyleElement | undefined;
             return this._$userStyles$.subscribe(($userStyles) => {
                 if (last$userStyles) {
-                    last$userStyles.remove()
+                    last$userStyles.remove();
                 }
-                last$userStyles = $userStyles
+                last$userStyles = $userStyles;
                 if ($userStyles) {
-                    $contentWrap.appendChild($userStyles)
+                    $contentWrap.appendChild($userStyles);
                 }
-            })
-        })
+            });
+        });
 
         this._renderSideEffect.add(() => {
-            let last$userContent: HTMLElement | undefined
+            let last$userContent: HTMLElement | undefined;
             return this._$userContent$.subscribe(($userContent) => {
                 if (last$userContent) {
-                    last$userContent.remove()
+                    last$userContent.remove();
                 }
-                last$userContent = $userContent
+                last$userContent = $userContent;
                 if ($userContent) {
-                    $content.appendChild($userContent)
+                    $content.appendChild($userContent);
                 }
-            })
-        })
+            });
+        });
 
-        $contentWrap.appendChild($content)
+        $contentWrap.appendChild($content);
 
-        const $footer = document.createElement('div')
-        $footer.className = this.wrapClassName('footer-wrap')
-        this.$footer = $footer
+        const $footer = document.createElement("div");
+        $footer.className = this.wrapClassName("footer-wrap");
+        this.$footer = $footer;
 
         this._renderSideEffect.add(() => {
-            let last$userFooter: HTMLElement | undefined
+            let last$userFooter: HTMLElement | undefined;
             return this._$userFooter$.subscribe(($userFooter) => {
                 if (last$userFooter) {
-                    last$userFooter.remove()
+                    last$userFooter.remove();
                 }
-                last$userFooter = $userFooter
+                last$userFooter = $userFooter;
                 if ($userFooter) {
-                    $footer.appendChild($userFooter)
+                    $footer.appendChild($userFooter);
                 }
-            })
-        })
+            });
+        });
 
         this._state$.reaction((state) => {
             $footer.classList.toggle(
-                this.wrapClassName('footer-hide'),
+                this.wrapClassName("footer-hide"),
                 state == TELE_BOX_STATE.Maximized
-            )
-        })
+            );
+        });
 
-        $boxMain.appendChild($titleBar)
-        $boxMain.appendChild($contentWrap)
-        $boxMain.appendChild($footer)
+        $boxMain.appendChild($titleBar);
+        $boxMain.appendChild($contentWrap);
+        $boxMain.appendChild($footer);
 
-        this.$contentWrap = $contentWrap
+        this.$contentWrap = $contentWrap;
 
         this.addObserver($contentWrap, (data) => {
-            const entry = data.find((entry) => entry.target == $contentWrap)
+            const entry = data.find((entry) => entry.target == $contentWrap);
 
             if (entry?.target == $contentWrap) {
-                $content.style.width = entry.contentRect.width * this.scale.value + 'px'
-                $content.style.height = entry.contentRect.height * this.scale.value + 'px'
+                $content.style.width =
+                    entry.contentRect.width * this.scale.value + "px";
+                $content.style.height =
+                    entry.contentRect.height * this.scale.value + "px";
             }
-        })
+        });
 
         this.scale.reaction((scale) => {
-            $content.style.width = $contentWrap.getBoundingClientRect().width * scale + 'px'
-            $content.style.height = $contentWrap.getBoundingClientRect().height * scale + 'px'
-        })
+            $content.style.width =
+                $contentWrap.getBoundingClientRect().width * scale + "px";
+            $content.style.height =
+                $contentWrap.getBoundingClientRect().height * scale + "px";
+        });
 
-        this._renderResizeHandlers()
+        this._renderResizeHandlers();
 
-        return this.$box
+        return this.$box;
     }
 
-    protected _handleTrackStart?: (ev: MouseEvent | TouchEvent) => void
+    protected _handleTrackStart?: (ev: MouseEvent | TouchEvent) => void;
 
     public handleTrackStart: (ev: MouseEvent | TouchEvent) => void = (ev) => {
-        return this._handleTrackStart?.(ev)
-    }
+        return this._handleTrackStart?.(ev);
+    };
 
     protected _renderResizeHandlers(): void {
-        const $resizeHandles = document.createElement('div')
-        $resizeHandles.className = this.wrapClassName('resize-handles')
+        const $resizeHandles = document.createElement("div");
+        $resizeHandles.className = this.wrapClassName("resize-handles");
 
         Object.values(TELE_BOX_RESIZE_HANDLE).forEach((handleType) => {
-            const $handle = document.createElement('div')
+            const $handle = document.createElement("div");
             $handle.className =
-                this.wrapClassName(handleType) + ' ' + this.wrapClassName('resize-handle')
-            $handle.dataset.teleBoxHandle = handleType
+                this.wrapClassName(handleType) +
+                " " +
+                this.wrapClassName("resize-handle");
+            $handle.dataset.teleBoxHandle = handleType;
 
-            $resizeHandles.appendChild($handle)
-        })
+            $resizeHandles.appendChild($handle);
+        });
 
-        this.$box.appendChild($resizeHandles)
+        this.$box.appendChild($resizeHandles);
 
-        const TRACKING_DISPOSER_ID = 'handle-tracking-listener'
-        const transformingClassName = this.wrapClassName('transforming')
+        const TRACKING_DISPOSER_ID = "handle-tracking-listener";
+        const transformingClassName = this.wrapClassName("transforming");
 
-        let $trackMask: HTMLElement | undefined
+        let $trackMask: HTMLElement | undefined;
 
-        let trackStartX = 0
-        let trackStartY = 0
+        let trackStartX = 0;
+        let trackStartY = 0;
 
-        let trackStartWidth = 0
-        let trackStartHeight = 0
+        let trackStartWidth = 0;
+        let trackStartHeight = 0;
 
-        let trackStartPageX = 0
-        let trackStartPageY = 0
+        let trackStartPageX = 0;
+        let trackStartPageY = 0;
 
-        let trackingHandle: TeleBoxHandleType | undefined
+        let trackingHandle: TeleBoxHandleType | undefined;
 
         const handleTracking = (ev: MouseEvent | TouchEvent): void => {
             if (this.state !== TELE_BOX_STATE.Normal) {
-                return
+                return;
             }
 
-            preventEvent(ev)
+            preventEvent(ev);
 
-            let { pageX, pageY } = flattenEvent(ev)
+            let { pageX, pageY } = flattenEvent(ev);
             if (pageY < 0) {
-                pageY = 0
+                pageY = 0;
             }
 
-            const offsetX = (pageX - trackStartPageX) / this.containerRect.width
-            const offsetY = (pageY - trackStartPageY) / this.containerRect.height
+            const offsetX =
+                (pageX - trackStartPageX) / this.containerRect.width;
+            const offsetY =
+                (pageY - trackStartPageY) / this.containerRect.height;
 
             switch (trackingHandle) {
                 case TELE_BOX_RESIZE_HANDLE.North: {
@@ -1053,12 +1154,17 @@ export class TeleBox {
                         trackStartY + offsetY,
                         this.width,
                         trackStartHeight - offsetY
-                    )
-                    break
+                    );
+                    break;
                 }
                 case TELE_BOX_RESIZE_HANDLE.South: {
-                    this.transform(this.x, this.y, this.width, trackStartHeight + offsetY)
-                    break
+                    this.transform(
+                        this.x,
+                        this.y,
+                        this.width,
+                        trackStartHeight + offsetY
+                    );
+                    break;
                 }
                 case TELE_BOX_RESIZE_HANDLE.West: {
                     this.transform(
@@ -1066,12 +1172,17 @@ export class TeleBox {
                         this.y,
                         trackStartWidth - offsetX,
                         this.height
-                    )
-                    break
+                    );
+                    break;
                 }
                 case TELE_BOX_RESIZE_HANDLE.East: {
-                    this.transform(this.x, this.y, trackStartWidth + offsetX, this.height)
-                    break
+                    this.transform(
+                        this.x,
+                        this.y,
+                        trackStartWidth + offsetX,
+                        this.height
+                    );
+                    break;
                 }
                 case TELE_BOX_RESIZE_HANDLE.NorthWest: {
                     this.transform(
@@ -1079,8 +1190,8 @@ export class TeleBox {
                         trackStartY + offsetY,
                         trackStartWidth - offsetX,
                         trackStartHeight - offsetY
-                    )
-                    break
+                    );
+                    break;
                 }
                 case TELE_BOX_RESIZE_HANDLE.NorthEast: {
                     this.transform(
@@ -1088,8 +1199,8 @@ export class TeleBox {
                         trackStartY + offsetY,
                         trackStartWidth + offsetX,
                         trackStartHeight - offsetY
-                    )
-                    break
+                    );
+                    break;
                 }
                 case TELE_BOX_RESIZE_HANDLE.SouthEast: {
                     this.transform(
@@ -1097,8 +1208,8 @@ export class TeleBox {
                         this.y,
                         trackStartWidth + offsetX,
                         trackStartHeight + offsetY
-                    )
-                    break
+                    );
+                    break;
                 }
                 case TELE_BOX_RESIZE_HANDLE.SouthWest: {
                     this.transform(
@@ -1106,18 +1217,19 @@ export class TeleBox {
                         this.y,
                         trackStartWidth - offsetX,
                         trackStartHeight + offsetY
-                    )
-                    break
+                    );
+                    break;
                 }
                 default: {
                     if (this.fence) {
                         this.move(
                             clamp(trackStartX + offsetX, 0, 1 - this.width),
                             clamp(trackStartY + offsetY, 0, 1 - this.height)
-                        )
+                        );
                     } else {
-                        const xOverflowOffset = 50 / this.containerRect.width
-                        const yOverflowOffset = 40 / this.containerRect.height
+		    	// 需要分析下为啥从20,20改成50,40
+                        const xOverflowOffset = 50 / this.containerRect.width;
+                        const yOverflowOffset = 40 / this.containerRect.height;
                         this.move(
                             clamp(
                                 trackStartX + offsetX,
@@ -1125,151 +1237,168 @@ export class TeleBox {
                                 1 - xOverflowOffset
                             ),
                             clamp(trackStartY + offsetY, 0, 1 - yOverflowOffset)
-                        )
+                        );
                     }
-                    break
+                    break;
                 }
             }
-        }
+        };
 
         const handleTrackEnd = (ev: MouseEvent | TouchEvent): void => {
-            trackingHandle = void 0
+            trackingHandle = void 0;
 
             if (!$trackMask) {
-                return
+                return;
             }
 
-            preventEvent(ev)
+            preventEvent(ev);
 
-            this.$box.classList.toggle(transformingClassName, false)
+            this.$box.classList.toggle(transformingClassName, false);
 
-            this._sideEffect.flush(TRACKING_DISPOSER_ID)
+            this._sideEffect.flush(TRACKING_DISPOSER_ID);
 
-            $trackMask.remove()
-        }
+            $trackMask.remove();
+        };
 
         const handleTrackStart = (ev: MouseEvent | TouchEvent): void => {
             if (this.readonly) {
-                return
+                return;
             }
 
-            if ((ev as MouseEvent).button != null && (ev as MouseEvent).button !== 0) {
+            if (
+                (ev as MouseEvent).button != null &&
+                (ev as MouseEvent).button !== 0
+            ) {
                 // Not left mouse
-                return
+                return;
             }
 
-            if (!this.draggable || trackingHandle || this.state !== TELE_BOX_STATE.Normal) {
-                return
+            if (
+                !this.draggable ||
+                trackingHandle ||
+                this.state !== TELE_BOX_STATE.Normal
+            ) {
+                return;
             }
 
-            const target = ev.target as HTMLElement
+            const target = ev.target as HTMLElement;
             if (target.dataset?.teleBoxHandle) {
-                preventEvent(ev)
+                preventEvent(ev);
 
-                trackStartX = this.x
-                trackStartY = this.y
-                trackStartWidth = this.width
-                trackStartHeight = this.height
-                ;({ pageX: trackStartPageX, pageY: trackStartPageY } = flattenEvent(ev))
+                trackStartX = this.x;
+                trackStartY = this.y;
+                trackStartWidth = this.width;
+                trackStartHeight = this.height;
 
-                trackingHandle = target.dataset.teleBoxHandle as TELE_BOX_RESIZE_HANDLE
+                ({ pageX: trackStartPageX, pageY: trackStartPageY } =
+                    flattenEvent(ev));
+
+                trackingHandle = target.dataset
+                    .teleBoxHandle as TELE_BOX_RESIZE_HANDLE;
 
                 if (!$trackMask) {
-                    $trackMask = document.createElement('div')
+                    $trackMask = document.createElement("div");
                 }
 
-                const cursor = trackingHandle ? this.wrapClassName(`cursor-${trackingHandle}`) : ''
+                const cursor = trackingHandle
+                    ? this.wrapClassName(`cursor-${trackingHandle}`)
+                    : "";
 
-                $trackMask.className = this.wrapClassName(`track-mask${cursor ? ` ${cursor}` : ''}`)
+                $trackMask.className = this.wrapClassName(
+                    `track-mask${cursor ? ` ${cursor}` : ""}`
+                );
 
-                this.$box.appendChild($trackMask)
+                this.$box.appendChild($trackMask);
 
-                this.$box.classList.add(transformingClassName)
+                this.$box.classList.add(transformingClassName);
 
                 this._sideEffect.add(() => {
-                    window.addEventListener('mousemove', handleTracking)
-                    window.addEventListener('touchmove', handleTracking, {
+                    window.addEventListener("mousemove", handleTracking);
+                    window.addEventListener("touchmove", handleTracking, {
                         passive: false
-                    })
-                    window.addEventListener('mouseup', handleTrackEnd)
-                    window.addEventListener('touchend', handleTrackEnd, {
+                    });
+                    window.addEventListener("mouseup", handleTrackEnd);
+                    window.addEventListener("touchend", handleTrackEnd, {
                         passive: false
-                    })
-                    window.addEventListener('touchcancel', handleTrackEnd, {
+                    });
+                    window.addEventListener("touchcancel", handleTrackEnd, {
                         passive: false
-                    })
+                    });
 
                     return () => {
-                        window.removeEventListener('mousemove', handleTracking)
-                        window.removeEventListener('touchmove', handleTracking)
-                        window.removeEventListener('mouseup', handleTrackEnd)
-                        window.removeEventListener('touchend', handleTrackEnd)
-                        window.removeEventListener('touchcancel', handleTrackEnd)
-                    }
-                }, TRACKING_DISPOSER_ID)
+                        window.removeEventListener("mousemove", handleTracking);
+                        window.removeEventListener("touchmove", handleTracking);
+                        window.removeEventListener("mouseup", handleTrackEnd);
+                        window.removeEventListener("touchend", handleTrackEnd);
+                        window.removeEventListener(
+                            "touchcancel",
+                            handleTrackEnd
+                        );
+                    };
+                }, TRACKING_DISPOSER_ID);
             }
-        }
+        };
 
-        this._handleTrackStart = handleTrackStart
+        this._handleTrackStart = handleTrackStart;
 
         this._sideEffect.addEventListener(
             $resizeHandles,
-            'mousedown',
+            "mousedown",
             handleTrackStart,
             {},
-            'box-resizeHandles-mousedown'
-        )
+            "box-resizeHandles-mousedown"
+        );
 
         this._sideEffect.addEventListener(
             $resizeHandles,
-            'touchstart',
+            "touchstart",
             handleTrackStart,
             { passive: false },
-            'box-resizeHandles-touchstart'
-        )
+            "box-resizeHandles-touchstart"
+        );
     }
 
     public setScaleContent(scale: number): void {
-        this.scale.setValue(scale)
+        this.scale.setValue(scale);
     }
 
     public destroy(): void {
-        this.$box.remove()
-        this.events.emit(TELE_BOX_EVENT.Destroyed)
+        this.$box.remove();
+        this.events.emit(TELE_BOX_EVENT.Destroyed);
 
-        this._sideEffect.flushAll()
-        this._renderSideEffect.flushAll()
-        this.events.removeAllListeners()
-        this._delegateEvents.removeAllListeners()
+        this._sideEffect.flushAll();
+        this._renderSideEffect.flushAll();
+        this.events.removeAllListeners();
+        this._delegateEvents.removeAllListeners();
     }
 
     /**
      * Wrap a className with namespace
      */
     public wrapClassName(className: string): string {
-        return `${this.namespace}-${className}`
+        return `${this.namespace}-${className}`;
     }
 
-    private fixed: boolean
+    private fixed: boolean;
 }
 
 function noop(): void {
-    return
+    return;
 }
 
 type PropKeys<K = keyof TeleBox> = K extends keyof TeleBox
     ? TeleBox[K] extends AnyToVoidFunction
         ? never
         : K
-    : never
+    : never;
 
 export type ReadonlyTeleBox = Pick<
     TeleBox,
     | PropKeys
-    | 'wrapClassName'
-    | 'mountContent'
-    | 'mountFooter'
-    | 'mountStyles'
-    | 'handleTrackStart'
-    | 'setFixed'
->
+    | "wrapClassName"
+    | "mountContent"
+    | "mountFooter"
+    | "mountStyles"
+    | "handleTrackStart"
+    | "setFixed"
+>;

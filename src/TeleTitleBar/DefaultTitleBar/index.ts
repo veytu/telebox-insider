@@ -5,13 +5,13 @@ import { SideEffectManager } from "side-effect-manager";
 import {
     TeleBoxDragHandleType,
     TELE_BOX_DELEGATE_EVENT,
-    TELE_BOX_STATE,
+    TELE_BOX_STATE
 } from "../../TeleBox/constants";
 import type { TeleBoxState } from "../../TeleBox/typings";
 import type {
     TeleTitleBar,
     TeleTitleBarConfig,
-    TeleTitleBarEvent,
+    TeleTitleBarEvent
 } from "../typings";
 import { isAndroid, isIOS, preventEvent } from "../../utils";
 
@@ -33,7 +33,7 @@ export class DefaultTitleBar implements TeleTitleBar {
         onDragStart,
         namespace = "telebox",
         state = TELE_BOX_STATE.Normal,
-        appReadonly = false,
+        appReadonly = false
     }: DefaultTitleBarConfig = {}) {
         this.readonly = readonly;
         this.onEvent = onEvent;
@@ -46,17 +46,17 @@ export class DefaultTitleBar implements TeleTitleBar {
         this.buttons = buttons || [
             {
                 type: TELE_BOX_DELEGATE_EVENT.Minimize,
-                iconClassName: this.wrapClassName("titlebar-icon-minimize"),
+                iconClassName: this.wrapClassName("titlebar-icon-minimize")
             },
             {
                 type: TELE_BOX_DELEGATE_EVENT.Maximize,
                 iconClassName: this.wrapClassName("titlebar-icon-maximize"),
-                isActive: (state) => state === TELE_BOX_STATE.Maximized,
+                isActive: (state) => state === TELE_BOX_STATE.Maximized
             },
             {
                 type: TELE_BOX_DELEGATE_EVENT.Close,
-                iconClassName: this.wrapClassName("titlebar-icon-close"),
-            },
+                iconClassName: this.wrapClassName("titlebar-icon-close")
+            }
         ];
 
         this.$dragArea = this.renderDragArea();
@@ -97,7 +97,10 @@ export class DefaultTitleBar implements TeleTitleBar {
     public setReadonly(readonly: boolean): void {
         if (this.readonly !== readonly) {
             this.readonly = readonly;
-            this.$buttonsContainer?.classList.toggle(this.wrapClassName('titlebar-btns-disable'), Boolean(isAndroid() || isIOS() || this.readonly))
+            this.$buttonsContainer?.classList.toggle(
+                this.wrapClassName("titlebar-btns-disable"),
+                Boolean(isAndroid() || isIOS() || this.readonly)
+            );
         }
     }
 
@@ -124,7 +127,10 @@ export class DefaultTitleBar implements TeleTitleBar {
             const $buttonsContainer = document.createElement("div");
             $buttonsContainer.className = this.wrapClassName("titlebar-btns");
 
-            $buttonsContainer.classList.toggle(this.wrapClassName('titlebar-btns-disable'), isAndroid() || isIOS() || this.readonly)
+            $buttonsContainer.classList.toggle(
+                this.wrapClassName("titlebar-btns-disable"),
+                isAndroid() || isIOS() || this.readonly
+            );
 
             this.buttons.forEach(({ iconClassName, isActive }, i) => {
                 const teleTitleBarBtnIndex = String(i);
@@ -165,14 +171,14 @@ export class DefaultTitleBar implements TeleTitleBar {
                         if (this.onEvent) {
                             this.onEvent({
                                 type: btn.type,
-                                value: btn.value,
+                                value: btn.value
                             } as TeleTitleBarEvent);
                         }
                     }
                 }
             );
 
-            this.$buttonsContainer = $buttonsContainer
+            this.$buttonsContainer = $buttonsContainer;
             this.$titleBar.appendChild($titleArea);
             this.$titleBar.appendChild($buttonsContainer);
         }
@@ -237,7 +243,7 @@ export class DefaultTitleBar implements TeleTitleBar {
     protected lastTitleBarClick = {
         timestamp: 0,
         clientX: -100,
-        clientY: -100,
+        clientY: -100
     };
 
     protected handleTitleBarClick = (ev: MouseEvent): void => {
@@ -277,7 +283,7 @@ export class DefaultTitleBar implements TeleTitleBar {
     protected lastTitleBarTouch = {
         timestamp: 0,
         clientX: -100,
-        clientY: -100,
+        clientY: -100
     };
 
     protected handleTitleBarTouch = (ev: TouchEvent): void => {
@@ -294,7 +300,7 @@ export class DefaultTitleBar implements TeleTitleBar {
         const now = Date.now();
         const {
             clientX = this.lastTitleBarTouch.clientX + 100,
-            clientY = this.lastTitleBarTouch.clientY + 100,
+            clientY = this.lastTitleBarTouch.clientY + 100
         } = ev.touches[0] || {};
 
         if (now - this.lastTitleBarTouch.timestamp <= 500) {
