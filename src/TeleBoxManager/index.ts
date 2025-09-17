@@ -1106,6 +1106,8 @@ export class TeleBoxManager {
                 ) {
                     vx = 20;
                 }
+            }else{
+                vx = this.containerRect.width * (0.5 - width / 2)
             }
             x = vx / this.containerRect.width;
         }
@@ -1123,6 +1125,8 @@ export class TeleBoxManager {
                 ) {
                     vy = 20;
                 }
+            }else{
+                vy = this.containerRect.height * (0.5 - height / 2)
             }
 
             y = vy / this.containerRect.height;

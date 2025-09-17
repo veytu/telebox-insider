@@ -3781,6 +3781,8 @@ class TeleBoxManager {
         if (vx > this.containerRect.width - width * this.containerRect.width) {
           vx = 20;
         }
+      } else {
+        vx = this.containerRect.width * (0.5 - width / 2);
       }
       x = vx / this.containerRect.width;
     }
@@ -3791,6 +3793,8 @@ class TeleBoxManager {
         if (vy > this.containerRect.height - height * this.containerRect.height) {
           vy = 20;
         }
+      } else {
+        vy = this.containerRect.height * (0.5 - height / 2);
       }
       y = vy / this.containerRect.height;
     }
