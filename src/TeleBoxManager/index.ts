@@ -27,6 +27,7 @@ import { excludeFromBoth, removeByVal, uniqueByVal } from "../utils";
 import { createCallbackManager } from "./utils/callbacks";
 import type { CallbackManager } from "./utils/callbacks";
 import type { AnyToVoidFunction } from "../schedulers";
+import { AllBoxStatusInfoManager, WukongRoleManager } from "../../types";
 
 export * from "./typings";
 export * from "./constants";
@@ -667,9 +668,10 @@ export class TeleBoxManager {
 
         this.boxes$.setValue([...this.boxes, box]);
         //更新allBoxStatusInfo，确保新创建的box状态被记录
-        if (!config.id){
-            this.allBoxStatusInfoManager.setCurrentBoxState(id, state || TELE_BOX_STATE.Normal, false);
+        if (!state){
+            this.allBoxStatusInfoManager.setCurrentAllBoxStatusInfo({...this.allBoxStatusInfoManager.getAllBoxStatusInfo(), [id]: state || TELE_BOX_STATE.Normal}, false);
         }
+        console.log("[TeleBox] Create Box AllBoxStatusInfo UpdateFinish", this.allBoxStatusInfoManager.getAllBoxStatusInfo())
 
         box._delegateEvents.on(TELE_BOX_DELEGATE_EVENT.Maximize, () => {
             console.log("[TeleBox] TitleBar Maximize From Box Event", {
@@ -683,7 +685,7 @@ export class TeleBoxManager {
                 }
             });
             this.allBoxStatusInfoManager.setCurrentAllBoxStatusInfo(allBoxStatusInfo, false);
-            this.events.emit(TELE_BOX_MANAGER_EVENT.BoxToNormal, {
+            this.events.emit(TELE_BOX_MANAGER_EVENT.BoxToMaximized, {
                 boxId: box.id,
                 allBoxStatusInfo: this.allBoxStatusInfoManager.getAllBoxStatusInfo()
             });
@@ -704,10 +706,6 @@ export class TeleBoxManager {
             });
             this.remove(box.id, false);
             this.events.emit(TELE_BOX_MANAGER_EVENT.Removed, [box]);
-            this.events.emit(TELE_BOX_MANAGER_EVENT.BoxToNormal, {
-                boxId: box.id,
-                allBoxStatusInfo: this.allBoxStatusInfoManager.getAllBoxStatusInfo()
-            });
         });
         box._coord$.reaction((_, __, skipUpdate) => {
             if (!skipUpdate) {

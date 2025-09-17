@@ -28,7 +28,6 @@ export class MaxTitleBar extends DefaultTitleBar {
 
         this.allBoxStatusInfoManager.currentAllBoxStatusInfo$.reaction((allBoxStatusInfo) => {
             console.log("[TeleBox] MaxTitleBar - AllBoxStatusInfo Reaction Triggered", allBoxStatusInfo);
-            //
             if (this.$titleBar) {
                 this.$titleBar.classList.toggle(
                     this.wrapClassName("max-titlebar-maximized"),
@@ -180,19 +179,9 @@ export class MaxTitleBar extends DefaultTitleBar {
     public updateTitles(): void {
         this.$titleBar?.classList.toggle(
             this.wrapClassName("max-titlebar-active"),
-            this.allBoxStatusInfoManager.hasMaximizedBox() &&
-                this.boxes.length > 0 &&
-                this.allBoxStatusInfoManager.getBoxesList(TELE_BOX_STATE.Minimized).filter(
-                    (boxId) => !this.allBoxStatusInfoManager.getBoxesList(TELE_BOX_STATE.Minimized).includes(boxId)
-                ).length > 0
+            this.allBoxStatusInfoManager.hasMaximizedBox() && this.boxes.length > 0
         );
-        if (
-            this.$titleBar &&
-            this.allBoxStatusInfoManager.hasMaximizedBox() &&
-            this.boxes.length > 0 &&
-            this.allBoxStatusInfoManager.getBoxesList(TELE_BOX_STATE.Minimized).filter((boxId) => !this.allBoxStatusInfoManager.getBoxesList(TELE_BOX_STATE.Minimized).includes(boxId))
-                .length > 0
-        ) {
+        if (this.$titleBar && this.allBoxStatusInfoManager.hasMaximizedBox() && this.boxes.length > 0) {
             this.$titleBar.classList.toggle(
                 this.wrapClassName("max-titlebar-single-title"),
                 this.boxes.length === 1

@@ -2950,11 +2950,9 @@ class MaxTitleBar extends DefaultTitleBar {
     var _a;
     (_a = this.$titleBar) == null ? void 0 : _a.classList.toggle(
       this.wrapClassName("max-titlebar-active"),
-      this.allBoxStatusInfoManager.hasMaximizedBox() && this.boxes.length > 0 && this.allBoxStatusInfoManager.getBoxesList(TELE_BOX_STATE.Minimized).filter(
-        (boxId) => !this.allBoxStatusInfoManager.getBoxesList(TELE_BOX_STATE.Minimized).includes(boxId)
-      ).length > 0
+      this.allBoxStatusInfoManager.hasMaximizedBox() && this.boxes.length > 0
     );
-    if (this.$titleBar && this.allBoxStatusInfoManager.hasMaximizedBox() && this.boxes.length > 0 && this.allBoxStatusInfoManager.getBoxesList(TELE_BOX_STATE.Minimized).filter((boxId) => !this.allBoxStatusInfoManager.getBoxesList(TELE_BOX_STATE.Minimized).includes(boxId)).length > 0) {
+    if (this.$titleBar && this.allBoxStatusInfoManager.hasMaximizedBox() && this.boxes.length > 0) {
       this.$titleBar.classList.toggle(
         this.wrapClassName("max-titlebar-single-title"),
         this.boxes.length === 1
@@ -3401,13 +3399,15 @@ class TeleBoxManager {
   }
   create(config, smartPosition = true) {
     const id = config.id || r$1();
+    const state = this.allBoxStatusInfoManager.getAllBoxStatusInfo()[id];
+    console.log("[TeleBox] Create Box State", id, state);
     const box = new TeleBox({
       zIndex: this.topBox ? this.topBox.zIndex + 1 : 100,
       ...smartPosition ? this.smartPosition(config) : config,
       darkMode: this.darkMode,
       prefersColorScheme: this.prefersColorScheme,
-      maximized: false,
-      minimized: false,
+      maximized: TELE_BOX_STATE.Maximized === state,
+      minimized: TELE_BOX_STATE.Minimized === state,
       fence: this.fence,
       namespace: this.namespace,
       containerRect: this.containerRect,
@@ -3427,19 +3427,22 @@ class TeleBoxManager {
       }
     }
     this.boxes$.setValue([...this.boxes, box]);
-    this.allBoxStatusInfoManager.setCurrentBoxState(id, TELE_BOX_STATE.Normal, false);
+    if (!state) {
+      this.allBoxStatusInfoManager.setCurrentAllBoxStatusInfo({ ...this.allBoxStatusInfoManager.getAllBoxStatusInfo(), [id]: state || TELE_BOX_STATE.Normal }, false);
+    }
+    console.log("[TeleBox] Create Box AllBoxStatusInfo UpdateFinish", this.allBoxStatusInfoManager.getAllBoxStatusInfo());
     box._delegateEvents.on(TELE_BOX_DELEGATE_EVENT.Maximize, () => {
       console.log("[TeleBox] TitleBar Maximize From Box Event", {
         boxId: box.id
       });
       const allBoxStatusInfo = this.allBoxStatusInfoManager.getAllBoxStatusInfo();
-      Object.entries(allBoxStatusInfo).forEach(([boxId, state]) => {
-        if (state !== TELE_BOX_STATE.Minimized) {
+      Object.entries(allBoxStatusInfo).forEach(([boxId, state2]) => {
+        if (state2 !== TELE_BOX_STATE.Minimized) {
           allBoxStatusInfo[boxId] = TELE_BOX_STATE.Maximized;
         }
       });
       this.allBoxStatusInfoManager.setCurrentAllBoxStatusInfo(allBoxStatusInfo, false);
-      this.events.emit(TELE_BOX_MANAGER_EVENT.BoxToNormal, {
+      this.events.emit(TELE_BOX_MANAGER_EVENT.BoxToMaximized, {
         boxId: box.id,
         allBoxStatusInfo: this.allBoxStatusInfoManager.getAllBoxStatusInfo()
       });
@@ -3460,10 +3463,6 @@ class TeleBoxManager {
       });
       this.remove(box.id, false);
       this.events.emit(TELE_BOX_MANAGER_EVENT.Removed, [box]);
-      this.events.emit(TELE_BOX_MANAGER_EVENT.BoxToNormal, {
-        boxId: box.id,
-        allBoxStatusInfo: this.allBoxStatusInfoManager.getAllBoxStatusInfo()
-      });
     });
     box._coord$.reaction((_, __, skipUpdate) => {
       if (!skipUpdate) {

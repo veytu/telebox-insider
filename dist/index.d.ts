@@ -1036,8 +1036,8 @@ declare class TeleBoxManager {
     protected root: HTMLElement;
     readonly namespace: string;
     /** AllBoxStatusInfoManager Instance. */
-    protected allBoxStatusInfoManager: AllBoxStatusInfoManager;
-    protected wukongRoleManager: WukongRoleManager;
+    protected allBoxStatusInfoManager: AllBoxStatusInfoManager$1;
+    protected wukongRoleManager: WukongRoleManager$1;
     _darkMode$: Val<boolean, boolean>;
     get darkMode(): boolean;
     setMinimized(data: boolean, skipUpdate?: boolean): void;
