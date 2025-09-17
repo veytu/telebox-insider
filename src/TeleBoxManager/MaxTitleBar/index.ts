@@ -5,6 +5,7 @@ import { DefaultTitleBar } from "../../TeleTitleBar";
 import type { DefaultTitleBarConfig } from "../../TeleTitleBar";
 import { TELE_BOX_STATE } from "../../TeleBox/constants";
 import type { TeleBoxRect, TeleBoxState } from "../../TeleBox/typings";
+import { AllBoxStatusInfoManager, WukongRoleManager } from "../../Manager";
 
 export type MaxTitleBarTeleBox = Pick<TeleBox, "id" | "title" | "readonly">;
 
@@ -13,18 +14,29 @@ export interface MaxTitleBarConfig extends DefaultTitleBarConfig {
     boxes: TeleBox[];
     containerRect: TeleBoxRect;
     focusedBox?: TeleBox;
-    allBoxStatusInfo: Record<string, TELE_BOX_STATE>;
 }
 
 export class MaxTitleBar extends DefaultTitleBar {
     public constructor(config: MaxTitleBarConfig) {
         super(config);
-
         this.boxes = config.boxes;
         this.focusedBox = config.focusedBox;
         this.containerRect = config.containerRect;
         this.darkMode = config.darkMode;
-        this.allBoxStatusInfo = config.allBoxStatusInfo;
+        this.allBoxStatusInfoManager = config.allBoxStatusInfoManager;
+        this.wukongRoleManager = config.wukongRoleManager;
+
+        this.allBoxStatusInfoManager.currentAllBoxStatusInfo$.reaction((allBoxStatusInfo) => {
+            console.log("[TeleBox] MaxTitleBar - AllBoxStatusInfo Reaction Triggered", allBoxStatusInfo);
+            //
+            if (this.$titleBar) {
+                this.$titleBar.classList.toggle(
+                    this.wrapClassName("max-titlebar-maximized"),
+                    this.state === TELE_BOX_STATE.Maximized && this.allBoxStatusInfoManager.hasMaximizedBox()
+                );
+            }
+            this.updateTitles();
+        });
     }
 
     public focusBox(box?: TeleBox): void {
@@ -40,7 +52,7 @@ export class MaxTitleBar extends DefaultTitleBar {
         );
         if (
             this.$titles &&
-            (this.state === TELE_BOX_STATE.Maximized || this.hasMaximizedBox())
+            (this.state === TELE_BOX_STATE.Maximized || this.allBoxStatusInfoManager.hasMaximizedBox())
         ) {
             const { children } = this.$titles.firstElementChild as HTMLElement;
             for (let i = children.length - 1; i >= 0; i -= 1) {
@@ -64,12 +76,6 @@ export class MaxTitleBar extends DefaultTitleBar {
         this.focusedBox = box;
     }
 
-    private hasMaximizedBox(): boolean {
-        return Object.entries(this.allBoxStatusInfo || {}).some(
-            ([_, state]) => state === TELE_BOX_STATE.Maximized
-        );
-    }
-
     public setContainerRect(rect: TeleBoxRect): void {
         this.containerRect = rect;
         if (this.$titleBar) {
@@ -81,28 +87,10 @@ export class MaxTitleBar extends DefaultTitleBar {
 
     public setBoxes(boxes: TeleBox[]): void {
         this.boxes = boxes;
-	if (this.$titleBar) {
+        if (this.$titleBar) {
             this.$titleBar.classList.toggle(
                 this.wrapClassName("max-titlebar-maximized"),
-                this.state === TELE_BOX_STATE.Maximized && boxes.length > 0
-            );
-        }
-        this.updateTitles();
-    }
-
-    public setAllBoxStatusInfo(
-        allBoxStatusInfo: Record<string, TELE_BOX_STATE>
-    ): void {
-        console.log(
-            "[TeleBox] MaxTitleBar - setAllBoxStatusInfo",
-            allBoxStatusInfo
-        );
-        this.allBoxStatusInfo = allBoxStatusInfo;
-	//
-	if (this.$titleBar) {
-            this.$titleBar.classList.toggle(
-                this.wrapClassName("max-titlebar-maximized"),
-                this.state === TELE_BOX_STATE.Maximized && boxes.length > 0
+                this.state === TELE_BOX_STATE.Maximized && this.allBoxStatusInfoManager.hasMaximizedBox()
             );
         }
         this.updateTitles();
@@ -113,7 +101,7 @@ export class MaxTitleBar extends DefaultTitleBar {
         if (this.$titleBar) {
             this.$titleBar.classList.toggle(
                 this.wrapClassName("max-titlebar-maximized"),
-                state === TELE_BOX_STATE.Maximized && this.boxes.length > 0
+                state === TELE_BOX_STATE.Maximized && this.allBoxStatusInfoManager.hasMaximizedBox()
             );
         }
         this.updateTitles();
@@ -161,7 +149,7 @@ export class MaxTitleBar extends DefaultTitleBar {
         $titleBar.classList.add(this.wrapClassName("max-titlebar"));
         $titleBar.classList.toggle(
             this.wrapClassName("max-titlebar-maximized"),
-            this.state === TELE_BOX_STATE.Maximized && this.boxes.length > 0
+            this.state === TELE_BOX_STATE.Maximized && this.allBoxStatusInfoManager.hasMaximizedBox()
         );
         $titleBar.classList.toggle(
             this.wrapClassName("readonly"),
@@ -190,25 +178,19 @@ export class MaxTitleBar extends DefaultTitleBar {
     }
 
     public updateTitles(): void {
-        const maximizedBoxes = Object.entries(this.allBoxStatusInfo)
-            .filter(([_, state]) => state === TELE_BOX_STATE.Maximized)
-            .map(([boxId, _]) => boxId);
-        const minimizedBoxes = Object.entries(this.allBoxStatusInfo)
-            .filter(([_, state]) => state === TELE_BOX_STATE.Minimized)
-            .map(([boxId, _]) => boxId);
         this.$titleBar?.classList.toggle(
             this.wrapClassName("max-titlebar-active"),
-            maximizedBoxes.length > 0 &&
+            this.allBoxStatusInfoManager.hasMaximizedBox() &&
                 this.boxes.length > 0 &&
-                maximizedBoxes.filter(
-                    (boxId) => !minimizedBoxes.includes(boxId)
+                this.allBoxStatusInfoManager.getBoxesList(TELE_BOX_STATE.Minimized).filter(
+                    (boxId) => !this.allBoxStatusInfoManager.getBoxesList(TELE_BOX_STATE.Minimized).includes(boxId)
                 ).length > 0
         );
         if (
             this.$titleBar &&
-            maximizedBoxes.length > 0 &&
+            this.allBoxStatusInfoManager.hasMaximizedBox() &&
             this.boxes.length > 0 &&
-            maximizedBoxes.filter((boxId) => !minimizedBoxes.includes(boxId))
+            this.allBoxStatusInfoManager.getBoxesList(TELE_BOX_STATE.Minimized).filter((boxId) => !this.allBoxStatusInfoManager.getBoxesList(TELE_BOX_STATE.Minimized).includes(boxId))
                 .length > 0
         ) {
             this.$titleBar.classList.toggle(
@@ -249,12 +231,8 @@ export class MaxTitleBar extends DefaultTitleBar {
         $content.className = this.wrapClassName("titles-content");
         this.$titles.appendChild($content);
 
-        const maximizedBoxes = Object.entries(this.allBoxStatusInfo)
-            .filter(([_, state]) => state === TELE_BOX_STATE.Maximized)
-            .map(([boxId, _]) => boxId);
-        const minimizedBoxes = Object.entries(this.allBoxStatusInfo)
-            .filter(([_, state]) => state === TELE_BOX_STATE.Minimized)
-            .map(([boxId, _]) => boxId);
+        const maximizedBoxes = this.allBoxStatusInfoManager.getBoxesList(TELE_BOX_STATE.Maximized);
+        const minimizedBoxes = this.allBoxStatusInfoManager.getBoxesList(TELE_BOX_STATE.Minimized);
 
         const maxBoxes = this.boxes
             .filter((box) => maximizedBoxes.includes(box.id))
@@ -300,5 +278,6 @@ export class MaxTitleBar extends DefaultTitleBar {
     public focusedBox: TeleBox | undefined;
 
     protected containerRect: TeleBoxRect;
-    protected allBoxStatusInfo: MaxTitleBarConfig["allBoxStatusInfo"];
+    protected allBoxStatusInfoManager: AllBoxStatusInfoManager;
+    protected wukongRoleManager: WukongRoleManager;
 }

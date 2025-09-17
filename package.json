@@ -28,7 +28,6 @@
         "types": "dts -o dist/index.d.ts"
     },
     "devDependencies": {
-        "@netless/window-manager": "github:veytu/window-manager#e533ddbc89848814faace4bff26fbcc022027182",
         "@babel/plugin-proposal-class-properties": "^7.13.0",
         "@hyrious/dts": "^0.2.2",
         "@netless/eslint-plugin": "^1.1.2",

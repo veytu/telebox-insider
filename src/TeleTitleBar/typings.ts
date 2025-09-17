@@ -1,3 +1,4 @@
+import { AllBoxStatusInfoManager, WukongRoleManager } from "../Manager";
 import type { TeleBoxDelegateEventConfig, TeleBoxState } from "../TeleBox";
 
 export type TeleTitleBarEvent<U = keyof TeleBoxDelegateEventConfig> =
@@ -14,7 +15,9 @@ export interface TeleTitleBarConfig {
     namespace?: string;
     onEvent?: (event: TeleTitleBarEvent) => void;
     onDragStart?: (event: MouseEvent | TouchEvent) => void;
-    appReadonly?: boolean;
+    /** AllBoxStatusInfoManager Instance. */
+    allBoxStatusInfoManager: AllBoxStatusInfoManager;
+    wukongRoleManager: WukongRoleManager;
 }
 
 export interface TeleTitleBar {

@@ -37,16 +37,16 @@ const createSelector = (
 setBoardRect();
 
 const manager = new TeleBoxManager({
-    fence: false,
-    root: board,
-    containerRect: getBoardRect(),
-    collector: new TeleBoxCollector({
-        styles: {
-            position: "absolute",
-            bottom: "10px",
-            left: "20px"
-        }
-    }).mount(board)
+    // fence: false,
+    // root: board,
+    // containerRect: getBoardRect(),
+    // collector: new TeleBoxCollector({
+    //     styles: {
+    //         position: "absolute",
+    //         bottom: "10px",
+    //         left: "20px"
+    //     }
+    // }).mount(board)
 });
 
 (window as any).manager = manager;
@@ -55,21 +55,23 @@ createBtn("Create").addEventListener("click", () => {
     const title = faker.datatype.boolean()
         ? faker.commerce.productName()
         : faker.random.words(50);
-    const content = document.createElement("div");
-    content.className = "content";
-    content.textContent = `Content ${title}`;
-    manager.create({
-        minHeight: 0.1,
-        minWidth: 0.1,
-        title: title.slice(0, 50),
-        focus: true,
-        content,
-        // todo 要研究下为啥要写成Math.random() > 0.5
-        hasHeader: true
-    });
-    if (manager.minimized) {
-        manager.setMinimized(false);
-    }
+    // const content = document.createElement("div");
+    // content.className = "content";
+    // content.textContent = `Content ${title}`;
+    // manager.create({
+    //     minHeight: 0.1,
+    //     minWidth: 0.1,
+    //     title: title.slice(0, 50),
+    //     focus: true,
+    //     content,
+    //     // todo 要研究下为啥要写成Math.random() > 0.5
+    //     hasHeader: true,
+    //     allBoxStatusInfoManager: manager.allBoxStatusInfoManager,
+    //     wukongRoleManager: manager.wukongRoleManager
+    // });
+    // if (manager.minimized) {
+    //     manager.setMinimized(false);
+    // }
 });
 
 createBtn("Remove").addEventListener("click", () => {

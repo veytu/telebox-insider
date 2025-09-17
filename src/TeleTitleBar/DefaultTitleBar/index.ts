@@ -14,6 +14,7 @@ import type {
     TeleTitleBarEvent
 } from "../typings";
 import { isAndroid, isIOS, preventEvent } from "../../utils";
+import { AllBoxStatusInfoManager, WukongRoleManager } from "../../Manager";
 
 export type DefaultTitleBarButton = TeleTitleBarEvent & {
     readonly iconClassName: string;
@@ -27,21 +28,23 @@ export interface DefaultTitleBarConfig extends TeleTitleBarConfig {
 export class DefaultTitleBar implements TeleTitleBar {
     public constructor({
         readonly = false,
-        title,
+        title = "",
         buttons,
         onEvent,
         onDragStart,
         namespace = "telebox",
         state = TELE_BOX_STATE.Normal,
-        appReadonly = false
-    }: DefaultTitleBarConfig = {}) {
+        allBoxStatusInfoManager,
+        wukongRoleManager,
+    }: DefaultTitleBarConfig) {
         this.readonly = readonly;
         this.onEvent = onEvent;
         this.onDragStart = onDragStart;
         this.namespace = namespace;
         this.title = title;
         this.state = state;
-        this.appReadonly = appReadonly;
+        this.allBoxStatusInfoManager = allBoxStatusInfoManager;
+        this.wukongRoleManager = wukongRoleManager;
 
         this.buttons = buttons || [
             {
@@ -228,7 +231,9 @@ export class DefaultTitleBar implements TeleTitleBar {
     public onDragStart?: TeleTitleBarConfig["onDragStart"];
 
     protected readonly: boolean;
-    protected appReadonly: boolean;
+    /** AllBoxStatusInfoManager Instance. */
+    protected allBoxStatusInfoManager: AllBoxStatusInfoManager;
+    protected wukongRoleManager: WukongRoleManager;
 
     protected title?: string;
 

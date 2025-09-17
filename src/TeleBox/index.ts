@@ -42,6 +42,7 @@ import type {
     TeleBoxColorScheme
 } from "./typings";
 import type { AnyToVoidFunction } from "../schedulers";
+import { AllBoxStatusInfoManager, WukongRoleManager } from "../Manager";
 
 export * from "./constants";
 export * from "./typings";
@@ -113,7 +114,8 @@ export class TeleBox {
         collectorRect,
         fixed = false,
         addObserver,
-        appReadonly,
+        allBoxStatusInfoManager,
+        wukongRoleManager,
         hasHeader = true
     }: TeleBoxConfig = {}) {
         this.hasHeader = hasHeader;
@@ -123,7 +125,8 @@ export class TeleBox {
         );
         const { combine, createVal } = this._valSideEffectBinder;
         this.addObserver = addObserver || noop;
-        this.appReadonly = appReadonly;
+        this.allBoxStatusInfoManager = allBoxStatusInfoManager;
+        this.wukongRoleManager = wukongRoleManager;
         this.id = id;
         this.namespace = namespace;
         this.events = new EventEmitter();
@@ -404,7 +407,8 @@ export class TeleBox {
             titleBar ||
             new DefaultTitleBar({
                 readonly: readonly$.value,
-                appReadonly: this.appReadonly,
+                allBoxStatusInfoManager: this.allBoxStatusInfoManager,
+                wukongRoleManager: this.wukongRoleManager,
                 title: title$.value,
                 namespace: this.namespace,
                 onDragStart: (event) => this._handleTrackStart?.(event),
@@ -534,7 +538,9 @@ export class TeleBox {
     public _visualSize$: Val<TeleBoxSize, boolean>;
     public _coord$: Val<TeleBoxCoord, boolean>;
     public _intrinsicCoord$: Val<TeleBoxCoord, boolean>;
-    private appReadonly: boolean | undefined;
+    /** AllBoxStatusInfoManager Instance. */
+    allBoxStatusInfoManager: AllBoxStatusInfoManager;
+    wukongRoleManager: WukongRoleManager;
 
     public get darkMode(): boolean {
         return this._darkMode$.value;
@@ -989,7 +995,7 @@ export class TeleBox {
 
         $contentWrap.classList.toggle(
             "hide-scroll",
-            Boolean(isIOS() || isAndroid() || this.appReadonly)
+            Boolean(isIOS() || isAndroid() || true !== this.wukongRoleManager?.wukongCanOperate())
         );
         const $content = document.createElement("div");
         $content.className =

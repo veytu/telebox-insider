@@ -159,12 +159,12 @@
   position: relative;
   z-index: 1;
 }
+.telebox-maximized .telebox-box-main .telebox-titlebar-wrap {
+  display: none !important;
+}
 .telebox-maximized .telebox-box-main {
   border: 0px;
   border-radius: 0;
-}
-.telebox-maximized .telebox-box-main .telebox-titlebar-wrap {
-  display: none !important;
 }
 .telebox-main {
   position: relative;

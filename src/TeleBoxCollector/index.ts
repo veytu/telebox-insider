@@ -9,6 +9,7 @@ import { SideEffectManager } from "side-effect-manager";
 import { onTickEnd } from "../schedulers";
 import { getHiddenElementSize } from "./utils";
 import { isAndroid, isIOS } from "../utils";
+import { AllBoxStatusInfoManager, WukongRoleManager } from "../Manager";
 
 export interface TeleBoxCollectorConfig {
     visible?: boolean;
@@ -17,10 +18,10 @@ export interface TeleBoxCollectorConfig {
     namespace?: string;
     styles?: TeleStyles;
     onClick?: () => void;
-    allBoxStatusInfo?: Record<string, TELE_BOX_STATE>;
     boxes?: TeleBox[];
     externalEvents?: any;
-    appReadonly?: boolean;
+    allBoxStatusInfoManager: AllBoxStatusInfoManager;
+    wukongRoleManager: WukongRoleManager;
 }
 
 export class TeleBoxCollector {
@@ -31,11 +32,11 @@ export class TeleBoxCollector {
         namespace = "telebox",
         styles = {},
         onClick,
-        allBoxStatusInfo = {},
         boxes = [],
         externalEvents,
-        appReadonly
-    }: TeleBoxCollectorConfig = {}) {
+        allBoxStatusInfoManager,
+        wukongRoleManager,
+    }: TeleBoxCollectorConfig) {
         this.externalEvents = externalEvents;
         this._sideEffect = new SideEffectManager();
         const { createVal } = createSideEffectBinder(this._sideEffect as any);
@@ -44,10 +45,10 @@ export class TeleBoxCollector {
         this._darkMode = darkMode;
         this.namespace = namespace;
         this.styles = styles;
-        this.allBoxStatusInfo = { ...allBoxStatusInfo };
+        this.allBoxStatusInfoManager = allBoxStatusInfoManager;
+        this.wukongRoleManager = wukongRoleManager;
         this.boxes = boxes;
         this.onClick = onClick;
-        this.appReadonly = appReadonly;
 
         this.popupVisible$ = createVal(false);
 
@@ -81,12 +82,19 @@ export class TeleBoxCollector {
             blurPopup,
             true
         );
+
+        this.allBoxStatusInfoManager.currentAllBoxStatusInfo$.reaction((allBoxStatusInfo) => {
+            console.log("[TeleBox] TeleBoxCollector - AllBoxStatusInfo Reaction Triggered",allBoxStatusInfo);
+            this.updateMinimizedCount();
+            this.renderTitles();
+        });
     }
 
     public readonly styles: TeleStyles;
 
     public readonly namespace: string;
-    private appReadonly: boolean | undefined;
+    private allBoxStatusInfoManager: AllBoxStatusInfoManager;
+    private wukongRoleManager: WukongRoleManager;
 
     public get visible(): boolean {
         return this._visible;
@@ -105,7 +113,6 @@ export class TeleBoxCollector {
     public onClick: ((boxId: string) => void) | undefined;
 
     public $collector: HTMLElement | undefined;
-    public allBoxStatusInfo: Record<string, any> = {};
     private wrp$: HTMLElement | undefined;
     private count$: HTMLElement | undefined;
     private $titles: HTMLElement | undefined;
@@ -192,24 +199,10 @@ export class TeleBoxCollector {
         }
         return this;
     }
-
-    public setAllBoxStatusInfo(allBoxStatusInfo: Record<string, any>): void {
-        console.log(
-            "[TeleBox] TeleBoxCollector - setAllBoxStatusInfo",
-            allBoxStatusInfo
-        );
-        this.allBoxStatusInfo = { ...allBoxStatusInfo };
-        this.updateMinimizedCount();
-        this.renderTitles();
-    }
-
     private updateMinimizedCount(): void {
         if (this.count$) {
             // 从allBoxStatusInfo中获取最小化数量
-            const minimizedCount = Object.values(this.allBoxStatusInfo).filter(
-                (status) => status === TELE_BOX_STATE.Minimized
-            ).length;
-            this.count$.textContent = String(minimizedCount);
+            this.count$.textContent = String(this.allBoxStatusInfoManager.getBoxesList(TELE_BOX_STATE.Minimized).length);
         }
     }
 
@@ -321,7 +314,7 @@ export class TeleBoxCollector {
         const disposers = this.boxes
             ?.filter(
                 (box) =>
-                    this.allBoxStatusInfo[box.id] === TELE_BOX_STATE.Minimized
+                    this.allBoxStatusInfoManager.currentAllBoxStatusInfo$.value[box.id] === TELE_BOX_STATE.Minimized
             )
             .map((box) => {
                 const $tab = document.createElement("button");

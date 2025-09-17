@@ -5,6 +5,7 @@ import type { TeleBoxConfig } from "../TeleBox/typings";
 import type { TeleBoxCollector } from "../TeleBoxCollector";
 import type { TELE_BOX_MANAGER_EVENT } from "./constants";
 import { TELE_BOX_STATE } from "../TeleBox/constants";
+import { AllBoxStatusInfoManager, WukongRoleManager } from "../Manager";
 
 type StringStyleKeys<T = keyof CSSStyleDeclaration> =
     T extends keyof CSSStyleDeclaration
@@ -30,9 +31,9 @@ export interface TeleBoxManagerConfig
     root?: HTMLElement;
     /** Where the minimized boxes go. */
     collector?: TeleBoxCollector;
-    allBoxStatusInfo?: Record<string, TELE_BOX_STATE>;
-    lastLastNotMinimizedBoxsStatus?: Record<string, TELE_BOX_STATE>;
-    appReadonly?: boolean;
+    /** AllBoxStatusInfoManager Instance. */
+    allBoxStatusInfoManager: AllBoxStatusInfoManager;
+    wukongRoleManager: WukongRoleManager;
 }
 
 type TeleBoxManagerBoxConfigBaseProps =
@@ -59,6 +60,8 @@ export type TeleBoxManagerCreateConfig = Pick<
     | "id"
     | "focus"
     | "hasHeader"
+    | "allBoxStatusInfoManager"
+    | "wukongRoleManager"
 >;
 
 export type TeleBoxManagerQueryConfig = Pick<

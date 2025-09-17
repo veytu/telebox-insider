@@ -8,6 +8,7 @@ import type {
     TELE_BOX_STATE,
     TELE_BOX_COLOR_SCHEME
 } from "./constants";
+import { AllBoxStatusInfoManager, WukongRoleManager } from "../Manager";
 
 export type TeleBoxColorScheme = `${TELE_BOX_COLOR_SCHEME}`;
 
@@ -86,7 +87,9 @@ export interface TeleBoxConfig {
         el: HTMLElement,
         cb: ResizeObserverCallback
     ) => void;
-    appReadonly?: boolean;
+    /** AllBoxStatusInfoManager Instance. */
+    allBoxStatusInfoManager: AllBoxStatusInfoManager;
+    wukongRoleManager: WukongRoleManager;
     hasHeader?: boolean;
 }
 
