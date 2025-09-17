@@ -3553,6 +3553,8 @@ class TeleBoxManager {
     const id = config.id || r$1();
     const currentMaximizedBoxes = this.getMaximizedBoxes();
     const currentMinimizedBoxes = this.getMinimizedBoxes();
+    const isMaximized = currentMaximizedBoxes.includes(id);
+    const isMinimized = currentMinimizedBoxes.includes(id);
     const managerMaximized$ = currentMaximizedBoxes.includes(id) || currentMaximizedBoxes.length > 0 && config.maximized !== false;
     const managerMinimized$ = currentMinimizedBoxes.includes(id) || config.minimized === true;
     const box = new TeleBox({
@@ -3560,8 +3562,8 @@ class TeleBoxManager {
       ...smartPosition ? this.smartPosition(config) : config,
       darkMode: this.darkMode,
       prefersColorScheme: this.prefersColorScheme,
-      maximized: managerMaximized$,
-      minimized: managerMinimized$,
+      maximized: isMaximized,
+      minimized: isMinimized,
       fence: this.fence,
       namespace: this.namespace,
       containerRect: this.containerRect,
@@ -3989,6 +3991,8 @@ class TeleBoxManager {
         if (vx > this.containerRect.width - width * this.containerRect.width) {
           vx = 20;
         }
+      } else {
+        vx = this.containerRect.width * (0.5 - width / 2);
       }
       x = vx / this.containerRect.width;
     }
@@ -3999,6 +4003,8 @@ class TeleBoxManager {
         if (vy > this.containerRect.height - height * this.containerRect.height) {
           vy = 20;
         }
+      } else {
+        vy = this.containerRect.height * (0.5 - height / 2);
       }
       y = vy / this.containerRect.height;
     }
