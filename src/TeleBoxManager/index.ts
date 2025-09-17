@@ -18,7 +18,7 @@ import type {
     TeleBoxManagerUpdateConfig
 } from "./typings";
 import { MaxTitleBar } from "./MaxTitleBar";
-import type { TeleBoxColorScheme } from "..";
+import type {  TeleBoxColorScheme} from "..";
 import { TELE_BOX_COLOR_SCHEME, TELE_BOX_DELEGATE_EVENT } from "..";
 import { genUID, SideEffectManager } from "side-effect-manager";
 import type { ValEnhancedResult } from "value-enhancer";
@@ -27,7 +27,6 @@ import { excludeFromBoth, removeByVal, uniqueByVal } from "../utils";
 import { createCallbackManager } from "./utils/callbacks";
 import type { CallbackManager } from "./utils/callbacks";
 import type { AnyToVoidFunction } from "../schedulers";
-import { AllBoxStatusInfoManager, WukongRoleManager } from "../Manager";
 
 export * from "./typings";
 export * from "./constants";

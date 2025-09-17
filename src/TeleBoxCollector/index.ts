@@ -9,7 +9,7 @@ import { SideEffectManager } from "side-effect-manager";
 import { onTickEnd } from "../schedulers";
 import { getHiddenElementSize } from "./utils";
 import { isAndroid, isIOS } from "../utils";
-import { AllBoxStatusInfoManager, WukongRoleManager } from "../Manager";
+import { AllBoxStatusInfoManager, WukongRoleManager } from "../../types";
 
 export interface TeleBoxCollectorConfig {
     visible?: boolean;

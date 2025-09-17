@@ -8,7 +8,7 @@ import type {
     TELE_BOX_STATE,
     TELE_BOX_COLOR_SCHEME
 } from "./constants";
-import { AllBoxStatusInfoManager, WukongRoleManager } from "../Manager";
+import { AllBoxStatusInfoManager, WukongRoleManager } from "../../types";
 
 export type TeleBoxColorScheme = `${TELE_BOX_COLOR_SCHEME}`;
 

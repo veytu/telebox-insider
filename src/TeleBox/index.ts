@@ -42,7 +42,6 @@ import type {
     TeleBoxColorScheme
 } from "./typings";
 import type { AnyToVoidFunction } from "../schedulers";
-import { AllBoxStatusInfoManager, WukongRoleManager } from "../Manager";
 
 export * from "./constants";
 export * from "./typings";

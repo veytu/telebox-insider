@@ -5,7 +5,7 @@ import { DefaultTitleBar } from "../../TeleTitleBar";
 import type { DefaultTitleBarConfig } from "../../TeleTitleBar";
 import { TELE_BOX_STATE } from "../../TeleBox/constants";
 import type { TeleBoxRect, TeleBoxState } from "../../TeleBox/typings";
-import { AllBoxStatusInfoManager, WukongRoleManager } from "../../Manager";
+import { AllBoxStatusInfoManager, WukongRoleManager } from "../../../types";
 
 export type MaxTitleBarTeleBox = Pick<TeleBox, "id" | "title" | "readonly">;
 

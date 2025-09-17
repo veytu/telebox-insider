@@ -1,4 +1,4 @@
-import { AllBoxStatusInfoManager, WukongRoleManager } from "../Manager";
+import { AllBoxStatusInfoManager, WukongRoleManager } from "../../types";
 import type { TeleBoxDelegateEventConfig, TeleBoxState } from "../TeleBox";
 
 export type TeleTitleBarEvent<U = keyof TeleBoxDelegateEventConfig> =

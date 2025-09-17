@@ -261,7 +261,7 @@ declare enum TELE_BOX_COLOR_SCHEME {
     Dark = "dark",
     Auto = "auto"
 }
-declare enum TELE_BOX_STATE {
+declare enum TELE_BOX_STATE$1 {
     Normal = "normal",
     Minimized = "minimized",
     Maximized = "maximized"
@@ -302,6 +302,23 @@ declare enum TELE_BOX_RESIZE_HANDLE {
 declare const TeleBoxDragHandleType = "dh";
 
 /**
+ * TeleBox状态枚举
+ */
+declare enum TELE_BOX_STATE {
+    Normal = "normal",
+    Minimized = "minimized",
+    Maximized = "maximized"
+}
+
+/**
+ * TeleBox基础类型
+ */
+interface TeleBox$1 {
+    id: string;
+    // Add other TeleBox properties as needed
+}
+
+/**
  * 悟空用户角色类型
  */
 declare enum WukongUserRoleType {
@@ -328,7 +345,7 @@ declare enum WukongUserRoleType {
  * - 维护当前角色与是否为演讲者标记
  * - 动态判断是否具备操作权限（可配置“默认有权限的角色”）
  */
-declare class WukongRoleManager {
+declare class WukongRoleManager$1 {
     private wukongCurrentRole;
     private wukongPresenter;
     /** 默认具备操作权限的角色集合（不含演讲者，演讲者单独由 wukongPresenter 控制） */
@@ -358,14 +375,13 @@ declare class WukongRoleManager {
     /** 获取“默认有操作权限”的角色集合（快照） */
     wukongGetOperableRoles(): WukongUserRoleType[];
 }
-
 /**
  * 统一的 AllBoxStatusInfo 管理器
  * - 内部维护一份不可变思维的快照，所有变更返回新对象并同步到内部
  * - 提供清理/查询/设置等常用能力
  * - 支持 Observable 模式，外部可以监听状态变化
  */
-declare class AllBoxStatusInfoManager {
+declare class AllBoxStatusInfoManager$1 {
     /** 当前所有的盒子状态信息 - Observable */
     private _currentAllBoxStatusInfo$;
     /** 当前所有的盒子最后非最小化状态信息 - Observable */
@@ -380,9 +396,9 @@ declare class AllBoxStatusInfoManager {
     /** 设置当前所有的盒子状态信息 */
     setCurrentAllBoxStatusInfo(info: Record<string, TELE_BOX_STATE>, skipUpdate?: boolean): void;
     /** 根据盒子列表清理当前所有的盒子状态信息 */
-    resetCleanCurrentAllBoxStatusInfoFromBoxes(boxes: TeleBox[], skipUpdate?: boolean): void;
+    resetCleanCurrentAllBoxStatusInfoFromBoxes(boxes: TeleBox$1[], skipUpdate?: boolean): void;
     /** 根据盒子列表清理当前所有的盒子最后非最小化状态信息 */
-    resetCleanLastNotMinimizedBoxsStatusFromBoxes(boxes: TeleBox[], skipUpdate?: boolean): void;
+    resetCleanLastNotMinimizedBoxsStatusFromBoxes(boxes: TeleBox$1[], skipUpdate?: boolean): void;
     /** 设置当前所有的盒子最后非最小化状态信息 */
     setLastNotMinimizedBoxsStatus(info: Record<string, TELE_BOX_STATE>, skipUpdate?: boolean): void;
     /** 设置当前指定的盒子状态信息 */
@@ -439,7 +455,7 @@ declare class AllBoxStatusInfoManager {
      * 获取管理器实例（用于兼容现有代码）
      * @returns 管理器实例
      */
-    get(): AllBoxStatusInfoManager;
+    get(): AllBoxStatusInfoManager$1;
     /**
      * 销毁管理器，清理所有副作用
      */
@@ -455,7 +471,7 @@ type TeleBoxSize = {
     width: number;
     height: number;
 };
-type TeleBoxState = `${TELE_BOX_STATE}`;
+type TeleBoxState = `${TELE_BOX_STATE$1}`;
 interface TeleBoxRect {
     readonly x: number;
     readonly y: number;
@@ -522,8 +538,8 @@ interface TeleBoxConfig {
     readonly fixed?: boolean;
     readonly addObserver?: (el: HTMLElement, cb: ResizeObserverCallback) => void;
     /** AllBoxStatusInfoManager Instance. */
-    allBoxStatusInfoManager: AllBoxStatusInfoManager;
-    wukongRoleManager: WukongRoleManager;
+    allBoxStatusInfoManager: AllBoxStatusInfoManager$1;
+    wukongRoleManager: WukongRoleManager$1;
     hasHeader?: boolean;
 }
 type CheckTeleBoxConfig<T extends Record<`${TELE_BOX_EVENT}`, any>> = T;
@@ -597,8 +613,8 @@ interface TeleTitleBarConfig {
     onEvent?: (event: TeleTitleBarEvent) => void;
     onDragStart?: (event: MouseEvent | TouchEvent) => void;
     /** AllBoxStatusInfoManager Instance. */
-    allBoxStatusInfoManager: AllBoxStatusInfoManager;
-    wukongRoleManager: WukongRoleManager;
+    allBoxStatusInfoManager: AllBoxStatusInfoManager$1;
+    wukongRoleManager: WukongRoleManager$1;
 }
 interface TeleTitleBar {
     setTitle(title: string): void;
@@ -634,8 +650,8 @@ declare class DefaultTitleBar implements TeleTitleBar {
     onDragStart?: TeleTitleBarConfig["onDragStart"];
     protected readonly: boolean;
     /** AllBoxStatusInfoManager Instance. */
-    protected allBoxStatusInfoManager: AllBoxStatusInfoManager;
-    protected wukongRoleManager: WukongRoleManager;
+    protected allBoxStatusInfoManager: AllBoxStatusInfoManager$1;
+    protected wukongRoleManager: WukongRoleManager$1;
     protected title?: string;
     protected buttons: ReadonlyArray<DefaultTitleBarButton>;
     protected state: TeleBoxState;
@@ -844,8 +860,8 @@ interface TeleBoxCollectorConfig {
     onClick?: () => void;
     boxes?: TeleBox[];
     externalEvents?: any;
-    allBoxStatusInfoManager: AllBoxStatusInfoManager;
-    wukongRoleManager: WukongRoleManager;
+    allBoxStatusInfoManager: AllBoxStatusInfoManager$1;
+    wukongRoleManager: WukongRoleManager$1;
 }
 declare class TeleBoxCollector {
     constructor({ visible, readonly, darkMode, namespace, styles, onClick, boxes, externalEvents, allBoxStatusInfoManager, wukongRoleManager, }: TeleBoxCollectorConfig);
@@ -919,8 +935,8 @@ interface TeleBoxManagerConfig extends Pick<TeleBoxConfig, "prefersColorScheme" 
     /** Where the minimized boxes go. */
     collector?: TeleBoxCollector;
     /** AllBoxStatusInfoManager Instance. */
-    allBoxStatusInfoManager: AllBoxStatusInfoManager;
-    wukongRoleManager: WukongRoleManager;
+    allBoxStatusInfoManager: AllBoxStatusInfoManager$1;
+    wukongRoleManager: WukongRoleManager$1;
 }
 type TeleBoxManagerBoxConfigBaseProps = "title" | "visible" | "width" | "height" | "minWidth" | "minHeight" | "x" | "y" | "resizable" | "draggable" | "fixRatio" | "zIndex" | "maximized" | "minimized";
 type TeleBoxManagerCreateConfig = Pick<TeleBoxConfig, TeleBoxManagerBoxConfigBaseProps | "content" | "footer" | "id" | "focus" | "hasHeader" | "allBoxStatusInfoManager" | "wukongRoleManager">;
@@ -933,8 +949,8 @@ type TeleBoxManagerEventConfig = CheckTeleBoxManagerConfig<{
     created: [ReadonlyTeleBox];
     removed: [ReadonlyTeleBox[]];
     state: [TeleBoxState];
-    all_box_status_info: [Record<string, TELE_BOX_STATE>];
-    last_last_not_minimized_boxs_status: [Record<string, TELE_BOX_STATE>];
+    all_box_status_info: [Record<string, TELE_BOX_STATE$1>];
+    last_last_not_minimized_boxs_status: [Record<string, TELE_BOX_STATE$1>];
     move: [ReadonlyTeleBox];
     resize: [ReadonlyTeleBox];
     intrinsic_move: [ReadonlyTeleBox];
@@ -948,19 +964,19 @@ type TeleBoxManagerEventConfig = CheckTeleBoxManagerConfig<{
     boxToMinimized: [
         {
             boxId: string;
-            allBoxStatusInfo: Record<string, TELE_BOX_STATE>;
+            allBoxStatusInfo: Record<string, TELE_BOX_STATE$1>;
         }
     ];
     boxToMaximized: [
         {
             boxId: string;
-            allBoxStatusInfo: Record<string, TELE_BOX_STATE>;
+            allBoxStatusInfo: Record<string, TELE_BOX_STATE$1>;
         }
     ];
     boxToNormal: [
         {
             boxId: string;
-            allBoxStatusInfo: Record<string, TELE_BOX_STATE>;
+            allBoxStatusInfo: Record<string, TELE_BOX_STATE$1>;
         }
     ];
 }>;
@@ -996,8 +1012,8 @@ declare class MaxTitleBar extends DefaultTitleBar {
     protected boxes: TeleBox[];
     focusedBox: TeleBox | undefined;
     protected containerRect: TeleBoxRect;
-    protected allBoxStatusInfoManager: AllBoxStatusInfoManager;
-    protected wukongRoleManager: WukongRoleManager;
+    protected allBoxStatusInfoManager: AllBoxStatusInfoManager$1;
+    protected wukongRoleManager: WukongRoleManager$1;
 }
 
 type ValConfig = {
@@ -1058,5 +1074,5 @@ declare class TeleBoxManager {
     protected getBox(boxOrID: TeleBox | string): TeleBox | undefined;
 }
 
-export { DefaultTitleBar, TELE_BOX_COLOR_SCHEME, TELE_BOX_DELEGATE_EVENT, TELE_BOX_EVENT, TELE_BOX_MANAGER_EVENT, TELE_BOX_RESIZE_HANDLE, TELE_BOX_STATE, TeleBox, TeleBoxCollector, TeleBoxDragHandleType, TeleBoxManager };
+export { DefaultTitleBar, TELE_BOX_COLOR_SCHEME, TELE_BOX_DELEGATE_EVENT, TELE_BOX_EVENT, TELE_BOX_MANAGER_EVENT, TELE_BOX_RESIZE_HANDLE, TELE_BOX_STATE$1 as TELE_BOX_STATE, TeleBox, TeleBoxCollector, TeleBoxDragHandleType, TeleBoxManager };
 export type { DefaultTitleBarButton, DefaultTitleBarConfig, ReadonlyTeleBox, TeleBoxCollectorConfig, TeleBoxColorScheme, TeleBoxConfig, TeleBoxCoord, TeleBoxDelegateEvent, TeleBoxDelegateEventConfig, TeleBoxDelegateEvents, TeleBoxEvent, TeleBoxEventConfig, TeleBoxEvents, TeleBoxHandleType, TeleBoxManagerConfig, TeleBoxManagerCreateConfig, TeleBoxManagerEvent, TeleBoxManagerEventConfig, TeleBoxManagerEvents, TeleBoxManagerQueryConfig, TeleBoxManagerUpdateConfig, TeleBoxRect, TeleBoxSize, TeleBoxState, TeleStyles, TeleTitleBar, TeleTitleBarConfig, TeleTitleBarEvent };

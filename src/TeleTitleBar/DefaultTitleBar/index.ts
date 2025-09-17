@@ -14,7 +14,7 @@ import type {
     TeleTitleBarEvent
 } from "../typings";
 import { isAndroid, isIOS, preventEvent } from "../../utils";
-import { AllBoxStatusInfoManager, WukongRoleManager } from "../../Manager";
+import { AllBoxStatusInfoManager, WukongRoleManager } from "../../../types";
 
 export type DefaultTitleBarButton = TeleTitleBarEvent & {
     readonly iconClassName: string;

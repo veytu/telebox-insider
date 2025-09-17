@@ -1,11 +1,11 @@
 import type EventEmitter from "eventemitter3";
+import type { AllBoxStatusInfoManager, WukongRoleManager } from "../../types";
 import type { TeleBoxColorScheme } from "..";
 import type { ReadonlyTeleBox, TeleBoxState } from "../TeleBox";
 import type { TeleBoxConfig } from "../TeleBox/typings";
 import type { TeleBoxCollector } from "../TeleBoxCollector";
 import type { TELE_BOX_MANAGER_EVENT } from "./constants";
 import { TELE_BOX_STATE } from "../TeleBox/constants";
-import { AllBoxStatusInfoManager, WukongRoleManager } from "../Manager";
 
 type StringStyleKeys<T = keyof CSSStyleDeclaration> =
     T extends keyof CSSStyleDeclaration
