@@ -15,20 +15,19 @@
         "src"
     ],
     "scripts": {
-        "build": "vite build && yarn run types",
+        "build": "vite build && pnpm run types",
         "build-storybook": "build-storybook && node scripts/move-storybook.js",
-        "build:dev": "vite build --mode development && yarn run types",
+        "build:dev": "vite build --mode development && pnpm run types",
         "cleanup": "rimraf ./dist",
-        "deploy-storybook": "yarn run build-storybook && node scripts/deploy-storybook.js",
+        "deploy-storybook": "pnpm run build-storybook && node scripts/deploy-storybook.js",
         "lint": "lint-staged",
         "lint:all": "eslint . --ext .ts,.tsx,.js,.jsx",
-        "lint:fix": "yarn lint:all --fix",
+        "lint:fix": "pnpm lint:all --fix",
         "start": "vite ./playground --open --host",
         "storybook": "start-storybook -p 6006 --no-version-updates",
         "types": "dts -o dist/index.d.ts"
     },
     "devDependencies": {
-        "@netless/window-manager": "github:veytu/window-manager#e533ddbc89848814faace4bff26fbcc022027182",
         "@babel/plugin-proposal-class-properties": "^7.13.0",
         "@hyrious/dts": "^0.2.2",
         "@netless/eslint-plugin": "^1.1.2",

@@ -467,7 +467,7 @@ interface DefaultTitleBarConfig extends TeleTitleBarConfig {
     buttons?: ReadonlyArray<DefaultTitleBarButton>;
 }
 declare class DefaultTitleBar implements TeleTitleBar {
-    constructor({ readonly, title, buttons, onEvent, onDragStart, namespace, state, appReadonly, }?: DefaultTitleBarConfig);
+    constructor({ readonly, title, buttons, onEvent, onDragStart, namespace, state, appReadonly }?: DefaultTitleBarConfig);
     readonly namespace: string;
     $titleBar: HTMLElement | undefined;
     private $buttonsContainer;
@@ -677,7 +677,7 @@ declare class TeleBox {
     private fixed;
 }
 type PropKeys<K = keyof TeleBox> = K extends keyof TeleBox ? TeleBox[K] extends AnyToVoidFunction ? never : K : never;
-type ReadonlyTeleBox = Pick<TeleBox, PropKeys | 'wrapClassName' | 'mountContent' | 'mountFooter' | 'mountStyles' | 'handleTrackStart' | 'setFixed'>;
+type ReadonlyTeleBox = Pick<TeleBox, PropKeys | "wrapClassName" | "mountContent" | "mountFooter" | "mountStyles" | "handleTrackStart" | "setFixed">;
 
 type StringStyleKeys$1<T = keyof CSSStyleDeclaration> = T extends keyof CSSStyleDeclaration ? CSSStyleDeclaration[T] extends string ? T : never : never;
 type TeleStyles$1 = Partial<Pick<CSSStyleDeclaration, StringStyleKeys$1>>;
@@ -732,7 +732,7 @@ declare class TeleBoxCollector {
     protected _visible: boolean;
     protected _readonly: boolean;
     protected _darkMode: boolean;
-    protected boxes: TeleBoxCollectorConfig['boxes'];
+    protected boxes: TeleBoxCollectorConfig["boxes"];
     protected handleCollectorClick: () => void;
     protected _sideEffect: SideEffectManager;
     protected popupVisible$: Val<boolean>;
@@ -770,7 +770,7 @@ interface TeleBoxManagerConfig extends Pick<TeleBoxConfig, "prefersColorScheme" 
     lastLastNotMinimizedBoxsStatus?: Record<string, TELE_BOX_STATE>;
     appReadonly?: boolean;
 }
-type TeleBoxManagerBoxConfigBaseProps = "title" | "visible" | "width" | "height" | "minWidth" | "minHeight" | "x" | "y" | "resizable" | "draggable" | "fixRatio" | "zIndex" | 'maximized' | 'minimized';
+type TeleBoxManagerBoxConfigBaseProps = "title" | "visible" | "width" | "height" | "minWidth" | "minHeight" | "x" | "y" | "resizable" | "draggable" | "fixRatio" | "zIndex" | "maximized" | "minimized";
 type TeleBoxManagerCreateConfig = Pick<TeleBoxConfig, TeleBoxManagerBoxConfigBaseProps | "content" | "footer" | "id" | "focus" | "hasHeader">;
 type TeleBoxManagerQueryConfig = Pick<TeleBoxConfig, TeleBoxManagerBoxConfigBaseProps | "id" | "focus">;
 type TeleBoxManagerUpdateConfig = Pick<TeleBoxConfig, TeleBoxManagerBoxConfigBaseProps | "content" | "footer">;
@@ -793,18 +793,24 @@ type TeleBoxManagerEventConfig = CheckTeleBoxManagerConfig<{
     dark_mode: [boolean];
     onScaleChange: [number];
     OpenMiniBox: [any];
-    boxToMinimized: [{
-        boxId: string;
-        allBoxStatusInfo: Record<string, TELE_BOX_STATE>;
-    }];
-    boxToMaximized: [{
-        boxId: string;
-        allBoxStatusInfo: Record<string, TELE_BOX_STATE>;
-    }];
-    boxToNormal: [{
-        boxId: string;
-        allBoxStatusInfo: Record<string, TELE_BOX_STATE>;
-    }];
+    boxToMinimized: [
+        {
+            boxId: string;
+            allBoxStatusInfo: Record<string, TELE_BOX_STATE>;
+        }
+    ];
+    boxToMaximized: [
+        {
+            boxId: string;
+            allBoxStatusInfo: Record<string, TELE_BOX_STATE>;
+        }
+    ];
+    boxToNormal: [
+        {
+            boxId: string;
+            allBoxStatusInfo: Record<string, TELE_BOX_STATE>;
+        }
+    ];
 }>;
 type TeleBoxManagerEvent = keyof TeleBoxManagerEventConfig;
 interface TeleBoxManagerEvents extends EventEmitter<TeleBoxManagerEvent> {
@@ -841,7 +847,7 @@ declare class MaxTitleBar extends DefaultTitleBar {
     protected boxes: TeleBox[];
     focusedBox: TeleBox | undefined;
     protected containerRect: TeleBoxRect;
-    protected allBoxStatusInfo: MaxTitleBarConfig['allBoxStatusInfo'];
+    protected allBoxStatusInfo: MaxTitleBarConfig["allBoxStatusInfo"];
 }
 
 declare function createCallbackManager<T extends AnyToVoidFunction = AnyToVoidFunction>(): {
@@ -929,4 +935,5 @@ declare class TeleBoxManager {
     protected getBox(boxOrID: TeleBox | string): TeleBox | undefined;
 }
 
-export { DefaultTitleBar, type DefaultTitleBarButton, type DefaultTitleBarConfig, type ReadonlyTeleBox, TELE_BOX_COLOR_SCHEME, TELE_BOX_DELEGATE_EVENT, TELE_BOX_EVENT, TELE_BOX_MANAGER_EVENT, TELE_BOX_RESIZE_HANDLE, TELE_BOX_STATE, TeleBox, TeleBoxCollector, type TeleBoxCollectorConfig, type TeleBoxColorScheme, type TeleBoxConfig, type TeleBoxCoord, type TeleBoxDelegateEvent, type TeleBoxDelegateEventConfig, type TeleBoxDelegateEvents, TeleBoxDragHandleType, type TeleBoxEvent, type TeleBoxEventConfig, type TeleBoxEvents, type TeleBoxHandleType, TeleBoxManager, type TeleBoxManagerConfig, type TeleBoxManagerCreateConfig, type TeleBoxManagerEvent, type TeleBoxManagerEventConfig, type TeleBoxManagerEvents, type TeleBoxManagerQueryConfig, type TeleBoxManagerUpdateConfig, type TeleBoxRect, type TeleBoxSize, type TeleBoxState, type TeleStyles, type TeleTitleBar, type TeleTitleBarConfig, type TeleTitleBarEvent };
+export { DefaultTitleBar, TELE_BOX_COLOR_SCHEME, TELE_BOX_DELEGATE_EVENT, TELE_BOX_EVENT, TELE_BOX_MANAGER_EVENT, TELE_BOX_RESIZE_HANDLE, TELE_BOX_STATE, TeleBox, TeleBoxCollector, TeleBoxDragHandleType, TeleBoxManager };
+export type { DefaultTitleBarButton, DefaultTitleBarConfig, ReadonlyTeleBox, TeleBoxCollectorConfig, TeleBoxColorScheme, TeleBoxConfig, TeleBoxCoord, TeleBoxDelegateEvent, TeleBoxDelegateEventConfig, TeleBoxDelegateEvents, TeleBoxEvent, TeleBoxEventConfig, TeleBoxEvents, TeleBoxHandleType, TeleBoxManagerConfig, TeleBoxManagerCreateConfig, TeleBoxManagerEvent, TeleBoxManagerEventConfig, TeleBoxManagerEvents, TeleBoxManagerQueryConfig, TeleBoxManagerUpdateConfig, TeleBoxRect, TeleBoxSize, TeleBoxState, TeleStyles, TeleTitleBar, TeleTitleBarConfig, TeleTitleBarEvent };

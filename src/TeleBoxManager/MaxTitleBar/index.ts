@@ -102,7 +102,7 @@ export class MaxTitleBar extends DefaultTitleBar {
 	if (this.$titleBar) {
             this.$titleBar.classList.toggle(
                 this.wrapClassName("max-titlebar-maximized"),
-                this.state === TELE_BOX_STATE.Maximized && boxes.length > 0
+                this.state === TELE_BOX_STATE.Maximized && this.boxes.length > 0
             );
         }
         this.updateTitles();
