@@ -622,14 +622,17 @@ export class TeleBoxManager {
     ): ReadonlyTeleBox {
         const id = config.id || genUID();
 
+        const state =this.allBoxStatusInfoManager.getAllBoxStatusInfo()[id]
+        console.log("[TeleBox] Create Box State",id, state)
+
         const box = new TeleBox({
             zIndex: this.topBox ? this.topBox.zIndex + 1 : 100,
             ...(smartPosition ? this.smartPosition(config) : config),
             darkMode: this.darkMode,
             prefersColorScheme: this.prefersColorScheme,
             //全部都是默认nomal方式
-            maximized: false,
-            minimized: false,
+            maximized: TELE_BOX_STATE.Maximized === state,
+            minimized: TELE_BOX_STATE.Minimized === state,
             fence: this.fence,
             namespace: this.namespace,
             containerRect: this.containerRect,
@@ -664,7 +667,9 @@ export class TeleBoxManager {
 
         this.boxes$.setValue([...this.boxes, box]);
         //更新allBoxStatusInfo，确保新创建的box状态被记录
-        this.allBoxStatusInfoManager.setCurrentBoxState(id, TELE_BOX_STATE.Normal, false);
+        if (!config.id){
+            this.allBoxStatusInfoManager.setCurrentBoxState(id, state || TELE_BOX_STATE.Normal, false);
+        }
 
         box._delegateEvents.on(TELE_BOX_DELEGATE_EVENT.Maximize, () => {
             console.log("[TeleBox] TitleBar Maximize From Box Event", {
