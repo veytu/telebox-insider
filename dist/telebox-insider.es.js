@@ -1526,6 +1526,10 @@ class TeleBox {
     );
     prefersColorScheme$.reaction((prefersColorScheme2, _, skipUpdate) => {
       if (!skipUpdate) {
+        console.log("[TeleBox] Emit PrefersColorScheme Event", {
+          boxId: this.id,
+          prefersColorScheme: prefersColorScheme2
+        });
         this.events.emit(
           TELE_BOX_EVENT.PrefersColorScheme,
           prefersColorScheme2
@@ -1567,6 +1571,10 @@ class TeleBox {
     }
     darkMode$.reaction((darkMode2, _, skipUpdate) => {
       if (!skipUpdate) {
+        console.log("[TeleBox] Emit DarkMode Event", {
+          boxId: this.id,
+          darkMode: darkMode2
+        });
         this.events.emit(TELE_BOX_EVENT.DarkMode, darkMode2);
       }
     });
@@ -1581,12 +1589,19 @@ class TeleBox {
     const visible$ = createVal(visible);
     visible$.reaction((visible2, _, skipUpdate) => {
       if (!skipUpdate && !visible2) {
+        console.log("[TeleBox] Emit Close Event", {
+          boxId: this.id
+        });
         this.events.emit(TELE_BOX_EVENT.Close);
       }
     });
     const readonly$ = createVal(readonly);
     readonly$.reaction((readonly2, _, skipUpdate) => {
       if (!skipUpdate) {
+        console.log("[TeleBox] Emit Readonly Event", {
+          boxId: this.id,
+          readonly: readonly2
+        });
         this.events.emit(TELE_BOX_EVENT.Readonly, readonly2);
       }
     });
@@ -1597,12 +1612,21 @@ class TeleBox {
     const zIndex$ = createVal(zIndex);
     zIndex$.reaction((zIndex2, _, skipUpdate) => {
       if (!skipUpdate) {
+        console.log("[TeleBox] Emit ZIndex Event", {
+          boxId: this.id,
+          zIndex: zIndex2
+        });
         this.events.emit(TELE_BOX_EVENT.ZIndex, zIndex2);
       }
     });
     const focus$ = createVal(focus);
     focus$.reaction((focus2, _, skipUpdate) => {
       if (!skipUpdate) {
+        console.log("[TeleBox] Emit Focus/Blur Event", {
+          boxId: this.id,
+          focus: focus2,
+          event: focus2 ? "Focus" : "Blur"
+        });
         this.events.emit(
           focus2 ? TELE_BOX_EVENT.Focus : TELE_BOX_EVENT.Blur
         );
@@ -1611,12 +1635,20 @@ class TeleBox {
     const minimized$ = createVal(minimized);
     minimized$.reaction((minimized2, _, skipUpdate) => {
       if (!skipUpdate) {
+        console.log("[TeleBox] Emit Minimized Event", {
+          boxId: this.id,
+          minimized: minimized2
+        });
         this.events.emit(TELE_BOX_EVENT.Minimized, minimized2);
       }
     });
     const maximized$ = createVal(maximized);
     maximized$.reaction((maximized2, _, skipUpdate) => {
       if (!skipUpdate) {
+        console.log("[TeleBox] Emit Maximized Event", {
+          boxId: this.id,
+          maximized: maximized2
+        });
         this.events.emit(TELE_BOX_EVENT.Maximized, maximized2);
       }
     });
@@ -1629,6 +1661,10 @@ class TeleBox {
     );
     state$.reaction((state, _, skipUpdate) => {
       if (!skipUpdate) {
+        console.log("[TeleBox] Emit State Event", {
+          boxId: this.id,
+          state
+        });
         this.events.emit(TELE_BOX_EVENT.State, state);
       }
     });
@@ -1657,6 +1693,10 @@ class TeleBox {
     });
     intrinsicSize$.reaction((size, _, skipUpdate) => {
       if (!skipUpdate) {
+        console.log("[TeleBox] Emit IntrinsicResize Event", {
+          boxId: this.id,
+          size
+        });
         this.events.emit(TELE_BOX_EVENT.IntrinsicResize, size);
       }
     });
@@ -1672,6 +1712,10 @@ class TeleBox {
     );
     size$.reaction((size, _, skipUpdate) => {
       if (!skipUpdate) {
+        console.log("[TeleBox] Emit Resize Event", {
+          boxId: this.id,
+          size
+        });
         this.events.emit(TELE_BOX_EVENT.Resize, size);
       }
     });
@@ -1690,6 +1734,10 @@ class TeleBox {
     );
     visualSize$.reaction((size, _, skipUpdate) => {
       if (!skipUpdate) {
+        console.log("[TeleBox] Emit VisualResize Event", {
+          boxId: this.id,
+          size
+        });
         this.events.emit(TELE_BOX_EVENT.VisualResize, size);
       }
     });
@@ -1699,6 +1747,10 @@ class TeleBox {
     );
     intrinsicCoord$.reaction((coord, _, skipUpdate) => {
       if (!skipUpdate) {
+        console.log("[TeleBox] Emit IntrinsicMove Event", {
+          boxId: this.id,
+          coord
+        });
         this.events.emit(TELE_BOX_EVENT.IntrinsicMove, coord);
       }
     });
@@ -1740,6 +1792,10 @@ class TeleBox {
     );
     coord$.reaction((coord, _, skipUpdate) => {
       if (!skipUpdate) {
+        console.log("[TeleBox] Emit Move Event", {
+          boxId: this.id,
+          coord
+        });
         this.events.emit(TELE_BOX_EVENT.Move, coord);
       }
     });
@@ -1754,6 +1810,10 @@ class TeleBox {
       },
       onEvent: (event) => {
         if (this._delegateEvents.listeners.length > 0) {
+          console.log("[TeleBox] Emit Delegate Event", {
+            boxId: this.id,
+            eventType: event.type
+          });
           this._delegateEvents.emit(event.type);
         } else {
           switch (event.type) {
@@ -2400,6 +2460,9 @@ class TeleBox {
   }
   destroy() {
     this.$box.remove();
+    console.log("[TeleBox] Emit Destroyed Event", {
+      boxId: this.id
+    });
     this.events.emit(TELE_BOX_EVENT.Destroyed);
     this._sideEffect.flushAll();
     this._renderSideEffect.flushAll();
@@ -3092,6 +3155,9 @@ class TeleBoxManager {
         (box) => box.setPrefersColorScheme(prefersColorScheme2, skipUpdate)
       );
       if (!skipUpdate) {
+        console.log("[TeleBox] Emit PrefersColorScheme Event", {
+          prefersColorScheme: prefersColorScheme2
+        });
         this.events.emit(
           TELE_BOX_MANAGER_EVENT.PrefersColorScheme,
           prefersColorScheme2
@@ -3107,6 +3173,9 @@ class TeleBoxManager {
         (box) => box.setDarkMode(darkMode, skipUpdate)
       );
       if (!skipUpdate) {
+        console.log("[TeleBox] Emit DarkMode Event", {
+          darkMode
+        });
         this.events.emit(TELE_BOX_MANAGER_EVENT.DarkMode, darkMode);
       }
     });
@@ -3158,6 +3227,9 @@ class TeleBoxManager {
       }
       this.makeBoxTopFromNotMinimized();
       if (!skipUpdate) {
+        console.log("[TeleBox] Emit AllBoxStatusInfo Event", {
+          allBoxStatusInfo: allBoxStatusInfo2
+        });
         this.events.emit(
           TELE_BOX_MANAGER_EVENT.AllBoxStatusInfo,
           allBoxStatusInfo2
@@ -3167,6 +3239,9 @@ class TeleBoxManager {
     this.lastLastNotMinimizedBoxsStatus$.reaction(
       (lastLastNotMinimizedBoxsStatus2, _, skipUpdate) => {
         if (!skipUpdate) {
+          console.log("[TeleBox] Emit LastLastNotMinimizedBoxsStatus Event", {
+            lastLastNotMinimizedBoxsStatus: lastLastNotMinimizedBoxsStatus2
+          });
           this.events.emit(
             TELE_BOX_MANAGER_EVENT.LastLastNotMinimizedBoxsStatus,
             lastLastNotMinimizedBoxsStatus2
@@ -3185,6 +3260,9 @@ class TeleBoxManager {
     state$.reaction((state, _, skipUpdate) => {
       this.maxTitleBar.setState(state);
       if (!skipUpdate) {
+        console.log("[TeleBox] Emit State Event", {
+          state
+        });
         this.events.emit(TELE_BOX_MANAGER_EVENT.State, state);
       }
     });
@@ -3241,16 +3319,28 @@ class TeleBoxManager {
                 false
               );
               if (lastLastNotMinimizedBoxsStatusBox === TELE_BOX_STATE.Minimized) {
+                console.log("[TeleBox] Emit BoxToMinimized Event", {
+                  boxId,
+                  allBoxStatusInfo: allBoxStatusInfo2
+                });
                 this.events.emit(
                   TELE_BOX_MANAGER_EVENT.BoxToMinimized,
                   { boxId, allBoxStatusInfo: allBoxStatusInfo2 }
                 );
               } else if (lastLastNotMinimizedBoxsStatusBox === TELE_BOX_STATE.Maximized) {
+                console.log("[TeleBox] Emit BoxToMaximized Event", {
+                  boxId,
+                  allBoxStatusInfo: allBoxStatusInfo2
+                });
                 this.events.emit(
                   TELE_BOX_MANAGER_EVENT.BoxToMaximized,
                   { boxId, allBoxStatusInfo: allBoxStatusInfo2 }
                 );
               } else if (lastLastNotMinimizedBoxsStatusBox === TELE_BOX_STATE.Normal) {
+                console.log("[TeleBox] Emit BoxToNormal Event", {
+                  boxId,
+                  allBoxStatusInfo: allBoxStatusInfo2
+                });
                 this.events.emit(
                   TELE_BOX_MANAGER_EVENT.BoxToNormal,
                   { boxId, allBoxStatusInfo: allBoxStatusInfo2 }
@@ -3376,6 +3466,10 @@ class TeleBoxManager {
                 box._zIndex$.setValue(((_d = this.topBox) == null ? void 0 : _d.zIndex) + 1, false);
               }
             }
+            console.log("[TeleBox] Emit BoxToMaximized Event", {
+              boxId: currentOptionBox.boxId,
+              allBoxStatusInfo: this.allBoxStatusInfo$.value || {}
+            });
             this.events.emit(
               TELE_BOX_MANAGER_EVENT.BoxToMaximized,
               {
@@ -3403,6 +3497,10 @@ class TeleBoxManager {
               });
               this.setAllBoxStatusInfo(allBoxStatusInfo2, false);
             }
+            console.log("[TeleBox] Emit BoxToMinimized Event", {
+              boxId: currentOptionBox.boxId,
+              allBoxStatusInfo: this.allBoxStatusInfo$.value || {}
+            });
             this.events.emit(
               TELE_BOX_MANAGER_EVENT.BoxToMinimized,
               {
@@ -3418,10 +3516,14 @@ class TeleBoxManager {
               currentOptionBox
             );
             this.changeBoxToClose(currentOptionBox.boxId);
-            this.events.emit(TELE_BOX_MANAGER_EVENT.Removed, {
-              boxId: currentOptionBox.boxId,
-              allBoxStatusInfo: this.allBoxStatusInfo$.value || {}
-            });
+            const removedBox = this.getBox(currentOptionBox.boxId);
+            if (removedBox) {
+              console.log("[TeleBox] Emit Removed Event", {
+                boxId: currentOptionBox.boxId,
+                allBoxStatusInfo: this.allBoxStatusInfo$.value || {}
+              });
+              this.events.emit(TELE_BOX_MANAGER_EVENT.Removed, [removedBox]);
+            }
             break;
           }
         }
@@ -3613,6 +3715,10 @@ class TeleBoxManager {
         }
       });
       this.setAllBoxStatusInfo(allBoxStatusInfo, false);
+      console.log("[TeleBox] Emit BoxToNormal Event", {
+        boxId: box.id,
+        allBoxStatusInfo: this.allBoxStatusInfo$.value || {}
+      });
       this.events.emit(TELE_BOX_MANAGER_EVENT.BoxToNormal, {
         boxId: box.id,
         allBoxStatusInfo: this.allBoxStatusInfo$.value || {}
@@ -3623,6 +3729,10 @@ class TeleBoxManager {
         boxId: box.id
       });
       this.changeBoxToMinimized(box.id);
+      console.log("[TeleBox] Emit BoxToMinimized Event", {
+        boxId: box.id,
+        allBoxStatusInfo: this.allBoxStatusInfo$.value || {}
+      });
       this.events.emit(TELE_BOX_MANAGER_EVENT.BoxToMinimized, {
         boxId: box.id,
         allBoxStatusInfo: this.allBoxStatusInfo$.value || {}
@@ -3634,6 +3744,10 @@ class TeleBoxManager {
       });
       this.changeBoxToClose(box.id);
       this.events.emit(TELE_BOX_MANAGER_EVENT.Removed, [box]);
+      console.log("[TeleBox] Emit BoxToNormal Event", {
+        boxId: box.id,
+        allBoxStatusInfo: this.allBoxStatusInfo$.value || {}
+      });
       this.events.emit(TELE_BOX_MANAGER_EVENT.BoxToNormal, {
         boxId: box.id,
         allBoxStatusInfo: this.allBoxStatusInfo$.value || {}
@@ -3641,26 +3755,31 @@ class TeleBoxManager {
     });
     box._coord$.reaction((_, __, skipUpdate) => {
       if (!skipUpdate) {
+        console.log("[TeleBox] Emit Move Event", { boxId: box.id });
         this.events.emit(TELE_BOX_MANAGER_EVENT.Move, box);
       }
     });
     box._size$.reaction((_, __, skipUpdate) => {
       if (!skipUpdate) {
+        console.log("[TeleBox] Emit Resize Event", { boxId: box.id });
         this.events.emit(TELE_BOX_MANAGER_EVENT.Resize, box);
       }
     });
     box._intrinsicCoord$.reaction((_, __, skipUpdate) => {
       if (!skipUpdate) {
+        console.log("[TeleBox] Emit IntrinsicMove Event", { boxId: box.id });
         this.events.emit(TELE_BOX_MANAGER_EVENT.IntrinsicMove, box);
       }
     });
     box._intrinsicSize$.reaction((_, __, skipUpdate) => {
       if (!skipUpdate) {
+        console.log("[TeleBox] Emit IntrinsicResize Event", { boxId: box.id });
         this.events.emit(TELE_BOX_MANAGER_EVENT.IntrinsicResize, box);
       }
     });
     box._visualSize$.reaction((_, __, skipUpdate) => {
       if (!skipUpdate) {
+        console.log("[TeleBox] Emit VisualResize Event", { boxId: box.id });
         this.events.emit(TELE_BOX_MANAGER_EVENT.VisualResize, box);
       }
     });
@@ -3679,6 +3798,7 @@ class TeleBoxManager {
         this.topBox$.setValue(topBox);
       }
       if (!skipUpdate) {
+        console.log("[TeleBox] Emit ZIndex Event", { boxId: box.id, zIndex: box.zIndex });
         this.events.emit(TELE_BOX_MANAGER_EVENT.ZIndex, box);
       }
       const list = this.boxes$.value.filter((item) => this.getMaximizedBoxes().includes(item.id)).sort((a, b) => b.zIndex - a.zIndex);
@@ -3686,6 +3806,7 @@ class TeleBoxManager {
         this.maxTitleBar.setIndexZ(list[0].zIndex + 1);
       }
     });
+    console.log("[TeleBox] Emit Created Event", { boxId: box.id });
     this.events.emit(TELE_BOX_MANAGER_EVENT.Created, box);
     return box;
   }
@@ -3758,6 +3879,7 @@ class TeleBoxManager {
         if (this.boxes.length <= 0) {
           this.setAllBoxStatusInfo({}, skipUpdate);
         }
+        console.log("[TeleBox] Emit Removed Event", { deletedBoxes: deletedBoxes.map((box) => box.id) });
         this.events.emit(TELE_BOX_MANAGER_EVENT.Removed, deletedBoxes);
       }
       return deletedBoxes[0];
@@ -3792,6 +3914,7 @@ class TeleBoxManager {
         "[TeleBox] RemoveAll - Emitting Removed Event",
         deletedBoxes
       );
+      console.log("[TeleBox] Emit Removed Event", { deletedBoxes: deletedBoxes.map((box) => box.id) });
       this.events.emit(TELE_BOX_MANAGER_EVENT.Removed, deletedBoxes);
     }
     return deletedBoxes;
@@ -3824,6 +3947,7 @@ class TeleBoxManager {
             targetBox.setFocus(true, skipUpdate);
           }
           if (focusChanged && !skipUpdate) {
+            console.log("[TeleBox] Emit Focused Event", { boxId: targetBox.id });
             this.events.emit(
               TELE_BOX_MANAGER_EVENT.Focused,
               targetBox
@@ -3869,6 +3993,7 @@ class TeleBoxManager {
       if (targetBox.focus) {
         targetBox.setFocus(false, skipUpdate);
         if (!skipUpdate) {
+          console.log("[TeleBox] Emit Blurred Event", { boxId: targetBox.id });
           this.events.emit(TELE_BOX_MANAGER_EVENT.Blurred, targetBox);
         }
       }
@@ -3882,6 +4007,7 @@ class TeleBoxManager {
       if (box.focus) {
         box.setFocus(false, skipUpdate);
         if (!skipUpdate) {
+          console.log("[TeleBox] Emit Blurred Event", { boxId: box.id });
           this.events.emit(TELE_BOX_MANAGER_EVENT.Blurred, box);
         }
       }
@@ -4078,6 +4204,7 @@ class TeleBoxManager {
       }
     }
     if (!skipUpdate) {
+      console.log("[TeleBox] Emit ZIndex Event", { boxId: topFocusBox.id, zIndex: topFocusBox.zIndex });
       this.events.emit(TELE_BOX_MANAGER_EVENT.ZIndex, topFocusBox);
     }
     const list = this.boxes$.value.filter((item) => this.getMaximizedBoxes().includes(item.id)).sort((a, b) => b.zIndex - a.zIndex);

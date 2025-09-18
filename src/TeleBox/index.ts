@@ -137,6 +137,10 @@ export class TeleBox {
         );
         prefersColorScheme$.reaction((prefersColorScheme, _, skipUpdate) => {
             if (!skipUpdate) {
+                console.log("[TeleBox] Emit PrefersColorScheme Event", {
+                    boxId: this.id,
+                    prefersColorScheme
+                });
                 this.events.emit(
                     TELE_BOX_EVENT.PrefersColorScheme,
                     prefersColorScheme
@@ -184,6 +188,10 @@ export class TeleBox {
 
         darkMode$.reaction((darkMode, _, skipUpdate) => {
             if (!skipUpdate) {
+                console.log("[TeleBox] Emit DarkMode Event", {
+                    boxId: this.id,
+                    darkMode
+                });
                 this.events.emit(TELE_BOX_EVENT.DarkMode, darkMode);
             }
         });
@@ -202,6 +210,9 @@ export class TeleBox {
         const visible$ = createVal(visible);
         visible$.reaction((visible, _, skipUpdate) => {
             if (!skipUpdate && !visible) {
+                console.log("[TeleBox] Emit Close Event", {
+                    boxId: this.id
+                });
                 this.events.emit(TELE_BOX_EVENT.Close);
             }
         });
@@ -209,6 +220,10 @@ export class TeleBox {
         const readonly$ = createVal(readonly);
         readonly$.reaction((readonly, _, skipUpdate) => {
             if (!skipUpdate) {
+                console.log("[TeleBox] Emit Readonly Event", {
+                    boxId: this.id,
+                    readonly
+                });
                 this.events.emit(TELE_BOX_EVENT.Readonly, readonly);
             }
         });
@@ -221,6 +236,10 @@ export class TeleBox {
         const zIndex$ = createVal(zIndex);
         zIndex$.reaction((zIndex, _, skipUpdate) => {
             if (!skipUpdate) {
+                console.log("[TeleBox] Emit ZIndex Event", {
+                    boxId: this.id,
+                    zIndex
+                });
                 this.events.emit(TELE_BOX_EVENT.ZIndex, zIndex);
             }
         });
@@ -228,6 +247,11 @@ export class TeleBox {
         const focus$ = createVal(focus);
         focus$.reaction((focus, _, skipUpdate) => {
             if (!skipUpdate) {
+                console.log("[TeleBox] Emit Focus/Blur Event", {
+                    boxId: this.id,
+                    focus,
+                    event: focus ? "Focus" : "Blur"
+                });
                 this.events.emit(
                     focus ? TELE_BOX_EVENT.Focus : TELE_BOX_EVENT.Blur
                 );
@@ -237,6 +261,10 @@ export class TeleBox {
         const minimized$ = createVal(minimized);
         minimized$.reaction((minimized, _, skipUpdate) => {
             if (!skipUpdate) {
+                console.log("[TeleBox] Emit Minimized Event", {
+                    boxId: this.id,
+                    minimized
+                });
                 this.events.emit(TELE_BOX_EVENT.Minimized, minimized);
             }
         });
@@ -244,6 +272,10 @@ export class TeleBox {
         const maximized$ = createVal(maximized);
         maximized$.reaction((maximized, _, skipUpdate) => {
             if (!skipUpdate) {
+                console.log("[TeleBox] Emit Maximized Event", {
+                    boxId: this.id,
+                    maximized
+                });
                 this.events.emit(TELE_BOX_EVENT.Maximized, maximized);
             }
         });
@@ -261,6 +293,10 @@ export class TeleBox {
         );
         state$.reaction((state, _, skipUpdate) => {
             if (!skipUpdate) {
+                console.log("[TeleBox] Emit State Event", {
+                    boxId: this.id,
+                    state
+                });
                 this.events.emit(TELE_BOX_EVENT.State, state);
             }
         });
@@ -291,6 +327,10 @@ export class TeleBox {
         });
         intrinsicSize$.reaction((size, _, skipUpdate) => {
             if (!skipUpdate) {
+                console.log("[TeleBox] Emit IntrinsicResize Event", {
+                    boxId: this.id,
+                    size
+                });
                 this.events.emit(TELE_BOX_EVENT.IntrinsicResize, size);
             }
         });
@@ -307,6 +347,10 @@ export class TeleBox {
         );
         size$.reaction((size, _, skipUpdate) => {
             if (!skipUpdate) {
+                console.log("[TeleBox] Emit Resize Event", {
+                    boxId: this.id,
+                    size
+                });
                 this.events.emit(TELE_BOX_EVENT.Resize, size);
             }
         });
@@ -332,6 +376,10 @@ export class TeleBox {
         );
         visualSize$.reaction((size, _, skipUpdate) => {
             if (!skipUpdate) {
+                console.log("[TeleBox] Emit VisualResize Event", {
+                    boxId: this.id,
+                    size
+                });
                 this.events.emit(TELE_BOX_EVENT.VisualResize, size);
             }
         });
@@ -342,6 +390,10 @@ export class TeleBox {
         );
         intrinsicCoord$.reaction((coord, _, skipUpdate) => {
             if (!skipUpdate) {
+                console.log("[TeleBox] Emit IntrinsicMove Event", {
+                    boxId: this.id,
+                    coord
+                });
                 this.events.emit(TELE_BOX_EVENT.IntrinsicMove, coord);
             }
         });
@@ -396,6 +448,10 @@ export class TeleBox {
         );
         coord$.reaction((coord, _, skipUpdate) => {
             if (!skipUpdate) {
+                console.log("[TeleBox] Emit Move Event", {
+                    boxId: this.id,
+                    coord
+                });
                 this.events.emit(TELE_BOX_EVENT.Move, coord);
             }
         });
@@ -410,6 +466,10 @@ export class TeleBox {
                 onDragStart: (event) => this._handleTrackStart?.(event),
                 onEvent: (event): void => {
                     if (this._delegateEvents.listeners.length > 0) {
+                        console.log("[TeleBox] Emit Delegate Event", {
+                            boxId: this.id,
+                            eventType: event.type
+                        });
                         this._delegateEvents.emit(event.type);
                     } else {
                         switch (event.type) {
@@ -1364,6 +1424,9 @@ export class TeleBox {
 
     public destroy(): void {
         this.$box.remove();
+        console.log("[TeleBox] Emit Destroyed Event", {
+            boxId: this.id
+        });
         this.events.emit(TELE_BOX_EVENT.Destroyed);
 
         this._sideEffect.flushAll();
