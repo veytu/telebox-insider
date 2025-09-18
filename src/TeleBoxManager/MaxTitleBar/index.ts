@@ -199,17 +199,12 @@ export class MaxTitleBar extends DefaultTitleBar {
         this.$titleBar?.classList.toggle(
             this.wrapClassName("max-titlebar-active"),
             maximizedBoxes.length > 0 &&
-                this.boxes.length > 0 &&
-                maximizedBoxes.filter(
-                    (boxId) => !minimizedBoxes.includes(boxId)
-                ).length > 0
+                this.boxes.length > 0
         );
         if (
             this.$titleBar &&
             maximizedBoxes.length > 0 &&
-            this.boxes.length > 0 &&
-            maximizedBoxes.filter((boxId) => !minimizedBoxes.includes(boxId))
-                .length > 0
+            this.boxes.length > 0
         ) {
             this.$titleBar.classList.toggle(
                 this.wrapClassName("max-titlebar-single-title"),

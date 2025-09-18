@@ -900,6 +900,7 @@ declare class TeleBoxManager {
     setAllBoxStatusInfo(allBoxStatusInfo: Record<string, TELE_BOX_STATE> | undefined, skipUpdate?: boolean): void;
     setLastLastNotMinimizedBoxsStatus(lastLastNotMinimizedBoxsStatus: Record<string, TELE_BOX_STATE> | undefined, skipUpdate?: boolean): void;
     getMaximizedBoxes(allBoxStatusInfo?: Record<string, TELE_BOX_STATE> | undefined): string[];
+    getNomalBoxes(allBoxStatusInfo?: Record<string, TELE_BOX_STATE> | undefined): string[];
     getMinimizedBoxes(allBoxStatusInfo?: Record<string, TELE_BOX_STATE> | undefined): string[];
     /** @deprecated use setMaximized and setMinimized instead */
     setState(state: TeleBoxState, skipUpdate?: boolean): this;

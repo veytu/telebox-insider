@@ -446,11 +446,11 @@ export class TeleBoxManager {
                             "[TeleBox] TitleBar Options Click To Maximize",
                             currentOptionBox
                         );
+                        const allBoxStatusInfo = {
+                            ...(this.allBoxStatusInfo$.value || {})
+                        };
                         if (currentOptionBox.hasFocus) {
                             //当前有获焦的box，则将当前box设置为最大化，如果当前的是最大化的则设置为normal
-                            const allBoxStatusInfo = {
-                                ...(this.allBoxStatusInfo$.value || {})
-                            };
                             allBoxStatusInfo[currentOptionBox.boxId] =
                                 TELE_BOX_STATE.Maximized ===
                                 allBoxStatusInfo[currentOptionBox.boxId]
@@ -459,9 +459,6 @@ export class TeleBoxManager {
                             this.setAllBoxStatusInfo(allBoxStatusInfo, false);
                         } else {
                             //如果当前没有获焦的box，则清除所有最大化状态
-                            const allBoxStatusInfo = {
-                                ...(this.allBoxStatusInfo$.value || {})
-                            };
                             Object.keys(allBoxStatusInfo).forEach((boxId) => {
                                 if (
                                     allBoxStatusInfo[boxId] ===
@@ -472,6 +469,12 @@ export class TeleBoxManager {
                                 }
                             });
                             this.setAllBoxStatusInfo(allBoxStatusInfo, false);
+                        }
+                        if(TELE_BOX_STATE.Normal === allBoxStatusInfo[currentOptionBox.boxId]){
+                            const box = this.boxes.find((box) => box.id === currentOptionBox.boxId)
+                            if(box){
+                                box._zIndex$.setValue(this.topBox?.zIndex + 1, false)
+                            }
                         }
                         this.events.emit(
                             TELE_BOX_MANAGER_EVENT.BoxToMaximized,
@@ -524,7 +527,7 @@ export class TeleBoxManager {
                         );
                         //内部有更新
                         this.changeBoxToClose(currentOptionBox.boxId);
-                        this.events.emit(TELE_BOX_MANAGER_EVENT.BoxToNormal, {
+                        this.events.emit(TELE_BOX_MANAGER_EVENT.Removed, {
                             boxId: currentOptionBox.boxId,
                             allBoxStatusInfo: this.allBoxStatusInfo$.value || {}
                         });
@@ -724,6 +727,19 @@ export class TeleBoxManager {
             .map(([boxId, _]) => boxId);
     }
 
+    public getNomalBoxes(
+        allBoxStatusInfo: Record<string, TELE_BOX_STATE> | undefined = this
+            .allBoxStatusInfo$.value
+    ): string[] {
+        allBoxStatusInfo = allBoxStatusInfo || {};
+        if (!allBoxStatusInfo || Object.keys(allBoxStatusInfo).length === 0) {
+            return [];
+        }
+        return Object.entries(allBoxStatusInfo)
+            .filter(([_, state]) => state === TELE_BOX_STATE.Normal)
+            .map(([boxId, _]) => boxId);
+    }
+
     public getMinimizedBoxes(
         allBoxStatusInfo: Record<string, TELE_BOX_STATE> | undefined = this
             .allBoxStatusInfo$.value
@@ -818,9 +834,10 @@ export class TeleBoxManager {
 
         this.boxes$.setValue([...this.boxes, box]);
 
-        if(!config.id){
+        if(!this.allBoxStatusInfo$.value?.[box.id]){
             console.log("[TeleBox] Create - Setting AllBoxStatusInfo for new box",box)
             this.setAllBoxStatusInfo({
+                ...this.allBoxStatusInfo$.value,
                 [box.id]: TELE_BOX_STATE.Normal
             });
         }
@@ -1159,9 +1176,10 @@ export class TeleBoxManager {
                 }
             }
             // todo 需分析下这里的逻辑，为什么需要设置focusBox.得是最大化的box才可以focus，
-            // if (this.maxTitleBar.focusedBox === targetBox) {
-                // this.maxTitleBar.focusBox()
-            // }
+            // 这里是为了当box中的焦点被blur时，需要将maxTitleBar的焦点也blur
+            if (this.maxTitleBar.focusedBox === targetBox) {
+                this.maxTitleBar.focusBox()
+            }
         }
     }
 
@@ -1341,30 +1359,53 @@ export class TeleBoxManager {
         );
         if (this.topBox) {
             if (box !== this.topBox) {
-                if (this.getMaximizedBoxes().includes(box.id)) {
-                    const newIndex = this.topBox.zIndex + 1;
-
-                    const normalBoxesIds = excludeFromBoth(
-                        this.boxes$.value.map((item) => item.id),
-                        this.getMaximizedBoxes(),
-                        this.getMinimizedBoxes()
-                    );
-                    const normalBoxes = this.boxes$.value.filter((box) =>
-                        normalBoxesIds.includes(box.id)
-                    );
-                    box._zIndex$.setValue(newIndex, skipUpdate);
-
-                    normalBoxes
-                        .sort((a, b) => a._zIndex$.value - b._zIndex$.value)
-                        .forEach((box, index) => {
-                            box._zIndex$.setValue(
-                                newIndex + 1 + index,
-                                skipUpdate
-                            );
-                        });
+                //现将最大化部分处理下,获取最大化的index
+                const masxStatus = this.getMaximizedBoxes()
+                const maxBoxes = this.boxes.filter((box) => masxStatus.includes(box.id))
+                let maxIndex = maxBoxes.reduce((maxBox, box) => {
+                    return maxBox.zIndex > box.zIndex ? maxBox : box;
+                }).zIndex
+                //默认的状态列表
+                const normalStatus = this.getNomalBoxes()
+                //如果当前box是最大化的，那么先设置index再更新nomal的，如果当前的是nomal的，获取nomal的更新
+                if (masxStatus.includes(box.id)) {
+                    const originMaxIndex = maxIndex;
+                    maxIndex = maxIndex + 1;
+                    box._zIndex$.setValue(maxIndex, skipUpdate);
+                    this.boxes.filter((box) => normalStatus.includes(box.id)).forEach((box) => {
+                        box._zIndex$.setValue(box.zIndex + (box.zIndex - originMaxIndex) + 1, skipUpdate);
+                    });
                 } else {
-                    box._zIndex$.setValue(this.topBox.zIndex + 1, skipUpdate);
+                    maxIndex = this.boxes.filter((box) => normalStatus.includes(box.id)).reduce((maxBox, box) => {
+                        return maxBox.zIndex > box.zIndex ? maxBox : box;
+                    }).zIndex
+                    box._zIndex$.setValue(maxIndex + 1, skipUpdate);
                 }
+
+
+                // if (this.getMaximizedBoxes().includes(box.id)) {
+
+                //     const normalBoxesIds = excludeFromBoth(
+                //         this.boxes$.value.map((item) => item.id),
+                //         this.getMaximizedBoxes(),
+                //         this.getMinimizedBoxes()
+                //     );
+                //     const normalBoxes = this.boxes$.value.filter((box) =>
+                //         normalBoxesIds.includes(box.id)
+                //     );
+                //     let newIndex = this.topBox.zIndex + 1;
+                //     let maxIndex = newIndex;
+                //     normalBoxes
+                //         .sort((a, b) => a._zIndex$.value - b._zIndex$.value)
+                //         .forEach((box, index) => {
+                //             newIndex = newIndex + 1 + index;
+                //             box._zIndex$.setValue(newIndex,skipUpdate);
+                //             maxIndex = newIndex + 1;
+                //         });
+                //     box._zIndex$.setValue(maxIndex, skipUpdate);
+                // } else {
+                //     box._zIndex$.setValue(Math.max(this.topBox.zIndex + 1, box.zIndex) + 1, skipUpdate);
+                // }
             }
         }
     }
@@ -1462,6 +1503,13 @@ export class TeleBoxManager {
                     this.maxTitleBar.focusBox(maxIndexBox);
                 }
             }
+        }
+
+        const list = this.boxes$.value
+            .filter((item) => this.getMaximizedBoxes().includes(item.id))
+            .sort((a, b) => b.zIndex - a.zIndex);
+        if (list && list.length > 0) {
+            this.maxTitleBar.setIndexZ(list[0].zIndex + 1);
         }
 
         const result = !!maxIndexBox;
