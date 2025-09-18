@@ -3555,8 +3555,7 @@ class TeleBoxManager {
     const currentMinimizedBoxes = this.getMinimizedBoxes();
     const isMaximized = currentMaximizedBoxes.includes(id);
     const isMinimized = currentMinimizedBoxes.includes(id);
-    const managerMaximized$ = currentMaximizedBoxes.includes(id) || currentMaximizedBoxes.length > 0 && config.maximized !== false;
-    const managerMinimized$ = currentMinimizedBoxes.includes(id) || config.minimized === true;
+    console.log("[TeleBox] Create Box Current State", id, isMaximized, isMinimized);
     const box = new TeleBox({
       zIndex: this.topBox ? this.topBox.zIndex + 1 : 100,
       ...smartPosition ? this.smartPosition(config) : config,
@@ -3590,35 +3589,25 @@ class TeleBoxManager {
       }
     }
     this.boxes$.setValue([...this.boxes, box]);
-    const allBoxStatusInfo = { ...this.allBoxStatusInfo$.value || {} };
-    if (managerMaximized$) {
-      allBoxStatusInfo[id] = TELE_BOX_STATE.Maximized;
-    } else if (managerMinimized$) {
-      allBoxStatusInfo[id] = TELE_BOX_STATE.Minimized;
-    } else {
-      allBoxStatusInfo[id] = TELE_BOX_STATE.Normal;
+    if (!config.id) {
+      console.log("[TeleBox] Create - Setting AllBoxStatusInfo for new box", box);
+      this.setAllBoxStatusInfo({
+        [box.id]: TELE_BOX_STATE.Normal
+      });
     }
-    console.log("[TeleBox] Create - Setting AllBoxStatusInfo for new box", {
-      boxId: id,
-      managerMaximized$,
-      managerMinimized$,
-      newState: allBoxStatusInfo[id],
-      allBoxStatusInfo
-    });
-    this.setAllBoxStatusInfo(allBoxStatusInfo);
     box._delegateEvents.on(TELE_BOX_DELEGATE_EVENT.Maximize, () => {
       console.log("[TeleBox] TitleBar Maximize From Box Event", {
         boxId: box.id
       });
-      const allBoxStatusInfo2 = this.cleanAllBoxStatusInfo(
+      const allBoxStatusInfo = this.cleanAllBoxStatusInfo(
         this.allBoxStatusInfo$.value
       );
-      Object.entries(allBoxStatusInfo2).forEach(([boxId, state]) => {
+      Object.entries(allBoxStatusInfo).forEach(([boxId, state]) => {
         if (state !== TELE_BOX_STATE.Minimized) {
-          allBoxStatusInfo2[boxId] = TELE_BOX_STATE.Maximized;
+          allBoxStatusInfo[boxId] = TELE_BOX_STATE.Maximized;
         }
       });
-      this.setAllBoxStatusInfo(allBoxStatusInfo2, false);
+      this.setAllBoxStatusInfo(allBoxStatusInfo, false);
       this.events.emit(TELE_BOX_MANAGER_EVENT.BoxToNormal, {
         boxId: box.id,
         allBoxStatusInfo: this.allBoxStatusInfo$.value || {}
