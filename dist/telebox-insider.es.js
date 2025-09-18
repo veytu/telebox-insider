@@ -3700,7 +3700,7 @@ class TeleBoxManager {
       this.setAllBoxStatusInfo({
         ...this.allBoxStatusInfo$.value,
         [box.id]: TELE_BOX_STATE.Normal
-      });
+      }, this.appReadonly);
     }
     box._delegateEvents.on(TELE_BOX_DELEGATE_EVENT.Maximize, () => {
       console.log("[TeleBox] TitleBar Maximize From Box Event", {
@@ -3824,6 +3824,8 @@ class TeleBoxManager {
     );
   }
   changeBoxToClose(boxId) {
+    var _a;
+    (_a = this.getBox(boxId)) == null ? void 0 : _a._zIndex$.setValue(0, false);
     this.remove(boxId, false);
     const lastLastNotMinimizedBoxsStatus = {
       ...this.lastLastNotMinimizedBoxsStatus$.value
