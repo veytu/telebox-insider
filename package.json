@@ -1,6 +1,6 @@
 {
     "name": "@netless/telebox-insider",
-    "version": "0.2.32-wukongBeta.7",
+    "version": "0.2.32-wukongBeta.8",
     "description": "Window widget for Whiteboard",
     "author": "CRIMX <straybugs@gmail.com> (https://github.com/crimx/)",
     "license": "MIT",
@@ -14,6 +14,9 @@
         "dist",
         "src"
     ],
+    "publishConfig": {
+        "registry": "https://packages.aliyun.com/68cbe28edec569489f6d65a5/npm/veytu/"
+    },
     "scripts": {
         "build": "vite build && pnpm run types",
         "build-storybook": "build-storybook && node scripts/move-storybook.js",
