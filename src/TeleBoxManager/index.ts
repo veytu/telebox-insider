@@ -1031,7 +1031,6 @@ export class TeleBoxManager {
 
     //修改box为删除关闭
     private changeBoxToClose(boxId: string): void {
-        this.getBox(boxId)?._zIndex$.setValue(0, false);
         this.remove(boxId, false);
         //更新lastLastNotMinimizedBoxsStatus
         const lastLastNotMinimizedBoxsStatus = {

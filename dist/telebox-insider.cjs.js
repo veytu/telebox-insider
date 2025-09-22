@@ -3826,8 +3826,6 @@ class TeleBoxManager {
     );
   }
   changeBoxToClose(boxId) {
-    var _a;
-    (_a = this.getBox(boxId)) == null ? void 0 : _a._zIndex$.setValue(0, false);
     this.remove(boxId, false);
     const lastLastNotMinimizedBoxsStatus = {
       ...this.lastLastNotMinimizedBoxsStatus$.value
