@@ -1,6 +1,8 @@
 import "./style.scss";
 import collectorSVG from "./icons/collector.svg";
 import { TeleStyles } from "../typings";
+import { TeleBoxState } from "../TeleBox/typings";
+import { TELE_BOX_STATE } from "../TeleBox/constants";
 
 export interface TeleBoxCollectorConfig {
     visible?: boolean;
@@ -9,9 +11,11 @@ export interface TeleBoxCollectorConfig {
     namespace?: string;
     styles?: TeleStyles;
     onClick?: () => void;
+    getBoxesStatus?: () => Map<string, TeleBoxState>;
 }
 
 export class TeleBoxCollector {
+    public getBoxesStatus?: () => Map<string, TeleBoxState>;
     public constructor({
         visible = true,
         readonly = false,
@@ -19,13 +23,19 @@ export class TeleBoxCollector {
         namespace = "telebox",
         styles = {},
         onClick,
-    }: TeleBoxCollectorConfig = {}) {
+        getBoxesStatus
+    }: TeleBoxCollectorConfig) {
         this._visible = visible;
         this._readonly = readonly;
         this._darkMode = darkMode;
         this.namespace = namespace;
         this.styles = styles;
         this.onClick = onClick;
+        this.getBoxesStatus = getBoxesStatus;
+    }
+
+    get boxesStatus(): Map<string, TeleBoxState> | undefined {
+        return this.getBoxesStatus?.();
     }
 
     public readonly styles: TeleStyles;
@@ -48,6 +58,9 @@ export class TeleBoxCollector {
 
     public $collector: HTMLElement | undefined;
 
+    public $appMenuContainer: HTMLDivElement = document.createElement('div');
+
+
     /**
      * Mount collector to a root element.
      */
@@ -64,6 +77,23 @@ export class TeleBoxCollector {
             this.$collector.remove();
         }
         return this;
+    }
+
+    private hasMinimizedBox(): boolean {
+        const boxesStatus = this.boxesStatus;
+        if (boxesStatus) {
+           for (const status of boxesStatus.values()) {
+                if (status === TELE_BOX_STATE.Minimized) {
+                    return true;
+                }
+           }
+        }
+        return false;
+    }
+
+    public updateBoxesStatus(): void {
+        const hasMinimizedBox = this.hasMinimizedBox();
+        this.setVisible(hasMinimizedBox);
     }
 
     public setVisible(visible: boolean): this {
@@ -151,6 +181,9 @@ export class TeleBoxCollector {
                 )
             );
 
+            this.$appMenuContainer.classList.add(this.wrapClassName("collector-shadow"));
+            this.$collector.append(this.$appMenuContainer);
+
             this.setStyles(this.styles);
         }
 
@@ -184,4 +217,5 @@ export class TeleBoxCollector {
             this.onClick();
         }
     };
+
 }

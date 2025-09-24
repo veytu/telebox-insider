@@ -1,5 +1,5 @@
-@import "../../scss/variables.scss";
-@import "../../scss/mixins.scss";
+@use "../../scss/variables" as *;
+@use "../../scss/mixins" as *;
 
 $scrollbar-size: 8px;
 $scrollbar-ff-width: auto; // FF-only accepts auto, thin, none
@@ -16,7 +16,7 @@ $scrollbar-color-active: rgba(238, 238, 247, 1);
     position: absolute;
     top: 0;
     left: 0;
-    z-index: $base-z-index * 500;
+    z-index: $base-z-index * 10;
 
     .#{$namespace}-title {
         display: none;

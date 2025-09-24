@@ -1,5 +1,5 @@
-@import "../scss/variables.scss";
-@import "../scss/mixins.scss";
+@use "../scss/variables" as *;
+@use "../scss/mixins" as *;
 
 .#{$namespace}-collector {
     @include no-user-select;
@@ -7,7 +7,7 @@
     visibility: hidden;
     display: block;
     position: absolute;
-    z-index: $base-z-index * 2;
+    z-index: $base-z-index * 10;
     width: 40px;
     height: 40px;
     margin: 0;
@@ -42,4 +42,14 @@
     &.#{$namespace}-collector {
         background-color: #43434d;
     }
+}
+
+.#{$namespace}-collector-shadow {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    pointer-events: none;
 }

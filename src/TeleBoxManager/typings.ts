@@ -20,6 +20,8 @@ export interface TeleBoxManagerConfig
     root?: HTMLElement;
     /** Where the minimized boxes go. */
     collector?: TeleBoxCollector;
+    /** Whether to use boxes status. */
+    useBoxesStatus?: boolean;
 }
 
 type TeleBoxManagerBoxConfigBaseProps =

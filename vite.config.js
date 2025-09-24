@@ -17,5 +17,12 @@ export default ({ command, mode }) => {
             },
             minify: false,
         },
+        css: {
+            preprocessorOptions: {
+                scss: {
+                    silenceDeprecations: ['legacy-js-api']
+                }
+            }
+        }
     };
 };

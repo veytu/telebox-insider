@@ -42,6 +42,7 @@ const manager = new TeleBoxManager({
     fence: false,
     root: board,
     containerRect: getBoardRect(),
+    useBoxesStatus: true,
     collector: new TeleBoxCollector({
         styles: {
             position: "absolute",
@@ -54,11 +55,27 @@ const manager = new TeleBoxManager({
 (window as any).manager = manager;
 
 manager.events.on(TELE_BOX_MANAGER_EVENT.ZIndex, (box) => {
-    console.log("zIndex====>zIndex", box.id, box.zIndex);
+    console.log("events====>zIndex", box.id, box.zIndex);
 });
 
 manager.events.on(TELE_BOX_MANAGER_EVENT.BoxStatus, (box) => {
-    console.log("zIndex====>BoxStatus", box);
+    console.log("events====>BoxStatus", box);
+});
+
+manager.events.on(TELE_BOX_MANAGER_EVENT.LastNotMinimizedBoxStatus, (box) => {
+    console.log("events====>LastNotMinimizedBoxStatus", box);
+});
+
+manager.events.on(TELE_BOX_MANAGER_EVENT.Focused, (box) => {
+    console.log("events====>Focused==>Focused", box?.id, box?.zIndex);
+});
+
+manager.events.on(TELE_BOX_MANAGER_EVENT.Blurred, (box) => {
+    console.log("events====>Focused==>Blurred", box?.id, box?.zIndex);
+});
+
+manager.events.on(TELE_BOX_MANAGER_EVENT.Removed, (box) => {
+    console.log("events====>Removed", box);
 });
 
 createBtn("Create").addEventListener("click", () => {
@@ -68,17 +85,18 @@ createBtn("Create").addEventListener("click", () => {
     const content = document.createElement("div");
     content.className = "content";
     content.textContent = `Content ${title}`;
-    manager.create({
+    const box = manager.create({
         minHeight: 0.1,
         minWidth: 0.1,
         title: title.slice(0, 50),
-        focus: true,
+        // focus: true,
         content,
-        // boxStatus: TELE_BOX_STATE.Normal,
+        boxStatus: TELE_BOX_STATE.Normal,
     });
     if (manager.minimized) {
         manager.setMinimized(false);
     }
+    manager.focusBox(box.id, false);
 });
 
 createBtn("Remove").addEventListener("click", () => {

@@ -12,11 +12,11 @@ export interface MaxTitleBarConfig extends DefaultTitleBarConfig {
     boxes: MaxTitleBarTeleBox[];
     containerRect: TeleBoxRect;
     focusedBox?: MaxTitleBarTeleBox;
-    boxesStatus?: Map<string, TeleBoxState>;
+    getBoxesStatus?: () => Map<string, TeleBoxState>;
 }
 
 export class MaxTitleBar extends DefaultTitleBar {
-    public boxesStatus?: Map<string, TeleBoxState>;
+    public getBoxesStatus?: () => Map<string, TeleBoxState>;
     public constructor(config: MaxTitleBarConfig) {
         super(config);
 
@@ -24,22 +24,31 @@ export class MaxTitleBar extends DefaultTitleBar {
         this.focusedBox = config.focusedBox;
         this.containerRect = config.containerRect;
         this.darkMode = config.darkMode;
-        this.boxesStatus = config.boxesStatus;
+        this.getBoxesStatus = config.getBoxesStatus;
     }
 
+    get boxesStatus(): Map<string, TeleBoxState> | undefined {
+        return this.getBoxesStatus?.();
+    }
     public hasMaximizedBoxInStatus(): boolean {
-        if (!this.boxesStatus || this.boxesStatus.size === 0) {
-            return false
+        if (this.getBoxesStatus) {
+            const boxesStatus = this.getBoxesStatus();
+            if (boxesStatus.size) {
+                const hasMaximizedBox = [...boxesStatus.values()].find((state) => state === TELE_BOX_STATE.Maximized);
+                return !!hasMaximizedBox;
+            }
         }
-        const hasMaximizedBox = [...this.boxesStatus.values()].find((state) => state === TELE_BOX_STATE.Maximized);
-        return !!hasMaximizedBox;
+        return false;
     }
 
     public get MaximizedBoxes(): MaxTitleBarTeleBox[] {
-        if (!this.boxesStatus || this.boxesStatus.size === 0) {
-            return [];
+        if (this.getBoxesStatus) {
+            const boxesStatus = this.getBoxesStatus();
+            if (boxesStatus) {
+                return this.boxes.filter((box) => boxesStatus && boxesStatus.get(box.id) === TELE_BOX_STATE.Maximized);
+            }
         }
-        return this.boxes.filter((box) => this.boxesStatus && this.boxesStatus.get(box.id) === TELE_BOX_STATE.Maximized);
+        return [];
     }
 
     /**
@@ -103,8 +112,7 @@ export class MaxTitleBar extends DefaultTitleBar {
         }
     }
 
-    public setBoxesStatus(boxesStatus: Map<string, TeleBoxState>): void {
-        this.boxesStatus = boxesStatus;
+    public updateBoxesStatus(): void {
         if (this.hasMaximizedBoxInStatus()) {
             this.setBoxStatus(TELE_BOX_STATE.Maximized);
         }
