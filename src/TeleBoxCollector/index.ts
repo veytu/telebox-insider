@@ -156,7 +156,7 @@ export class TeleBoxCollector {
     public render(): HTMLElement {
         if (!this.$collector) {
             this.$collector = document.createElement("button");
-            this.$collector.className = this.wrapClassName("collector");
+            this.$collector.className = this.wrapClassName("collector wk-mini-button");
             this.$collector.style.backgroundImage = `url('${collectorSVG}')`;
             this.$collector.addEventListener(
                 "click",

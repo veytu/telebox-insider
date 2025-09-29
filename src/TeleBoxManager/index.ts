@@ -31,6 +31,7 @@ import {
     withValueEnhancer,
 } from "value-enhancer";
 import { AppMenu } from "../AppMenu";
+import { CustomAppMenu, CustomTeleBox } from "../wkCustom";
 
 export * from "./typings";
 export * from "./constants";
@@ -104,6 +105,11 @@ export class TeleBoxManager {
                 return topBox;
             }
             return;
+        });
+        this.topBox$.reaction((topBox) => {
+            this.boxes.forEach((box) => {
+                (box as CustomTeleBox).renderTopBox(topBox === box);
+            });
         });
         this.boxesStatus$ = new Map<string, TeleBoxState>();
         this.lastNotMinimizedBoxesStatus$ = new Map<string, NotMinimizedBoxState>();
@@ -836,7 +842,7 @@ export class TeleBoxManager {
         config: TeleBoxManagerCreateConfig = {},
         smartPosition = true
     ): ReadonlyTeleBox {
-        const box = new TeleBox({
+        const box = new CustomTeleBox({
             zIndex: this.getMaxNormalBoxZIndex() + 1,
             ...(smartPosition ? this.smartPosition(config) : config),
             darkMode: this.darkMode,
@@ -1326,7 +1332,7 @@ export class TeleBoxManager {
 
     public createMinimizedAppMenu():AppMenu | undefined {
         if (this.collector?.$appMenuContainer) {
-            return new AppMenu({
+            return new CustomAppMenu({
                 manager: this,
                 container: this.collector?.$appMenuContainer,
                 theme: this.prefersColorScheme ? 'dark' : 'light',

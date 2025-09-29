@@ -15,7 +15,7 @@ export class AppMenu {
   private readonly namespace: string = 'telebox-app-menu';
   private container: HTMLDivElement;
   private readonly badge: HTMLDivElement = document.createElement('div');
-  private readonly menuView: HTMLDivElement = document.createElement('div');
+  protected readonly menuView: HTMLDivElement = document.createElement('div');
   private readonly manager: TeleBoxManager;
   private theme: TeleBoxColorScheme;
   private getBoxesStatus?: () => Map<string, TeleBoxState>;

@@ -1,5 +1,6 @@
 @use "../scss/variables" as *;
 @use "../scss/mixins" as *;
+@use "../wkCustom/styleMini" as *;
 
 .#{$namespace}-collector {
     @include no-user-select;

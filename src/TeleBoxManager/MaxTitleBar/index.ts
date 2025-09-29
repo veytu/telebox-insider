@@ -181,6 +181,7 @@ export class MaxTitleBar extends DefaultTitleBar {
         $titleBar.style.width = width + "px";
 
         $titleBar.classList.add(this.wrapClassName("max-titlebar"));
+        $titleBar.classList.add("wk-max-titlebar");
         $titleBar.classList.toggle(
             this.wrapClassName("max-titlebar-maximized"),
             this.state === TELE_BOX_STATE.Maximized && this.boxes.length > 0

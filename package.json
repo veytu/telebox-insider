@@ -1,7 +1,6 @@
 {
   "name": "@netless/telebox-insider",
-  "version": "0.3.0-beta.10",
-  "private": false,
+  "version": "0.3.0-beta.10-wukongBeta.0",
   "description": "Window widget for Whiteboard",
   "author": "CRIMX <straybugs@gmail.com> (https://github.com/crimx/)",
   "license": "MIT",
@@ -15,6 +14,9 @@
     "dist",
     "src"
   ],
+  "publishConfig": {
+    "registry": "https://packages.aliyun.com/68cbe28edec569489f6d65a5/npm/veytu/"
+  },
   "scripts": {
     "build": "vite build && yarn run types",
     "build-storybook": "build-storybook && node scripts/move-storybook.js",
@@ -58,8 +60,6 @@
     "eslint-plugin-react": "^7.20.6",
     "eslint-plugin-react-app": "^6.2.2",
     "eventemitter3": "^4.0.7",
-    "shallowequal": "^1.1.0",
-    "stylefire": "^7.0.3",
     "faker": "^5.4.0",
     "fork-ts-checker-webpack-plugin": "^6.0.4",
     "lint-staged": "^10.5.4",
@@ -71,7 +71,9 @@
     "rimraf": "^3.0.0",
     "sass": "^1.77.0",
     "sass-loader": "^10.1.1",
+    "shallowequal": "^1.1.0",
     "side-effect-manager": "0.1.5",
+    "stylefire": "^7.0.3",
     "typescript": "^4.9.5",
     "value-enhancer": "^0.0.8",
     "vite": "^2.4.4"
